@@ -1,0 +1,52 @@
+<mat-card class="fashion-card">
+
+  <div class="image-container">
+
+    <img
+      [src]="product().image"
+      [alt]="product().name"
+    />
+
+    <button class="wishlist-btn">
+
+      <mat-icon>
+        favorite_border
+      </mat-icon>
+
+    </button>
+
+    <div class="discount-badge">
+      {{ product().discount }}
+    </div>
+
+  </div>
+
+  <div class="fashion-content">
+
+    <p class="brand">
+      {{ product().brand }}
+    </p>
+
+    <h3>
+      {{ product().name }}
+    </h3>
+
+    <div class="price-section">
+
+      <span class="price">
+        ₹{{ product().price }}
+      </span>
+
+      <span class="original-price">
+        ₹{{ product().originalPrice }}
+      </span>
+
+    </div>
+
+    <button mat-raised-button>
+      Add to Cart
+    </button>
+
+  </div>
+
+</mat-card>

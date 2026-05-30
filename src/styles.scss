@@ -1,0 +1,32 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background: #f1f3f6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.logo1 {
+  width: 120px;
+  height: auto;
+}
+
+@media (max-width: 768px){
+
+  .logo1{
+    width: 90px;
+  }
+
+}
+
+@media (max-width: 480px){
+
+  .logo{
+    width: 70px;
+  }
+
+}

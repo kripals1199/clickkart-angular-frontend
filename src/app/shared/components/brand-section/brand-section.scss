@@ -1,0 +1,33 @@
+.brand-section {
+  padding: 20px;
+}
+
+.brand-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(140px, 1fr));
+
+  gap: 16px;
+
+  margin-top: 20px;
+}
+
+.brand-card {
+  background: white;
+  padding: 30px 20px;
+
+  text-align: center;
+
+  border-radius: 12px;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.brand-card:hover {
+  transform: translateY(-6px);
+}

@@ -1,0 +1,151 @@
+<!-- <mat-toolbar class="navbar">
+
+  <div class="logo-section">
+
+    <div class="logo">
+      ClickKart
+    </div>
+
+  </div>
+
+  <div class="search-container">
+
+    <input
+      matInput
+      type="text"
+      placeholder="Search for products, brands and more"
+      [ngModel]="search()"
+    />
+
+    <button mat-icon-button>
+      <mat-icon>
+        search
+      </mat-icon>
+    </button>
+
+  </div>
+
+  <div class="menu-section">
+
+    <button
+      mat-button
+      routerLink="/login"
+    >
+      Login
+    </button>
+
+    <button mat-button>
+      Become a Seller
+    </button>
+
+    <button
+      mat-icon-button
+      matBadge="2"
+      matBadgeColor="warn"
+    >
+      <mat-icon>
+        shopping_cart
+      </mat-icon>
+    </button>
+
+  </div>
+
+</mat-toolbar> -->
+
+<mat-toolbar class="navbar">
+
+  <!-- MOBILE MENU BUTTON -->
+
+  <button
+    mat-icon-button
+    class="mobile-menu-btn"
+    (click)="toggleMobileMenu()"
+  >
+    <mat-icon>
+      menu
+    </mat-icon>
+  </button>
+
+  <!-- LOGO -->
+
+  <div
+    class="logo"
+    routerLink="/"
+  >
+    <!-- ClickKart -->
+    <img src="images/clickkart.png" class="logo1" alt="ClickKart Logo" />
+   
+  </div>
+
+  <!-- SEARCH -->
+
+  <div class="search-container">
+
+    <input
+      matInput
+      type="text"
+      placeholder="Search for products, brands and more"
+      [ngModel]="search()"
+    />
+
+    <button mat-icon-button>
+      <mat-icon>
+        search
+      </mat-icon>
+    </button>
+
+  </div>
+
+  <!-- DESKTOP MENU -->
+
+  <div class="desktop-menu">
+
+    <button
+      mat-button
+      routerLink="/login"
+    >
+      Login
+    </button>
+
+    <button mat-button>
+      Seller
+    </button>
+
+    <button
+      mat-icon-button
+      matBadge="2"
+      matBadgeColor="warn"
+    >
+      <mat-icon>
+        shopping_cart
+      </mat-icon>
+    </button>
+
+  </div>
+
+</mat-toolbar>
+
+<!-- MOBILE MENU -->
+
+@if (mobileMenuOpen()) {
+
+  <div class="mobile-menu">
+
+    <button
+      mat-button
+      routerLink="/login"
+    >
+      Login
+    </button>
+
+    <button mat-button>
+      Become Seller
+    </button>
+
+    <button mat-button>
+      Cart
+    </button>
+
+  </div>
+
+}

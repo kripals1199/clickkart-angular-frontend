@@ -2,28 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
-import { environment } from '../../../environments/environment';
-import { ApiResponse } from '../models/api-response';
-
-export interface AuthTokens {
-  accessToken: string;
-  refreshToken: string;
-}
-
-export interface RegisterRequest {
-  email: string;
-  /** Indian 10-digit, first digit 6-9. The backend rejects anything else. */
-  mobileNumber: string;
-  password: string;
-  captchaChallengeId: string;
-  captchaAnswer: string;
-}
-
-export interface SessionUser {
-  userId: string;
-  email: string;
-  roles: string[];
-}
+import { environment } from '@env/environment';
+import { AuthTokens, RegisterRequest, SessionUser } from '@core/models/auth.model';
+import { ApiResponse } from '@core/models/api-response';
 
 const ACCESS_TOKEN_KEY = 'clickkart.accessToken';
 const REFRESH_TOKEN_KEY = 'clickkart.refreshToken';

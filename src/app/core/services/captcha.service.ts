@@ -2,15 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { environment } from '../../../environments/environment';
-import { ApiResponse } from '../models/api-response';
-
-export interface CaptchaChallenge {
-  challengeId: string;
-  /** A PNG, already base64-encoded. Render with `data:image/png;base64,`. */
-  imageBase64: string;
-  expiresInSeconds: number;
-}
+import { environment } from '@env/environment';
+import { CaptchaChallenge } from '@core/models/captcha.model';
+import { ApiResponse } from '@core/models/api-response';
 
 /**
  * The platform hosts its own CAPTCHA rather than calling a third party, so this is an ordinary

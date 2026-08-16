@@ -13,12 +13,12 @@
 
 import { Component, signal } from '@angular/core';
 
-import { Navbar } from '../../../../layout/navbar/navbar';
-import { HeroBanner } from '../../../../shared/components/hero-banner/hero-banner';
-import { CategorySection } from '../../../../shared/components/category-section/category-section';
-import { ProductCard } from '../../../../shared/components/product-card/product-card';
-import { Footer } from '../../../../layout/footer/footer';
-import { BrandSection } from '../../../../shared/components/brand-section/brand-section';
+import { Navbar } from '@layout/navbar/navbar';
+import { HeroBanner } from '@shared/components/hero-banner/hero-banner';
+import { CategorySection } from '@shared/components/category-section/category-section';
+import { ProductCard } from '@shared/components/product-card/product-card';
+import { Footer } from '@layout/footer/footer';
+import { BrandSection } from '@shared/components/brand-section/brand-section';
 
 @Component({
   selector: 'app-home',

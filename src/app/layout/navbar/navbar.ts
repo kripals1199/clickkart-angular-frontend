@@ -16,7 +16,7 @@ import {
 
 import { Router, RouterLink } from '@angular/router';
 
-import { AuthService } from '../../core/services/auth.service';
+import { AuthService } from '@core/services/auth.service';
 
 import { FormsModule } from '@angular/forms';
 

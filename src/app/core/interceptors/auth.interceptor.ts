@@ -3,7 +3,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '@core/services/auth.service';
 
 /**
  * Attaches the bearer token to every call that leaves the app, and signs the user out when the

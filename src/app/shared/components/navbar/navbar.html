@@ -100,12 +100,34 @@
 
   <div class="desktop-menu">
 
-    <button
-      mat-button
-      routerLink="/login"
-    >
-      Login
-    </button>
+    @if (isAuthenticated()) {
+
+      <span class="account-email">{{ currentUser()?.email }}</span>
+
+      <button
+        mat-button
+        (click)="logout()"
+      >
+        Logout
+      </button>
+
+    } @else {
+
+      <button
+        mat-button
+        routerLink="/login"
+      >
+        Login
+      </button>
+
+      <button
+        mat-button
+        routerLink="/register"
+      >
+        Sign up
+      </button>
+
+    }
 
     <button mat-button>
       Seller
@@ -131,12 +153,34 @@
 
   <div class="mobile-menu">
 
-    <button
-      mat-button
-      routerLink="/login"
-    >
-      Login
-    </button>
+    @if (isAuthenticated()) {
+
+      <button
+        mat-button
+        (click)="logout()"
+      >
+        Logout
+      </button>
+
+    } @else {
+
+      <button
+        mat-button
+        routerLink="/login"
+        (click)="toggleMobileMenu()"
+      >
+        Login
+      </button>
+
+      <button
+        mat-button
+        routerLink="/register"
+        (click)="toggleMobileMenu()"
+      >
+        Sign up
+      </button>
+
+    }
 
     <button mat-button>
       Become Seller

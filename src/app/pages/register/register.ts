@@ -28,6 +28,11 @@ export class Register {
   readonly captchaFailed = signal(false);
   readonly submitting = signal(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly showPassword = signal(false);
+
+  togglePassword(): void {
+    this.showPassword.update((shown) => !shown);
+  }
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],

@@ -10,6 +10,15 @@ export interface AuthTokens {
   refreshToken: string;
 }
 
+export interface RegisterRequest {
+  email: string;
+  /** Indian 10-digit, first digit 6-9. The backend rejects anything else. */
+  mobileNumber: string;
+  password: string;
+  captchaChallengeId: string;
+  captchaAnswer: string;
+}
+
 export interface SessionUser {
   userId: string;
   email: string;
@@ -55,6 +64,16 @@ export class AuthService {
 
   hasRole(role: string): boolean {
     return this.roles().includes(role.startsWith('ROLE_') ? role : `ROLE_${role}`);
+  }
+
+  /**
+   * Registration returns the same token pair as login, so a successful sign-up leaves the user
+   * signed in rather than bouncing them to a login form to retype what they just typed.
+   */
+  register(request: RegisterRequest): Observable<ApiResponse<AuthTokens>> {
+    return this.http
+      .post<ApiResponse<AuthTokens>>(`${this.baseUrl}/register`, request)
+      .pipe(tap((res) => res.data && this.store(res.data)));
   }
 
   login(email: string, password: string): Observable<ApiResponse<AuthTokens>> {

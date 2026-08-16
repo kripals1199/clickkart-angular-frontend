@@ -8,6 +8,12 @@ export const routes: Routes = [
                 .then(m => m.Home)
     },
     {
+        path: 'register',
+        loadComponent: () =>
+            import('./pages/register/register')
+                .then(m => m.Register)
+    },
+    {
         path: '**',
         redirectTo: ''
     }

@@ -2,8 +2,8 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
-import { AuthService } from '../../core/auth/auth.service';
-import { CaptchaChallenge, CaptchaService } from '../../core/api/captcha.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { CaptchaChallenge, CaptchaService } from '../../../../core/services/captcha.service';
 
 /**
  * Validators mirror the backend's RegisterRequest exactly. They are a courtesy that saves a round

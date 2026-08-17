@@ -1,0 +1,217 @@
+// Shared skin for the signed-in storefront pages - catalog, cart, account, orders. Same reasoning
+// as the auth screens' partial: one palette, taken from the navbar and home page, rather than a new
+// one invented per page. Scoped per component, so each page carries its own encapsulated copy.
+
+$brand: #2874f0;
+$cta: #fb641b;
+$ink: #212121;
+$muted: #878787;
+$line: #dfe1e5;
+$danger: #c0392b;
+$ok: #388e3c;
+$page: #f1f3f6;
+
+// ---- page scaffolding ----------------------------------------------------
+.page {
+  max-width: 75rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+
+  &__title {
+    margin: 0 0 0.35rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: $ink;
+  }
+
+  &__subtitle {
+    margin: 0 0 1.5rem;
+    font-size: 0.9rem;
+    color: $muted;
+  }
+}
+
+.card {
+  background: #fff;
+  border: 1px solid $line;
+  border-radius: 4px;
+  padding: 1.25rem;
+}
+
+// ---- buttons -------------------------------------------------------------
+.btn {
+  display: inline-block;
+  padding: 0.7rem 1.4rem;
+  border: 0;
+  border-radius: 2px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+
+  &:hover:not(:disabled) { filter: brightness(1.06); }
+
+  &:disabled {
+    background: #c9c9c9;
+    color: #fff;
+    cursor: not-allowed;
+  }
+
+  &--cta {
+    background: $cta;
+    color: #fff;
+  }
+
+  &--brand {
+    background: $brand;
+    color: #fff;
+  }
+
+  &--quiet {
+    background: #fff;
+    color: $brand;
+    border: 1px solid $line;
+
+    &:hover:not(:disabled) { border-color: $brand; }
+  }
+
+  &--danger-text {
+    background: none;
+    color: $danger;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.85rem;
+  }
+}
+
+// ---- status panels -------------------------------------------------------
+.alert {
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.9rem;
+  border-left: 3px solid $danger;
+  background: #fdecea;
+  color: #7f231b;
+  font-size: 0.875rem;
+}
+
+.notice {
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.9rem;
+  border-left: 3px solid $ok;
+  background: #e8f5ec;
+  color: #17542c;
+  font-size: 0.875rem;
+}
+
+.warn {
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.9rem;
+  border-left: 3px solid #b26a00;
+  background: #fff4e5;
+  color: #7a4a00;
+  font-size: 0.875rem;
+}
+
+// Shown in place of content when a list legitimately has nothing in it.
+.empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: $muted;
+
+  &__title {
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: $ink;
+  }
+
+  &__copy {
+    margin: 0 0 1.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+// ---- money ---------------------------------------------------------------
+.price {
+  font-weight: 600;
+  color: $ink;
+
+  &__mrp {
+    margin-left: 0.45rem;
+    font-weight: 400;
+    font-size: 0.85em;
+    color: $muted;
+    text-decoration: line-through;
+  }
+
+  &__off {
+    margin-left: 0.45rem;
+    font-weight: 600;
+    font-size: 0.85em;
+    color: $ok;
+  }
+}
+
+// ---- forms ---------------------------------------------------------------
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+
+  &__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid $line;
+    border-radius: 2px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: $ink;
+    background: #fff;
+
+    &:focus {
+      outline: none;
+      border-color: $brand;
+    }
+  }
+
+  &__hint {
+    font-size: 0.75rem;
+    color: $danger;
+
+    &--muted { color: $muted; }
+  }
+
+  &--invalid input,
+  &--invalid select {
+    border-color: $danger;
+  }
+}
+
+// Holds a row's height while data loads, so the page does not jump when it arrives.
+.skeleton {
+  border-radius: 2px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e4e4e4 37%, #f0f0f0 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.3s ease infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 100% 50%; }
+  to   { background-position: 0 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}

@@ -3,14 +3,31 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
 import { environment } from '@env/environment';
-import { AuthTokens, RegisterRequest, SessionUser } from '@core/models/auth.model';
+import {
+  AuthTokens,
+  ForgotPasswordRequest,
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+  ResetPasswordRequest,
+  SessionUser,
+  UserSummary,
+} from '@core/models/auth.model';
 import { ApiResponse } from '@core/models/api-response';
 
 const ACCESS_TOKEN_KEY = 'clickkart.accessToken';
 const REFRESH_TOKEN_KEY = 'clickkart.refreshToken';
+const USER_KEY = 'clickkart.user';
 
 /**
- * Owns the session: the tokens, who the current user is, and the two calls that change that.
+ * The roles claim is spelled `roleTypes`, not `roles`, and there is no email claim at all - see
+ * the backend's JwtClaimNames. Both matter: reading the wrong key fails silently, because a missing
+ * claim is indistinguishable from an account with no roles.
+ */
+const ROLES_CLAIM = 'roleTypes';
+
+/**
+ * Owns the session: the tokens, who the current user is, and the calls that change that.
  *
  * <p>Tokens live in localStorage so a refresh does not sign the user out. That is a deliberate
  * trade with a real cost - localStorage is readable by any script on the origin, so an XSS bug
@@ -31,11 +48,9 @@ export class AuthService {
   readonly roles = computed(() => this.user()?.roles ?? []);
 
   constructor() {
-    // Rehydrate the identity from the token that survived the page load. The token is the source
-    // of truth the Gateway validates, so the claims in it are what the session actually is.
     const token = this.accessToken();
     if (token) {
-      this.user.set(this.readClaims(token));
+      this.user.set(this.restoreSession(token));
     }
   }
 
@@ -48,18 +63,23 @@ export class AuthService {
   }
 
   /**
-   * Registration returns the same token pair as login, so a successful sign-up leaves the user
-   * signed in rather than bouncing them to a login form to retype what they just typed.
+   * Registration returns the same payload as login, so a successful sign-up leaves the user signed
+   * in rather than bouncing them to a login form to retype what they just typed.
    */
-  register(request: RegisterRequest): Observable<ApiResponse<AuthTokens>> {
+  register(request: RegisterRequest): Observable<ApiResponse<LoginResponse>> {
     return this.http
-      .post<ApiResponse<AuthTokens>>(`${this.baseUrl}/register`, request)
+      .post<ApiResponse<LoginResponse>>(`${this.baseUrl}/register`, request)
       .pipe(tap((res) => res.data && this.store(res.data)));
   }
 
-  login(email: string, password: string): Observable<ApiResponse<AuthTokens>> {
+  /**
+   * `identifier` may be the account's email, its mobile number, or its public id - the server
+   * resolves which was given, so the form does not have to guess or offer a picker.
+   */
+  login(identifier: string, password: string): Observable<ApiResponse<LoginResponse>> {
+    const request: LoginRequest = { identifier, password };
     return this.http
-      .post<ApiResponse<AuthTokens>>(`${this.baseUrl}/login`, { email, password })
+      .post<ApiResponse<LoginResponse>>(`${this.baseUrl}/login`, request)
       .pipe(tap((res) => res.data && this.store(res.data)));
   }
 
@@ -74,25 +94,96 @@ export class AuthService {
       .pipe(tap({ next: () => this.clear(), error: () => this.clear() }));
   }
 
+  /**
+   * Unlike login, this returns the bare token pair - the account summary is not resent, since it
+   * does not change between silent refreshes. The retained email is therefore carried across by
+   * hand rather than being reread from a response that does not contain it.
+   */
   refresh(): Observable<ApiResponse<AuthTokens>> {
     const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
     return this.http
       .post<ApiResponse<AuthTokens>>(`${this.baseUrl}/refresh`, { refreshToken })
-      .pipe(tap((res) => res.data && this.store(res.data)));
+      .pipe(
+        tap((res) => {
+          if (!res.data) {
+            return;
+          }
+          this.storeTokens(res.data);
+          this.user.set(this.restoreSession(res.data.accessToken));
+        }),
+      );
   }
 
-  private store(tokens: AuthTokens): void {
+  /**
+   * Asks for a reset token to be emailed. Returns 200 whether or not the identifier resolves to an
+   * account - deliberately, so the response cannot be used to test which addresses are registered.
+   * Callers must keep that property and report success identically either way.
+   */
+  forgotPassword(request: ForgotPasswordRequest): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.baseUrl}/forgot-password`, request);
+  }
+
+  /**
+   * Redeems the token from that email for a new password. Establishes no session on purpose: the
+   * user signs in afterwards with the password they just set, which proves it is the one they
+   * meant. It does clear any lockout server-side, so this is also the way out of a locked account.
+   */
+  resetPassword(request: ResetPasswordRequest): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.baseUrl}/reset-password`, request);
+  }
+
+  private store(response: LoginResponse): void {
+    this.storeTokens(response.tokens);
+    // Persisted because the email is not in the token, so a page reload has no other way to
+    // recover it. Nothing secret goes in here - it is the same profile the account can already see.
+    localStorage.setItem(USER_KEY, JSON.stringify(response.user));
+    this.user.set({
+      userId: response.user.publicId,
+      email: response.user.email,
+      roles: [...response.user.roles],
+    });
+  }
+
+  private storeTokens(tokens: AuthTokens): void {
     localStorage.setItem(ACCESS_TOKEN_KEY, tokens.accessToken);
-    localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken ?? '');
+    localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
     this.accessToken.set(tokens.accessToken);
-    this.user.set(this.readClaims(tokens.accessToken));
   }
 
   private clear(): void {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
     this.accessToken.set(null);
     this.user.set(null);
+  }
+
+  /**
+   * Rebuilds the identity from the token that survived the page load, plus the stored profile for
+   * the one field the token does not carry.
+   *
+   * <p>Where the two could disagree - the roles - the token wins. It is the copy the Gateway
+   * validates and authorises against, so it is the honest answer to "what will this session
+   * actually be allowed to do", even when the stored profile is more recent.
+   */
+  private restoreSession(token: string): SessionUser | null {
+    const claims = this.readClaims(token);
+    if (!claims) {
+      return null;
+    }
+    return { ...claims, email: this.readStoredUser()?.email ?? '' };
+  }
+
+  private readStoredUser(): UserSummary | null {
+    const stored = localStorage.getItem(USER_KEY);
+    if (!stored) {
+      return null;
+    }
+    try {
+      return JSON.parse(stored) as UserSummary;
+    } catch {
+      return null;
+    }
   }
 
   /**
@@ -103,11 +194,12 @@ export class AuthService {
   private readClaims(token: string): SessionUser | null {
     try {
       const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-      const roles: string[] = (payload.roles ?? '')
+      // Minted as a single comma-joined string, not a JSON array.
+      const roles: string[] = String(payload[ROLES_CLAIM] ?? '')
         .split(',')
         .map((r: string) => r.trim())
         .filter(Boolean);
-      return { userId: payload.sub, email: payload.email ?? '', roles };
+      return { userId: payload.sub, email: '', roles };
     } catch {
       return null;
     }

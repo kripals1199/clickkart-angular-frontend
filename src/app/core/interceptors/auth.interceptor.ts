@@ -29,7 +29,17 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       // elsewhere. Any of those mean this session is over - clearing local state without a
       // server round trip is right here, because the token is already not being honoured.
       if (error.status === 401 && auth.isAuthenticated()) {
-        auth.logout().subscribe({ complete: () => router.navigate(['/login']) });
+        // Carry where they were, so signing in again resumes instead of dumping them on the home
+        // page. Skipped when the expiry happened on an auth screen, which would make the return
+        // trip a loop back to the form they are already looking at.
+        const current = router.url;
+        const returnUrl = current.startsWith('/login') || current.startsWith('/register')
+          ? undefined
+          : current;
+
+        auth.logout().subscribe({
+          complete: () => router.navigate(['/login'], { queryParams: { returnUrl } }),
+        });
       }
       return throwError(() => error);
     }),

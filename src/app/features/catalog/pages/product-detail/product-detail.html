@@ -1,0 +1,122 @@
+<div class="page">
+
+  @if (loading()) {
+
+    <div class="detail">
+      <div class="detail__media skeleton" aria-hidden="true"></div>
+      <div class="detail__body">
+        <div class="skeleton detail__line" aria-hidden="true"></div>
+        <div class="skeleton detail__line detail__line--short" aria-hidden="true"></div>
+      </div>
+    </div>
+
+  } @else if (notFound() || !product()) {
+
+    <div class="empty">
+      <p class="empty__title">We couldn't find that product</p>
+      <p class="empty__copy">It may have been removed, or the link may be wrong.</p>
+      <a class="btn btn--quiet" routerLink="/products">Browse the catalog</a>
+    </div>
+
+  } @else if (product(); as item) {
+
+    <div class="detail">
+
+      <!-- No image service on the platform yet, so the tile is a placeholder rather than a broken
+           <img>. Product Service carries no image field to render. -->
+      <div class="detail__media" aria-hidden="true">
+        <span class="detail__media-initial">{{ item.name.charAt(0) }}</span>
+      </div>
+
+      <div class="detail__body">
+
+        <p class="detail__brand">{{ item.brand || 'ClickKart' }}</p>
+        <h1 class="detail__name">{{ item.name }}</h1>
+
+        @if (selected(); as variant) {
+          <p class="price detail__price">
+            ₹{{ variant.sellingPrice }}
+            @if (variant.mrp > variant.sellingPrice) {
+              <span class="price__mrp">₹{{ variant.mrp }}</span>
+              <span class="price__off">{{ variant.discountPercentage }}% off</span>
+            }
+          </p>
+        } @else if (sellableVariants().length > 0) {
+          <p class="detail__price-from">
+            From ₹{{ sellableVariants()[0].sellingPrice }} — choose an option below
+          </p>
+        }
+
+        @if (item.description) {
+          <p class="detail__description">{{ item.description }}</p>
+        }
+
+        @if (sellableVariants().length === 0) {
+
+          <p class="warn">Every option for this product is currently unavailable.</p>
+
+        } @else {
+
+          <div class="options">
+            <p class="options__label">Options</p>
+            <div class="options__list">
+              @for (variant of sellableVariants(); track variant.sku) {
+                <button
+                  type="button"
+                  class="options__item"
+                  [class.options__item--selected]="selectedSku() === variant.sku"
+                  [attr.aria-pressed]="selectedSku() === variant.sku"
+                  (click)="select(variant.sku)"
+                >
+                  <span class="options__name">{{ variant.variantName }}</span>
+                  <span class="options__price">₹{{ variant.sellingPrice }}</span>
+                </button>
+              }
+            </div>
+          </div>
+
+          @if (selected(); as variant) {
+            @if (variant.attributes && (variant.attributes | keyvalue).length > 0) {
+              <dl class="attributes">
+                @for (attribute of variant.attributes | keyvalue; track attribute.key) {
+                  <div class="attributes__row">
+                    <dt>{{ attribute.key }}</dt>
+                    <dd>{{ attribute.value }}</dd>
+                  </div>
+                }
+              </dl>
+            }
+            <p class="detail__sku">SKU {{ variant.sku }}</p>
+          }
+
+          @if (errorMessage()) {
+            <p class="alert" role="alert">{{ errorMessage() }}</p>
+          }
+
+          @if (added()) {
+            <p class="notice" role="status">
+              Added to your basket. <a routerLink="/cart">Go to basket</a>
+            </p>
+          }
+
+          <button
+            type="button"
+            class="btn btn--cta detail__add"
+            [disabled]="!selected() || adding()"
+            (click)="addToCart()"
+          >
+            {{ adding() ? 'Adding…' : selected() ? 'Add to basket' : 'Choose an option' }}
+          </button>
+
+          @if (!isAuthenticated()) {
+            <p class="detail__signin-note">You'll be asked to sign in first — there are no guest baskets.</p>
+          }
+
+        }
+
+      </div>
+    </div>
+
+  }
+
+</div>

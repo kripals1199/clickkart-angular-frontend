@@ -1,0 +1,89 @@
+<div class="page">
+
+  <h1 class="page__title">Your orders</h1>
+  <p class="page__subtitle">Everything you've placed, newest first.</p>
+
+  <nav class="account-nav">
+    <a class="account-nav__link" routerLink="/account">Profile</a>
+    <a class="account-nav__link" routerLink="/account/addresses">Addresses</a>
+    <a class="account-nav__link account-nav__link--active" routerLink="/orders">Orders</a>
+  </nav>
+
+  @if (loading()) {
+
+    <div class="card">
+      <div class="skeleton orders__skeleton" aria-hidden="true"></div>
+      <div class="skeleton orders__skeleton" aria-hidden="true"></div>
+    </div>
+
+  } @else if (failed()) {
+
+    <p class="alert" role="alert">Your orders could not be loaded.</p>
+    <button type="button" class="btn btn--quiet" (click)="fetch(0)">Try again</button>
+
+  } @else if (orderList().length === 0) {
+
+    <div class="empty">
+      <p class="empty__title">No orders yet</p>
+      <p class="empty__copy">When you place one, it'll show up here.</p>
+      <a class="btn btn--cta" routerLink="/products">Start shopping</a>
+    </div>
+
+  } @else {
+
+    <div class="orders">
+      @for (order of orderList(); track order.orderReference) {
+        <a class="order card" [routerLink]="['/orders', order.orderReference]">
+
+          <div class="order__head">
+            <span class="order__reference">{{ order.orderReference }}</span>
+            <span [class]="'badge badge--' + describe(order).tone">
+              {{ describe(order).label }}
+            </span>
+          </div>
+
+          <div class="order__meta">
+            <span>{{ order.placedAt | date: 'd MMM y, h:mm a' }}</span>
+            <span>{{ order.itemCount }} item{{ order.itemCount === 1 ? '' : 's' }}</span>
+            <span class="order__total">₹{{ order.totalAmount }}</span>
+          </div>
+
+          @if (order.status === 'PENDING_PAYMENT' && order.paymentDeadline) {
+            <p class="order__action">
+              Pay by {{ order.paymentDeadline | date: 'd MMM, h:mm a' }} to keep your items.
+            </p>
+          }
+
+          @if (order.refundRequired) {
+            <p class="order__refund">A refund is owed on this order.</p>
+          }
+
+        </a>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <nav class="pager" aria-label="Pagination">
+        <button
+          type="button"
+          class="btn btn--quiet"
+          [disabled]="pageIndex() === 0"
+          (click)="fetch(pageIndex() - 1)"
+        >
+          Previous
+        </button>
+        <span class="pager__position">Page {{ pageIndex() + 1 }} of {{ totalPages() }}</span>
+        <button
+          type="button"
+          class="btn btn--quiet"
+          [disabled]="isLast()"
+          (click)="fetch(pageIndex() + 1)"
+        >
+          Next
+        </button>
+      </nav>
+    }
+
+  }
+
+</div>

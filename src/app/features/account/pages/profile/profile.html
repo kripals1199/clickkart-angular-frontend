@@ -1,0 +1,133 @@
+<div class="page">
+
+  <h1 class="page__title">Your account</h1>
+  <p class="page__subtitle">Signed in as {{ accountEmail()?.email || '—' }}</p>
+
+  <nav class="account-nav">
+    <a class="account-nav__link account-nav__link--active" routerLink="/account">Profile</a>
+    <a class="account-nav__link" routerLink="/account/addresses">Addresses</a>
+    <a class="account-nav__link" routerLink="/orders">Orders</a>
+  </nav>
+
+  @if (loading()) {
+
+    <div class="card">
+      <div class="skeleton account__skeleton" aria-hidden="true"></div>
+      <div class="skeleton account__skeleton" aria-hidden="true"></div>
+    </div>
+
+  } @else if (failed()) {
+
+    <p class="alert" role="alert">Your profile could not be loaded.</p>
+    <button type="button" class="btn btn--quiet" (click)="load()">Try again</button>
+
+  } @else {
+
+    @if (savedMessage()) {
+      <p class="notice" role="status">{{ savedMessage() }}</p>
+    }
+    @if (errorMessage()) {
+      <p class="alert" role="alert">{{ errorMessage() }}</p>
+    }
+
+    @if (profile()?.erasedAt; as erasedAt) {
+      <!-- Distinguishes an erased profile from one that was simply never filled in - both otherwise
+           look identical, a profile of nulls. -->
+      <p class="warn" role="status">
+        The personal data on this profile was erased on {{ erasedAt | date: 'd MMM y' }}.
+      </p>
+    }
+
+    <div class="account">
+
+      <form class="card" [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+        <h2 class="account__section">Personal details</h2>
+
+        <div class="account__row">
+          <div class="field">
+            <label class="field__label" for="firstName">First name</label>
+            <input id="firstName" type="text" formControlName="firstName" maxlength="60" autocomplete="given-name" />
+          </div>
+          <div class="field">
+            <label class="field__label" for="lastName">Last name</label>
+            <input id="lastName" type="text" formControlName="lastName" maxlength="60" autocomplete="family-name" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="displayName">Display name</label>
+          <input id="displayName" type="text" formControlName="displayName" maxlength="80" />
+          <span class="field__hint field__hint--muted">What we call you around the site.</span>
+        </div>
+
+        <div class="account__row">
+          <div class="field">
+            <label class="field__label" for="dateOfBirth">Date of birth</label>
+            <input id="dateOfBirth" type="date" formControlName="dateOfBirth" />
+          </div>
+          <div class="field">
+            <label class="field__label" for="gender">Gender</label>
+            <select id="gender" formControlName="gender">
+              <option value="">Not specified</option>
+              <option value="MALE">Male</option>
+              <option value="FEMALE">Female</option>
+              <option value="OTHER">Other</option>
+              <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field" [class.field--invalid]="profileForm.controls.avatarUrl.touched && profileForm.controls.avatarUrl.invalid">
+          <label class="field__label" for="avatarUrl">Avatar URL</label>
+          <input id="avatarUrl" type="url" formControlName="avatarUrl" placeholder="https://…" />
+          @if (profileForm.controls.avatarUrl.touched && profileForm.controls.avatarUrl.invalid) {
+            <span class="field__hint">Must be an https:// URL, or left empty.</span>
+          }
+        </div>
+
+        <button type="submit" class="btn btn--brand" [disabled]="savingProfile()">
+          {{ savingProfile() ? 'Saving…' : 'Save details' }}
+        </button>
+      </form>
+
+      <form class="card" [formGroup]="preferencesForm" (ngSubmit)="savePreferences()" novalidate>
+        <h2 class="account__section">Preferences</h2>
+
+        <label class="checkbox">
+          <input type="checkbox" formControlName="marketingEmailOptIn" />
+          <span>Email me offers and updates</span>
+        </label>
+
+        <label class="checkbox">
+          <input type="checkbox" formControlName="marketingSmsOptIn" />
+          <span>Text me offers and updates</span>
+        </label>
+
+        <div class="account__row">
+          <div class="field" [class.field--invalid]="preferencesForm.controls.preferredLanguage.touched && preferencesForm.controls.preferredLanguage.invalid">
+            <label class="field__label" for="preferredLanguage">Language</label>
+            <select id="preferredLanguage" formControlName="preferredLanguage">
+              <option value="en">English</option>
+              <option value="en-IN">English (India)</option>
+              <option value="hi">Hindi</option>
+            </select>
+          </div>
+          <div class="field" [class.field--invalid]="preferencesForm.controls.preferredCurrency.touched && preferencesForm.controls.preferredCurrency.invalid">
+            <label class="field__label" for="preferredCurrency">Currency</label>
+            <select id="preferredCurrency" formControlName="preferredCurrency">
+              <option value="INR">INR — Indian Rupee</option>
+              <option value="USD">USD — US Dollar</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn--brand" [disabled]="savingPreferences()">
+          {{ savingPreferences() ? 'Saving…' : 'Save preferences' }}
+        </button>
+      </form>
+
+    </div>
+
+  }
+
+</div>

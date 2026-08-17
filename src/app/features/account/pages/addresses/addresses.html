@@ -1,0 +1,195 @@
+<div class="page">
+
+  <h1 class="page__title">Your addresses</h1>
+  <p class="page__subtitle">Where your orders can be delivered.</p>
+
+  <nav class="account-nav">
+    <a class="account-nav__link" routerLink="/account">Profile</a>
+    <a class="account-nav__link account-nav__link--active" routerLink="/account/addresses">Addresses</a>
+    <a class="account-nav__link" routerLink="/orders">Orders</a>
+  </nav>
+
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (formOpen()) {
+
+    <form class="card address-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <h2 class="address-form__title">
+        {{ editingId() === null ? 'Add an address' : 'Edit address' }}
+      </h2>
+
+      <div class="address-form__row">
+        <div class="field">
+          <label class="field__label" for="label">Label</label>
+          <select id="label" formControlName="label">
+            <option value="HOME">Home</option>
+            <option value="WORK">Work</option>
+            <option value="OTHER">Other</option>
+          </select>
+        </div>
+
+        <div class="field" [class.field--invalid]="form.controls.recipientName.touched && form.controls.recipientName.invalid">
+          <label class="field__label" for="recipientName">Recipient name</label>
+          <input id="recipientName" type="text" formControlName="recipientName" maxlength="120" autocomplete="name" />
+          @if (form.controls.recipientName.touched && form.controls.recipientName.invalid) {
+            <span class="field__hint">Who should we hand the parcel to?</span>
+          }
+        </div>
+      </div>
+
+      <div class="field" [class.field--invalid]="form.controls.contactNumber.touched && form.controls.contactNumber.invalid">
+        <label class="field__label" for="contactNumber">Contact number</label>
+        <input id="contactNumber" type="tel" formControlName="contactNumber" inputmode="numeric" maxlength="10" placeholder="9876543210" />
+        @if (form.controls.contactNumber.touched && form.controls.contactNumber.invalid) {
+          <span class="field__hint">10 digits, starting with 6, 7, 8 or 9.</span>
+        }
+      </div>
+
+      <div class="field" [class.field--invalid]="form.controls.line1.touched && form.controls.line1.invalid">
+        <label class="field__label" for="line1">Address line 1</label>
+        <input id="line1" type="text" formControlName="line1" maxlength="200" autocomplete="address-line1" />
+        @if (form.controls.line1.touched && form.controls.line1.invalid) {
+          <span class="field__hint">Enter the street address.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="line2">Address line 2</label>
+        <input id="line2" type="text" formControlName="line2" maxlength="200" autocomplete="address-line2" />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="landmark">Landmark</label>
+        <input id="landmark" type="text" formControlName="landmark" maxlength="150" placeholder="Optional" />
+      </div>
+
+      <div class="address-form__row">
+        <div class="field" [class.field--invalid]="form.controls.city.touched && form.controls.city.invalid">
+          <label class="field__label" for="city">City</label>
+          <input id="city" type="text" formControlName="city" maxlength="100" autocomplete="address-level2" />
+        </div>
+        <div class="field" [class.field--invalid]="form.controls.state.touched && form.controls.state.invalid">
+          <label class="field__label" for="state">State</label>
+          <input id="state" type="text" formControlName="state" maxlength="100" autocomplete="address-level1" />
+        </div>
+      </div>
+
+      <div class="address-form__row">
+        <div class="field" [class.field--invalid]="form.controls.postalCode.touched && form.controls.postalCode.invalid">
+          <label class="field__label" for="postalCode">PIN code</label>
+          <input id="postalCode" type="text" formControlName="postalCode" inputmode="numeric" maxlength="6" autocomplete="postal-code" />
+          @if (form.controls.postalCode.touched && form.controls.postalCode.invalid) {
+            <span class="field__hint">Six digits, not starting with 0.</span>
+          }
+        </div>
+        <div class="field" [class.field--invalid]="form.controls.country.touched && form.controls.country.invalid">
+          <label class="field__label" for="country">Country</label>
+          <input id="country" type="text" formControlName="country" maxlength="60" autocomplete="country-name" />
+        </div>
+      </div>
+
+      <label class="checkbox">
+        <input type="checkbox" formControlName="makeDefault" />
+        <span>Use this as my default delivery address</span>
+      </label>
+
+      <div class="address-form__actions">
+        <button type="submit" class="btn btn--brand" [disabled]="saving()">
+          {{ saving() ? 'Saving…' : editingId() === null ? 'Save address' : 'Save changes' }}
+        </button>
+        <button type="button" class="btn btn--quiet" (click)="cancel()">Cancel</button>
+      </div>
+    </form>
+
+  }
+
+  @if (loading()) {
+
+    <div class="card">
+      <div class="skeleton addresses__skeleton" aria-hidden="true"></div>
+      <div class="skeleton addresses__skeleton" aria-hidden="true"></div>
+    </div>
+
+  } @else if (failed()) {
+
+    <p class="alert" role="alert">Your addresses could not be loaded.</p>
+    <button type="button" class="btn btn--quiet" (click)="load()">Try again</button>
+
+  } @else if (addresses().length === 0) {
+
+    @if (!formOpen()) {
+      <div class="empty">
+        <p class="empty__title">No addresses saved</p>
+        <p class="empty__copy">Add one now and checkout will be a lot quicker.</p>
+        <button type="button" class="btn btn--cta" (click)="startAdd()">Add an address</button>
+      </div>
+    }
+
+  } @else {
+
+    @if (!formOpen()) {
+      <button type="button" class="btn btn--cta addresses__add" (click)="startAdd()">
+        Add an address
+      </button>
+    }
+
+    <div class="addresses">
+      @for (address of addresses(); track address.id) {
+        <article class="address card" [class.address--default]="address.defaultAddress">
+
+          <div class="address__head">
+            <span class="address__label">{{ address.label }}</span>
+            @if (address.defaultAddress) {
+              <span class="address__badge">Default</span>
+            }
+          </div>
+
+          <p class="address__name">{{ address.recipientName }}</p>
+          <p class="address__lines">
+            {{ address.line1 }}@if (address.line2) {, {{ address.line2 }}}<br />
+            @if (address.landmark) {Near {{ address.landmark }}<br />}
+            {{ address.city }}, {{ address.state }} {{ address.postalCode }}<br />
+            {{ address.country }}
+          </p>
+          <p class="address__phone">{{ address.contactNumber }}</p>
+
+          <div class="address__actions">
+            <button
+              type="button"
+              class="btn btn--quiet address__action"
+              [disabled]="busyId() === address.id"
+              (click)="startEdit(address)"
+            >
+              Edit
+            </button>
+
+            @if (!address.defaultAddress) {
+              <button
+                type="button"
+                class="btn btn--quiet address__action"
+                [disabled]="busyId() === address.id"
+                (click)="makeDefault(address)"
+              >
+                Make default
+              </button>
+            }
+
+            <button
+              type="button"
+              class="btn btn--danger-text"
+              [disabled]="busyId() === address.id"
+              (click)="remove(address)"
+            >
+              Remove
+            </button>
+          </div>
+
+        </article>
+      }
+    </div>
+
+  }
+
+</div>

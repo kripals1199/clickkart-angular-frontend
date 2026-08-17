@@ -1,0 +1,167 @@
+<div class="page">
+
+  <h1 class="page__title">Your basket</h1>
+
+  @if (loading()) {
+
+    <div class="card">
+      <div class="skeleton basket__skeleton" aria-hidden="true"></div>
+      <div class="skeleton basket__skeleton" aria-hidden="true"></div>
+    </div>
+
+  } @else if (failed()) {
+
+    <p class="alert" role="alert">Your basket could not be loaded.</p>
+    <button type="button" class="btn btn--quiet" (click)="reload()">Try again</button>
+
+  } @else if (isEmpty()) {
+
+    <div class="empty">
+      <p class="empty__title">Your basket is empty</p>
+      <p class="empty__copy">Once you add something, it'll show up here.</p>
+      <a class="btn btn--cta" routerLink="/products">Start shopping</a>
+    </div>
+
+  } @else if (contents(); as cart) {
+
+    @if (errorMessage()) {
+      <p class="alert" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <!-- A catalog outage is not a delisting. Say which one happened, because the remedy differs:
+         one is "wait and refresh", the other is "this is gone". -->
+    @if (cart.pricingDegraded) {
+      <p class="warn" role="status">
+        Some items couldn't be priced just now — the catalog didn't answer. Prices shown as “—”
+        aren't free, they're unknown, and they're left out of the total.
+      </p>
+    }
+
+    @if (blockedLines() > 0) {
+      <p class="warn" role="status">
+        {{ blockedLines() }} item{{ blockedLines() === 1 ? " isn't" : "s aren't" }} available to buy
+        right now. Remove {{ blockedLines() === 1 ? 'it' : 'them' }} to check out.
+      </p>
+    }
+
+    <div class="basket">
+
+      <section class="basket__lines">
+        @for (item of items(); track item.sku) {
+          <article class="line" [class.line--blocked]="!item.purchasable">
+
+            <div class="line__main">
+              <p class="line__name">{{ item.productName || item.sku }}</p>
+              @if (item.variantName) {
+                <p class="line__variant">{{ item.variantName }}</p>
+              }
+              <p class="line__sku">SKU {{ item.sku }}</p>
+
+              @if (!item.purchasable) {
+                <p class="line__blocked">
+                  {{ item.unpurchasableReason || 'Not available to buy right now' }}
+                </p>
+              } @else if (item.availability) {
+                <p class="line__availability">{{ item.availability }}</p>
+              }
+
+              @if (item.priceChanged && item.priceWhenAdded !== null) {
+                <p class="line__changed">
+                  Price changed since you added this — it was ₹{{ item.priceWhenAdded }}.
+                </p>
+              }
+            </div>
+
+            <div class="line__qty">
+              <button
+                type="button"
+                class="qty__button"
+                [disabled]="item.quantity <= 1 || busySku() === item.sku"
+                (click)="decrease(item)"
+                aria-label="Reduce quantity"
+              >−</button>
+              <span class="qty__value">{{ item.quantity }}</span>
+              <button
+                type="button"
+                class="qty__button"
+                [disabled]="busySku() === item.sku"
+                (click)="increase(item)"
+                aria-label="Increase quantity"
+              >+</button>
+            </div>
+
+            <div class="line__money">
+              @if (item.unitPrice === null) {
+                <p class="line__unpriced">—</p>
+              } @else {
+                <p class="price">₹{{ item.lineTotal }}</p>
+                @if (item.quantity > 1) {
+                  <p class="line__each">₹{{ item.unitPrice }} each</p>
+                }
+              }
+              <button
+                type="button"
+                class="btn btn--danger-text"
+                [disabled]="busySku() === item.sku"
+                (click)="remove(item.sku)"
+              >
+                Remove
+              </button>
+            </div>
+
+          </article>
+        }
+
+        <button type="button" class="btn btn--quiet basket__clear" (click)="clear()">
+          Empty basket
+        </button>
+      </section>
+
+      <aside class="summary card">
+        <h2 class="summary__title">Summary</h2>
+
+        <div class="summary__row">
+          <span>Items</span>
+          <span>{{ cart.totalQuantity }}</span>
+        </div>
+        <div class="summary__row">
+          <span>Distinct products</span>
+          <span>{{ cart.distinctItems }}</span>
+        </div>
+
+        <div class="summary__row summary__row--total">
+          <span>Subtotal</span>
+          <span>₹{{ cart.subtotal }}</span>
+        </div>
+
+        <p class="summary__note">
+          Delivery and taxes are worked out at checkout.
+          @if (blockedLines() > 0) {
+            Unavailable items are already excluded.
+          }
+        </p>
+
+        <!-- readyForCheckout is the server's call, not a local recomputation of it. A real button
+             rather than a link styled to look disabled: an <a> with aria-disabled still navigates,
+             which is exactly the case this flag exists to prevent. -->
+        <button
+          type="button"
+          class="btn btn--cta summary__checkout"
+          [disabled]="!cart.readyForCheckout"
+          (click)="goToCheckout()"
+        >
+          Checkout
+        </button>
+
+        @if (!cart.readyForCheckout) {
+          <p class="summary__blocked">
+            Checkout opens once every item in the basket is available.
+          </p>
+        }
+      </aside>
+
+    </div>
+
+  }
+
+</div>

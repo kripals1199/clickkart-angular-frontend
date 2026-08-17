@@ -13,22 +13,19 @@
 
 import { Component, signal } from '@angular/core';
 
-import { Navbar } from '@layout/navbar/navbar';
 import { HeroBanner } from '@shared/components/hero-banner/hero-banner';
 import { CategorySection } from '@shared/components/category-section/category-section';
 import { ProductCard } from '@shared/components/product-card/product-card';
-import { Footer } from '@layout/footer/footer';
 import { BrandSection } from '@shared/components/brand-section/brand-section';
 
+// The navbar and footer come from the shell this page now routes inside, not from here.
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
-    Navbar,
     HeroBanner,
     CategorySection,
     ProductCard,
-    Footer,
     BrandSection
   ],
   templateUrl: './home.html',

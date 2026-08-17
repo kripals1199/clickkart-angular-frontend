@@ -1,0 +1,34 @@
+// Status pill shared by the order list and detail. Four tones rather than one per status: the
+// precise wording carries the detail, the colour only has to say "fine / waiting / wrong".
+@use '../storefront' as *;
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 2px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+
+  &--good {
+    background: #e8f5ec;
+    color: #17542c;
+  }
+
+  &--pending {
+    background: #fff4e5;
+    color: #7a4a00;
+  }
+
+  &--bad {
+    background: #fdecea;
+    color: #7f231b;
+  }
+
+  &--neutral {
+    background: #eef0f3;
+    color: #4a4a4a;
+  }
+}

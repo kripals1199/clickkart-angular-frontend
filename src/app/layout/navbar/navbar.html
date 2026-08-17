@@ -86,9 +86,11 @@
       type="text"
       placeholder="Search for products, brands and more"
       [ngModel]="search()"
+      (ngModelChange)="search.set($event)"
+      (keyup.enter)="submitSearch()"
     />
 
-    <button mat-icon-button>
+    <button mat-icon-button (click)="submitSearch()" aria-label="Search">
       <mat-icon>
         search
       </mat-icon>
@@ -103,6 +105,20 @@
     @if (isAuthenticated()) {
 
       <span class="account-email">{{ currentUser()?.email }}</span>
+
+      <button
+        mat-button
+        routerLink="/account"
+      >
+        Account
+      </button>
+
+      <button
+        mat-button
+        routerLink="/orders"
+      >
+        Orders
+      </button>
 
       <button
         mat-button
@@ -133,9 +149,13 @@
       Seller
     </button>
 
+    <!-- Hidden rather than showing a zero: an empty basket has nothing to announce. -->
     <button
       mat-icon-button
-      matBadge="2"
+      routerLink="/cart"
+      aria-label="Cart"
+      [matBadge]="cartCount()"
+      [matBadgeHidden]="cartCount() === 0"
       matBadgeColor="warn"
     >
       <mat-icon>
@@ -154,6 +174,22 @@
   <div class="mobile-menu">
 
     @if (isAuthenticated()) {
+
+      <button
+        mat-button
+        routerLink="/account"
+        (click)="toggleMobileMenu()"
+      >
+        Account
+      </button>
+
+      <button
+        mat-button
+        routerLink="/orders"
+        (click)="toggleMobileMenu()"
+      >
+        Orders
+      </button>
 
       <button
         mat-button
@@ -186,7 +222,11 @@
       Become Seller
     </button>
 
-    <button mat-button>
+    <button
+      mat-button
+      routerLink="/cart"
+      (click)="toggleMobileMenu()"
+    >
       Cart
     </button>
 

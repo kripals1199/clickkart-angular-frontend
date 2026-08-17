@@ -1,0 +1,75 @@
+@use '../../../storefront' as *;
+@use '../../../account/account-nav' as *;
+@use '../../badge' as *;
+
+.orders {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  &__skeleton {
+    height: 3.5rem;
+    margin-bottom: 0.75rem;
+  }
+}
+
+.order {
+  display: block;
+  text-decoration: none;
+  transition: box-shadow 0.15s ease;
+
+  &:hover { box-shadow: 0 2px 12px rgb(0 0 0 / 10%); }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.6rem;
+  }
+
+  &__reference {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $ink;
+    letter-spacing: 0.02em;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: $muted;
+  }
+
+  &__total {
+    font-weight: 600;
+    color: $ink;
+  }
+
+  &__action {
+    margin: 0.7rem 0 0;
+    font-size: 0.8rem;
+    color: #7a4a00;
+  }
+
+  &__refund {
+    margin: 0.4rem 0 0;
+    font-size: 0.8rem;
+    color: $danger;
+  }
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+
+  &__position {
+    font-size: 0.85rem;
+    color: $muted;
+  }
+}

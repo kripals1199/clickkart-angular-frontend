@@ -1,0 +1,144 @@
+<div class="page">
+
+  <h1 class="page__title">Checkout</h1>
+  <p class="page__subtitle">Confirm where this is going, then place the order.</p>
+
+  @if (loading()) {
+
+    <div class="card">
+      <div class="skeleton checkout__skeleton" aria-hidden="true"></div>
+      <div class="skeleton checkout__skeleton" aria-hidden="true"></div>
+    </div>
+
+  } @else if (failed()) {
+
+    <p class="alert" role="alert">Checkout could not be prepared.</p>
+    <button type="button" class="btn btn--quiet" (click)="load()">Try again</button>
+
+  } @else if (items().length === 0) {
+
+    <div class="empty">
+      <p class="empty__title">Your basket is empty</p>
+      <p class="empty__copy">There's nothing to check out.</p>
+      <a class="btn btn--cta" routerLink="/products">Browse the catalog</a>
+    </div>
+
+  } @else {
+
+    @if (errorMessage()) {
+      <p class="alert" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <div class="checkout">
+
+      <div class="checkout__main">
+
+        <section class="card checkout__section">
+          <h2 class="checkout__heading">Deliver to</h2>
+
+          @if (!hasAddress()) {
+            <p class="warn">
+              You have no saved addresses yet — we need one before this order can be placed.
+            </p>
+            <a class="btn btn--brand" routerLink="/account/addresses">Add an address</a>
+          } @else {
+            <div class="pick">
+              @for (address of addresses(); track address.id) {
+                <label class="pick__option" [class.pick__option--selected]="selectedAddressId() === address.id">
+                  <input
+                    type="radio"
+                    name="address"
+                    [value]="address.id"
+                    [checked]="selectedAddressId() === address.id"
+                    (change)="select(address.id)"
+                  />
+                  <span class="pick__body">
+                    <span class="pick__label">
+                      {{ address.label }}
+                      @if (address.defaultAddress) { <span class="pick__badge">Default</span> }
+                    </span>
+                    <span class="pick__name">{{ address.recipientName }}</span>
+                    <span class="pick__lines">
+                      {{ address.line1 }}@if (address.line2) {, {{ address.line2 }}},
+                      {{ address.city }}, {{ address.state }} {{ address.postalCode }}
+                    </span>
+                    <span class="pick__phone">{{ address.contactNumber }}</span>
+                  </span>
+                </label>
+              }
+            </div>
+            <a class="checkout__manage" routerLink="/account/addresses">Manage addresses</a>
+          }
+        </section>
+
+        <section class="card checkout__section">
+          <h2 class="checkout__heading">Order summary</h2>
+
+          @for (item of items(); track item.sku) {
+            <div class="review" [class.review--blocked]="!item.purchasable">
+              <div>
+                <p class="review__name">{{ item.productName || item.sku }}</p>
+                @if (item.variantName) {
+                  <p class="review__variant">{{ item.variantName }}</p>
+                }
+                <p class="review__qty">Qty {{ item.quantity }}</p>
+                @if (!item.purchasable) {
+                  <p class="review__blocked">
+                    {{ item.unpurchasableReason || 'Not available to buy right now' }}
+                  </p>
+                }
+              </div>
+              <p class="review__total">
+                @if (item.lineTotal === null) { — } @else { ₹{{ item.lineTotal }} }
+              </p>
+            </div>
+          }
+        </section>
+
+      </div>
+
+      <aside class="card summary">
+        <h2 class="checkout__heading">Total</h2>
+
+        <div class="summary__row">
+          <span>Items</span>
+          <span>₹{{ basket()?.subtotal }}</span>
+        </div>
+        <div class="summary__row">
+          <span>Delivery</span>
+          <span class="summary__muted">Calculated on the order</span>
+        </div>
+
+        <p class="summary__note">
+          The final total, including any delivery fee, is worked out by the server when the order is
+          placed — it's shown on the confirmation.
+        </p>
+
+        @if (!ready()) {
+          <p class="warn">
+            Some items in your basket aren't available. Remove them before ordering.
+          </p>
+          <a class="btn btn--quiet summary__action" routerLink="/cart">Back to basket</a>
+        }
+
+        <button
+          type="button"
+          class="btn btn--cta summary__action"
+          [disabled]="!canPlace()"
+          (click)="place()"
+        >
+          {{ placing() ? 'Placing order…' : 'Place order' }}
+        </button>
+
+        <!-- Says plainly what pressing it does. Placing holds stock; it does not take money, and
+             the next screen is where paying happens. -->
+        <p class="summary__note summary__note--tight">
+          Placing the order holds your items. You'll pay on the next screen.
+        </p>
+      </aside>
+
+    </div>
+
+  }
+
+</div>

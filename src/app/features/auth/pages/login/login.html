@@ -1,0 +1,80 @@
+<section class="auth">
+  <div class="auth__card">
+
+    <!-- Brand panel. On narrow screens this collapses to a slim header rather than eating the
+         fold, so the form is still the first thing in view on a phone. -->
+    <aside class="auth__brand">
+      <h1 class="auth__brand-title">Login</h1>
+      <p class="auth__brand-copy">
+        Get access to your orders, addresses and recommendations.
+      </p>
+      <ul class="auth__brand-points">
+        <li>Track every order in one place</li>
+        <li>Check out with a saved address</li>
+        <li>Pick up the basket you left behind</li>
+      </ul>
+    </aside>
+
+    <form class="auth__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+      @if (errorMessage()) {
+        <p class="alert" role="alert">{{ errorMessage() }}</p>
+      }
+
+      <div class="field">
+        <label class="field__label" for="identifier">Email, mobile number or ID</label>
+        <input
+          id="identifier"
+          type="text"
+          formControlName="identifier"
+          autocomplete="username"
+          autocapitalize="none"
+          spellcheck="false"
+          placeholder="you@example.com"
+          [class.field__input--invalid]="form.controls.identifier.touched && form.controls.identifier.invalid"
+        />
+        @if (form.controls.identifier.touched && form.controls.identifier.invalid) {
+          <span class="field__hint">Enter your email, mobile number or account ID.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="password">Password</label>
+        <div class="field__with-action">
+          <input
+            id="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="password"
+            autocomplete="current-password"
+            placeholder="Your password"
+            [class.field__input--invalid]="form.controls.password.touched && form.controls.password.invalid"
+          />
+          <button
+            type="button"
+            class="field__action"
+            (click)="togglePassword()"
+            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+          >
+            {{ showPassword() ? 'Hide' : 'Show' }}
+          </button>
+        </div>
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <span class="field__hint">Enter your password.</span>
+        }
+      </div>
+
+      <p class="auth__helper">
+        <a routerLink="/forgot-password">Forgot password?</a>
+      </p>
+
+      <button type="submit" class="auth__submit" [disabled]="submitting()">
+        {{ submitting() ? 'Signing in…' : 'Sign in' }}
+      </button>
+
+      <p class="auth__alt">
+        New to ClickKart? <a routerLink="/register">Create an account</a>
+      </p>
+
+    </form>
+  </div>
+</section>

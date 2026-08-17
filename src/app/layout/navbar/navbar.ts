@@ -10,6 +10,7 @@
 
 import {
   Component,
+  effect,
   inject,
   signal
 } from '@angular/core';
@@ -17,6 +18,7 @@ import {
 import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '@core/services/auth.service';
+import { CartService } from '@core/services/cart.service';
 
 import { FormsModule } from '@angular/forms';
 
@@ -46,6 +48,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 export class Navbar {
 
   private readonly auth = inject(AuthService);
+  private readonly cart = inject(CartService);
   private readonly router = inject(Router);
 
   readonly search = signal('');
@@ -55,9 +58,27 @@ export class Navbar {
   /** Drives which side of the menu shows: sign in / create account, or the account itself. */
   readonly isAuthenticated = this.auth.isAuthenticated;
   readonly currentUser = this.auth.currentUser;
+  readonly cartCount = this.cart.itemCount;
+
+  constructor() {
+    // Load the basket once on arrival if there is already a session, so the badge is right on a
+    // cold page load rather than only after the cart page has been visited. There are no guest
+    // carts, so asking without a session would just be a guaranteed 401.
+    effect(() => {
+      if (this.auth.isAuthenticated() && this.cart.current() === null) {
+        this.cart.load().subscribe({ error: () => undefined });
+      }
+    });
+  }
 
   toggleMobileMenu(): void {
     this.mobileMenuOpen.update(value => !value);
+  }
+
+  submitSearch(): void {
+    const query = this.search().trim();
+    this.router.navigate(['/products'], { queryParams: query ? { query } : {} });
+    this.mobileMenuOpen.set(false);
   }
 
   logout(): void {
@@ -67,6 +88,8 @@ export class Navbar {
       next: () => this.router.navigate(['/']),
       error: () => this.router.navigate(['/'])
     });
+    // Drop the cached basket too, or the next account to sign in inherits this one's badge.
+    this.cart.forget();
     this.mobileMenuOpen.set(false);
   }
 

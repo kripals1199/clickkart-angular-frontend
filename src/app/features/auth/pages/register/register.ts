@@ -95,8 +95,10 @@ export class Register {
 
   private describe(code: string | undefined): string {
     switch (code) {
-      case 'EMAIL_ALREADY_REGISTERED':
-        return 'That email already has an account. Try signing in instead.';
+      // The server does not say which of the two collided, and deliberately so - confirming
+      // "this email exists" to an unauthenticated caller is an account-enumeration oracle.
+      case 'DUPLICATE_ACCOUNT':
+        return 'That email or mobile number already has an account. Try signing in instead.';
       case 'INVALID_CAPTCHA':
         return 'That captcha answer was not right. Here is a new one.';
       case 'RATE_LIMIT_EXCEEDED':

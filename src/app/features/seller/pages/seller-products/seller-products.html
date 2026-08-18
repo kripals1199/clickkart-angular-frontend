@@ -1,0 +1,130 @@
+<div class="page">
+
+  <h1 class="page__title">Your listings</h1>
+  <p class="page__subtitle">Everything you sell, in every state.</p>
+
+  <nav class="account-nav">
+    <a class="account-nav__link account-nav__link--active" routerLink="/seller/products">Listings</a>
+    <a class="account-nav__link" routerLink="/seller/stock">Stock</a>
+    <a class="account-nav__link" routerLink="/seller/orders">Orders</a>
+  </nav>
+
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  <div class="toolbar">
+    <div class="tabs">
+      @for (option of filters; track option.label) {
+        <button
+          type="button"
+          class="tabs__tab"
+          [class.tabs__tab--active]="filter() === option.value"
+          (click)="setFilter(option.value)"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+
+    <a class="btn btn--cta" routerLink="/seller/products/new">New listing</a>
+  </div>
+
+  @if (loading()) {
+
+    <div class="card">
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+    </div>
+
+  } @else if (failed()) {
+
+    <p class="alert" role="alert">Your listings could not be loaded.</p>
+    <button type="button" class="btn btn--quiet" (click)="fetch(0)">Try again</button>
+
+  } @else if (products().length === 0) {
+
+    <div class="empty">
+      <p class="empty__title">Nothing here yet</p>
+      <p class="empty__copy">Create a listing and submit it for review to start selling.</p>
+      <a class="btn btn--cta" routerLink="/seller/products/new">New listing</a>
+    </div>
+
+  } @else {
+
+    <div class="listings">
+      @for (product of products(); track product.publicId) {
+        <article class="listing card">
+
+          <div class="listing__main">
+            <div class="listing__head">
+              <p class="listing__name">{{ product.name }}</p>
+              <span [class]="'badge badge--' + describe(product).tone">{{ describe(product).label }}</span>
+            </div>
+
+            <p class="listing__meta">
+              {{ product.brand || 'No brand' }} ·
+              {{ product.variants.length }} variant{{ product.variants.length === 1 ? '' : 's' }} ·
+              updated {{ product.updatedDate | date: 'd MMM y' }}
+            </p>
+
+            @if (fromPrice(product) !== null) {
+              <p class="listing__price">from ₹{{ fromPrice(product) }}</p>
+            } @else {
+              <p class="listing__price listing__price--none">No active variants</p>
+            }
+
+            <p class="listing__hint">{{ describe(product).hint }}</p>
+
+            @if (product.rejectionReason) {
+              <p class="listing__rejected">Moderation said: {{ product.rejectionReason }}</p>
+            }
+          </div>
+
+          <div class="listing__actions">
+            <a class="btn btn--quiet listing__action" [routerLink]="['/seller/products', product.publicId]">
+              {{ product.status === 'DRAFT' ? 'Edit' : 'View' }}
+            </a>
+
+            @if (canSubmit(product)) {
+              <button
+                type="button"
+                class="btn btn--brand listing__action"
+                [disabled]="busyId() === product.publicId"
+                (click)="submit(product)"
+              >
+                Submit for review
+              </button>
+            }
+
+            @if (canArchive(product)) {
+              <button
+                type="button"
+                class="btn btn--danger-text"
+                [disabled]="busyId() === product.publicId"
+                (click)="archive(product)"
+              >
+                Archive
+              </button>
+            }
+          </div>
+
+        </article>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <nav class="pager" aria-label="Pagination">
+        <button type="button" class="btn btn--quiet" [disabled]="pageIndex() === 0" (click)="fetch(pageIndex() - 1)">
+          Previous
+        </button>
+        <span class="pager__position">Page {{ pageIndex() + 1 }} of {{ totalPages() }}</span>
+        <button type="button" class="btn btn--quiet" [disabled]="isLast()" (click)="fetch(pageIndex() + 1)">
+          Next
+        </button>
+      </nav>
+    }
+
+  }
+
+</div>

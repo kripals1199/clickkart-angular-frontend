@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { authGuard } from '@core/guards/auth.guard';
+import { roleGuard } from '@core/guards/role.guard';
 
 /**
  * Two groups. The auth screens are full-bleed and route on their own; everything else routes inside
@@ -91,6 +92,76 @@ export const routes: Routes = [
                     import('@features/orders/pages/order-detail/order-detail')
                         .then(m => m.OrderDetail)
             },
+            // ---- seller console: ROLE_SELLER only --------------------------
+            // 'new' sits before ':publicId' so it is matched as a literal rather than swallowed as
+            // an id - Angular takes the first match, not the most specific.
+            {
+                path: 'seller/products',
+                canActivate: [roleGuard('SELLER')],
+                loadComponent: () =>
+                    import('@features/seller/pages/seller-products/seller-products')
+                        .then(m => m.SellerProducts)
+            },
+            {
+                path: 'seller/products/new',
+                canActivate: [roleGuard('SELLER')],
+                loadComponent: () =>
+                    import('@features/seller/pages/seller-product-form/seller-product-form')
+                        .then(m => m.SellerProductForm)
+            },
+            {
+                path: 'seller/products/:publicId',
+                canActivate: [roleGuard('SELLER')],
+                loadComponent: () =>
+                    import('@features/seller/pages/seller-product-form/seller-product-form')
+                        .then(m => m.SellerProductForm)
+            },
+            {
+                path: 'seller/stock',
+                canActivate: [roleGuard('SELLER')],
+                loadComponent: () =>
+                    import('@features/seller/pages/seller-stock/seller-stock')
+                        .then(m => m.SellerStock)
+            },
+            {
+                path: 'seller/orders',
+                canActivate: [roleGuard('SELLER')],
+                loadComponent: () =>
+                    import('@features/seller/pages/seller-orders/seller-orders')
+                        .then(m => m.SellerOrders)
+            },
+
+            // ---- admin console: ROLE_ADMIN only ---------------------------
+            // No guard on the redirect itself. A route cannot usefully carry both a redirect and a
+            // canActivate guard - the pair renders a blank page - and the target route
+            // below is guarded, which is where the check belongs anyway.
+            {
+                path: 'admin',
+                redirectTo: 'admin/moderation',
+                pathMatch: 'full'
+            },
+            {
+                path: 'admin/moderation',
+                canActivate: [roleGuard('ADMIN')],
+                loadComponent: () =>
+                    import('@features/admin/pages/moderation/moderation')
+                        .then(m => m.Moderation)
+            },
+            {
+                path: 'admin/operations',
+                canActivate: [roleGuard('ADMIN')],
+                loadComponent: () =>
+                    import('@features/admin/pages/operations/operations')
+                        .then(m => m.Operations)
+            },
+            {
+                path: 'admin/categories',
+                canActivate: [roleGuard('ADMIN')],
+                loadComponent: () =>
+                    import('@features/admin/pages/categories/categories')
+                        .then(m => m.Categories)
+            },
+
             {
                 path: 'account',
                 canActivate: [authGuard],

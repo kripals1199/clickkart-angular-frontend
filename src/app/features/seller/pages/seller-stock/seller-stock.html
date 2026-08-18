@@ -1,0 +1,166 @@
+<div class="page">
+
+  <h1 class="page__title">Stock</h1>
+  <p class="page__subtitle">What you can still sell, and what's already spoken for.</p>
+
+  <nav class="account-nav">
+    <a class="account-nav__link" routerLink="/seller/products">Listings</a>
+    <a class="account-nav__link account-nav__link--active" routerLink="/seller/stock">Stock</a>
+    <a class="account-nav__link" routerLink="/seller/orders">Orders</a>
+  </nav>
+
+  @if (savedMessage()) {
+    <p class="notice" role="status">{{ savedMessage() }}</p>
+  }
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  <div class="toolbar">
+    <div class="tabs">
+      <button type="button" class="tabs__tab" [class.tabs__tab--active]="!lowOnly()" (click)="lowOnly() && toggleLowOnly()">
+        All SKUs
+      </button>
+      <button type="button" class="tabs__tab" [class.tabs__tab--active]="lowOnly()" (click)="!lowOnly() && toggleLowOnly()">
+        Low stock only
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+
+    <div class="card">
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+    </div>
+
+  } @else if (failed()) {
+
+    <p class="alert" role="alert">Your stock could not be loaded.</p>
+    <button type="button" class="btn btn--quiet" (click)="fetch(0)">Try again</button>
+
+  } @else if (items().length === 0) {
+
+    <div class="empty">
+      <p class="empty__title">{{ lowOnly() ? 'Nothing is running low' : 'No stock records yet' }}</p>
+      <p class="empty__copy">
+        {{ lowOnly()
+          ? 'Every SKU is above its reorder level.'
+          : 'Stock rows appear once your listings have variants.' }}
+      </p>
+    </div>
+
+  } @else {
+
+    <div class="stock">
+      @for (item of items(); track item.sku) {
+        <article class="row card" [class.row--low]="item.lowStock">
+
+          <div class="row__main">
+            <p class="row__sku">{{ item.sku }}</p>
+            <p class="row__updated">Updated {{ item.updatedDate | date: 'd MMM y, h:mm a' }}</p>
+            @if (!item.stockTrackingEnabled) {
+              <p class="row__untracked">Stock tracking is off — this SKU always reads as available.</p>
+            } @else if (item.lowStock) {
+              <p class="row__low">At or below the reorder level of {{ item.reorderLevel }}.</p>
+            }
+          </div>
+
+          <div class="row__numbers">
+            <div class="stat">
+              <span class="stat__value">{{ item.availableQuantity }}</span>
+              <span class="stat__label">Available</span>
+            </div>
+            <div class="stat">
+              <span class="stat__value stat__value--muted">{{ item.reservedQuantity }}</span>
+              <span class="stat__label">Reserved</span>
+            </div>
+          </div>
+
+          <div class="row__actions">
+            <button
+              type="button"
+              class="btn btn--quiet row__action"
+              [disabled]="busySku() === item.sku"
+              (click)="openSku() === item.sku ? close() : openAdjustment(item.sku)"
+            >
+              {{ openSku() === item.sku ? 'Close' : 'Adjust' }}
+            </button>
+            <button
+              type="button"
+              class="btn btn--quiet row__action"
+              [disabled]="busySku() === item.sku"
+              (click)="toggleTracking(item)"
+            >
+              {{ item.stockTrackingEnabled ? 'Stop tracking' : 'Track stock' }}
+            </button>
+          </div>
+
+          @if (openSku() === item.sku) {
+            <div class="adjust">
+              <div class="adjust__row">
+                <div class="field">
+                  <label class="field__label" [for]="'delta-' + item.sku">Change by</label>
+                  <input
+                    [id]="'delta-' + item.sku"
+                    type="number"
+                    step="1"
+                    [ngModel]="delta()"
+                    (ngModelChange)="delta.set($event)"
+                    placeholder="e.g. 25 or -3"
+                  />
+                  <span class="field__hint field__hint--muted">Negative writes stock off.</span>
+                </div>
+
+                <div class="field">
+                  <label class="field__label" [for]="'reason-' + item.sku">Reason</label>
+                  <select [id]="'reason-' + item.sku" [ngModel]="reason()" (ngModelChange)="reason.set($event)">
+                    @for (option of reasons; track option.value) {
+                      <option [value]="option.value">{{ option.label }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field__label" [for]="'note-' + item.sku">Note</label>
+                <input
+                  [id]="'note-' + item.sku"
+                  type="text"
+                  maxlength="300"
+                  [ngModel]="note()"
+                  (ngModelChange)="note.set($event)"
+                  placeholder="Optional — what happened"
+                />
+              </div>
+
+              <button
+                type="button"
+                class="btn btn--brand"
+                [disabled]="busySku() === item.sku"
+                (click)="adjust(item)"
+              >
+                {{ busySku() === item.sku ? 'Saving…' : 'Record adjustment' }}
+              </button>
+            </div>
+          }
+
+        </article>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <nav class="pager" aria-label="Pagination">
+        <button type="button" class="btn btn--quiet" [disabled]="pageIndex() === 0" (click)="fetch(pageIndex() - 1)">
+          Previous
+        </button>
+        <span class="pager__position">Page {{ pageIndex() + 1 }} of {{ totalPages() }}</span>
+        <button type="button" class="btn btn--quiet" [disabled]="isLast()" (click)="fetch(pageIndex() + 1)">
+          Next
+        </button>
+      </nav>
+    }
+
+  }
+
+</div>

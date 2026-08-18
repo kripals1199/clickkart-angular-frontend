@@ -1,0 +1,136 @@
+@use '../../seller' as *;
+
+.orders {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.order {
+  &__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.6rem;
+  }
+
+  &__reference {
+    margin: 0 0 0.2rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: $ink;
+    letter-spacing: 0.02em;
+  }
+
+  &__placed {
+    margin: 0;
+    font-size: 0.78rem;
+    color: $muted;
+  }
+
+  &__totals {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  &__subtotal {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: $ink;
+  }
+
+  &__subtotal-label {
+    font-size: 0.7rem;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__address {
+    margin: 0 0 1rem;
+    padding-bottom: 0.9rem;
+    border-bottom: 1px solid $line;
+    font-size: 0.82rem;
+    color: #414141;
+  }
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid $line;
+
+  &:last-child { border-bottom: 0; }
+
+  &__name {
+    margin: 0 0 0.15rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $ink;
+  }
+
+  &__variant,
+  &__meta {
+    margin: 0;
+    font-size: 0.78rem;
+    color: $muted;
+  }
+
+  &__tracking {
+    margin: 0.25rem 0 0;
+    font-size: 0.78rem;
+    color: $brand;
+  }
+
+  &__state {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__status {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #414141;
+  }
+
+  &__final {
+    font-size: 0.75rem;
+    color: $muted;
+  }
+
+  &__action {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.78rem;
+  }
+}
+
+.advance {
+  grid-column: 1 / -1;
+  margin-top: 0.6rem;
+  padding: 0.9rem;
+  background: #fafbfc;
+  border: 1px solid $line;
+  border-radius: 4px;
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 50rem) {
+  .item { grid-template-columns: 1fr; }
+  .advance__row { grid-template-columns: 1fr; }
+}

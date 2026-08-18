@@ -1,0 +1,161 @@
+<div class="page">
+
+  <h1 class="page__title">Orders to fulfil</h1>
+  <p class="page__subtitle">Only your items, from orders that may also contain other sellers'.</p>
+
+  <nav class="account-nav">
+    <a class="account-nav__link" routerLink="/seller/products">Listings</a>
+    <a class="account-nav__link" routerLink="/seller/stock">Stock</a>
+    <a class="account-nav__link account-nav__link--active" routerLink="/seller/orders">Orders</a>
+  </nav>
+
+  @if (savedMessage()) {
+    <p class="notice" role="status">{{ savedMessage() }}</p>
+  }
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (loading()) {
+
+    <div class="card">
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+    </div>
+
+  } @else if (failed()) {
+
+    <p class="alert" role="alert">Your orders could not be loaded.</p>
+    <button type="button" class="btn btn--quiet" (click)="fetch(0)">Try again</button>
+
+  } @else if (orders().length === 0) {
+
+    <div class="empty">
+      <p class="empty__title">Nothing to fulfil</p>
+      <p class="empty__copy">Orders containing your items will show up here.</p>
+    </div>
+
+  } @else {
+
+    <div class="orders">
+      @for (order of orders(); track order.orderReference) {
+        <article class="order card">
+
+          <div class="order__head">
+            <div>
+              <p class="order__reference">{{ order.orderReference }}</p>
+              <p class="order__placed">Placed {{ order.placedAt | date: 'd MMM y, h:mm a' }}</p>
+            </div>
+            <div class="order__totals">
+              <span class="order__subtotal">₹{{ order.sellerSubtotal }}</span>
+              <span class="order__subtotal-label">your share</span>
+            </div>
+          </div>
+
+          @if (order.deliveryAddress; as address) {
+            <p class="order__address">
+              {{ address.recipientName }} · {{ address.line1 }},
+              {{ address.city }}, {{ address.state }} {{ address.postalCode }} ·
+              {{ address.contactNumber }}
+            </p>
+          }
+
+          <div class="items">
+            @for (item of order.items; track item.sku) {
+              <div class="item">
+
+                <div class="item__main">
+                  <p class="item__name">{{ item.productName || item.sku }}</p>
+                  @if (item.variantName) {
+                    <p class="item__variant">{{ item.variantName }}</p>
+                  }
+                  <p class="item__meta">
+                    {{ item.sku }} · qty {{ item.quantity }} · ₹{{ item.lineTotal }}
+                  </p>
+                  @if (item.trackingReference) {
+                    <p class="item__tracking">Tracking: {{ item.trackingReference }}</p>
+                  }
+                </div>
+
+                <div class="item__state">
+                  <span class="item__status">{{ fulfilment(item) }}</span>
+
+                  @if (options(item).length > 0) {
+                    <button
+                      type="button"
+                      class="btn btn--quiet item__action"
+                      [disabled]="busyKey() === key(order, item)"
+                      (click)="openKey() === key(order, item) ? close() : open(order, item)"
+                    >
+                      {{ openKey() === key(order, item) ? 'Close' : 'Update' }}
+                    </button>
+                  } @else {
+                    <!-- Delivered and cancelled are the end of the line; the server refuses to move
+                         either, so nothing is offered. -->
+                    <span class="item__final">No further updates</span>
+                  }
+                </div>
+
+                @if (openKey() === key(order, item)) {
+                  <div class="advance">
+                    <div class="advance__row">
+                      <div class="field">
+                        <label class="field__label" [for]="'status-' + item.sku">Mark as</label>
+                        <select
+                          [id]="'status-' + item.sku"
+                          [ngModel]="targetStatus()"
+                          (ngModelChange)="targetStatus.set($event)"
+                        >
+                          @for (option of options(item); track option) {
+                            <option [value]="option">{{ label(option) }}</option>
+                          }
+                        </select>
+                      </div>
+
+                      <div class="field">
+                        <label class="field__label" [for]="'tracking-' + item.sku">Tracking reference</label>
+                        <input
+                          [id]="'tracking-' + item.sku"
+                          type="text"
+                          maxlength="100"
+                          [ngModel]="tracking()"
+                          (ngModelChange)="tracking.set($event)"
+                          placeholder="Optional"
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      class="btn btn--brand"
+                      [disabled]="busyKey() === key(order, item)"
+                      (click)="advance(order, item)"
+                    >
+                      {{ busyKey() === key(order, item) ? 'Saving…' : 'Save' }}
+                    </button>
+                  </div>
+                }
+
+              </div>
+            }
+          </div>
+
+        </article>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <nav class="pager" aria-label="Pagination">
+        <button type="button" class="btn btn--quiet" [disabled]="pageIndex() === 0" (click)="fetch(pageIndex() - 1)">
+          Previous
+        </button>
+        <span class="pager__position">Page {{ pageIndex() + 1 }} of {{ totalPages() }}</span>
+        <button type="button" class="btn btn--quiet" [disabled]="isLast()" (click)="fetch(pageIndex() + 1)">
+          Next
+        </button>
+      </nav>
+    }
+
+  }
+
+</div>

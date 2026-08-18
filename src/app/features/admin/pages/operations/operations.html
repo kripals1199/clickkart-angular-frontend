@@ -1,0 +1,295 @@
+<div class="page">
+
+  <h1 class="page__title">Operations</h1>
+  <p class="page__subtitle">Find orders and payments, and clear what is owed or unresolved.</p>
+
+  <nav class="account-nav">
+    <a class="account-nav__link" routerLink="/admin/moderation">Moderation</a>
+    <a class="account-nav__link account-nav__link--active" routerLink="/admin/operations">Operations</a>
+    <a class="account-nav__link" routerLink="/admin/categories">Categories</a>
+  </nav>
+
+  @if (savedMessage()) {
+    <p class="notice" role="status">{{ savedMessage() }}</p>
+  }
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  <div class="toolbar">
+    <div class="tabs">
+      @for (option of views; track option.value) {
+        <button
+          type="button"
+          class="tabs__tab"
+          [class.tabs__tab--active]="view() === option.value"
+          (click)="setView(option.value)"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (view() === 'unreported') {
+    <!-- The one queue that means money may have moved while the order still thinks it has not. -->
+    <p class="warn">
+      These payments never reported their outcome to Order Service. Money may have moved against an
+      order that still believes it is unpaid — each one needs reconciling by hand.
+    </p>
+  }
+
+  @if (view() === 'refunds') {
+    <p class="warn">
+      These orders owe money back. Issue the refund against the payment on the Payments view.
+    </p>
+  }
+
+  @if (view() === 'orders') {
+    <div class="tabs tabs--filters">
+      <button type="button" class="tabs__tab" [class.tabs__tab--active]="orderStatus() === null" (click)="setOrderStatus(null)">
+        Any status
+      </button>
+      @for (status of orderStatuses; track status) {
+        <button
+          type="button"
+          class="tabs__tab"
+          [class.tabs__tab--active]="orderStatus() === status"
+          (click)="setOrderStatus(status)"
+        >
+          {{ describe(status).label }}
+        </button>
+      }
+    </div>
+  }
+
+  @if (view() === 'payments') {
+    <div class="tabs tabs--filters">
+      <button type="button" class="tabs__tab" [class.tabs__tab--active]="paymentStatus() === null" (click)="setPaymentStatus(null)">
+        Any status
+      </button>
+      @for (status of paymentStatuses; track status) {
+        <button
+          type="button"
+          class="tabs__tab"
+          [class.tabs__tab--active]="paymentStatus() === status"
+          (click)="setPaymentStatus(status)"
+        >
+          {{ status }}
+        </button>
+      }
+    </div>
+  }
+
+  @if (loading()) {
+
+    <div class="card">
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+    </div>
+
+  } @else if (failed()) {
+
+    <p class="alert" role="alert">That could not be loaded.</p>
+    <button type="button" class="btn btn--quiet" (click)="fetch()">Try again</button>
+
+  } @else if (showingOrders()) {
+
+    @if (orders().length === 0) {
+      <div class="empty">
+        <p class="empty__title">{{ view() === 'refunds' ? 'Nothing owed' : 'No orders match' }}</p>
+        <p class="empty__copy">
+          {{ view() === 'refunds' ? 'No orders are waiting on a refund.' : 'Try a different status.' }}
+        </p>
+      </div>
+    } @else {
+      <div class="queue">
+        @for (order of orders(); track order.orderReference) {
+          <article class="item card">
+
+            <div class="item__main">
+              <div class="item__head">
+                <p class="item__name">{{ order.orderReference }}</p>
+                <span [class]="'badge badge--' + describe(order.status).tone">
+                  {{ describe(order.status).label }}
+                </span>
+                @if (order.refundRequired) {
+                  <span class="badge badge--bad">Refund owed</span>
+                }
+              </div>
+
+              <p class="item__meta">
+                Placed {{ order.placedAt | date: 'd MMM y, h:mm a' }} ·
+                {{ order.itemCount }} item{{ order.itemCount === 1 ? '' : 's' }} ·
+                ₹{{ order.totalAmount }}
+              </p>
+
+              @if (order.paymentDeadline && order.status === 'PENDING_PAYMENT') {
+                <p class="item__meta">Hold lapses {{ order.paymentDeadline | date: 'd MMM, h:mm a' }}</p>
+              }
+            </div>
+
+            <div class="item__actions">
+              <a class="btn btn--quiet item__action" [routerLink]="['/orders', order.orderReference]">
+                View
+              </a>
+              @if (order.status === 'PENDING_PAYMENT' || order.status === 'CONFIRMED') {
+                <button
+                  type="button"
+                  class="btn btn--quiet item__action"
+                  [disabled]="busyId() === order.orderReference"
+                  (click)="openId() === order.orderReference ? close() : openAction(order.orderReference)"
+                >
+                  {{ openId() === order.orderReference ? 'Cancel' : 'Cancel order' }}
+                </button>
+              }
+            </div>
+
+            @if (openId() === order.orderReference) {
+              <div class="decision">
+                @if (order.status === 'CONFIRMED') {
+                  <p class="warn">
+                    This order is already paid. Cancelling it creates a refund obligation that then
+                    has to be settled against the payment.
+                  </p>
+                }
+                <div class="field">
+                  <label class="field__label" [for]="'reason-' + order.orderReference">Reason</label>
+                  <input
+                    [id]="'reason-' + order.orderReference"
+                    type="text"
+                    maxlength="300"
+                    [ngModel]="reason()"
+                    (ngModelChange)="reason.set($event)"
+                    placeholder="Why is this being cancelled?"
+                  />
+                </div>
+                <button
+                  type="button"
+                  class="btn btn--cta"
+                  [disabled]="busyId() === order.orderReference"
+                  (click)="cancelOrder(order)"
+                >
+                  Confirm cancellation
+                </button>
+              </div>
+            }
+
+          </article>
+        }
+      </div>
+    }
+
+  } @else {
+
+    @if (payments().length === 0) {
+      <div class="empty">
+        <p class="empty__title">{{ view() === 'unreported' ? 'Nothing stuck' : 'No payments match' }}</p>
+        <p class="empty__copy">
+          {{ view() === 'unreported'
+            ? 'Every payment has reported its outcome.'
+            : 'Try a different status.' }}
+        </p>
+      </div>
+    } @else {
+      <div class="queue">
+        @for (payment of payments(); track payment.paymentReference) {
+          <article class="item card">
+
+            <div class="item__main">
+              <div class="item__head">
+                <p class="item__name">{{ payment.paymentReference }}</p>
+                <span [class]="'badge badge--' + (payment.status === 'CAPTURED' ? 'good' : payment.status === 'FAILED' ? 'bad' : 'pending')">
+                  {{ payment.status }}
+                </span>
+                @if (payment.refundState !== 'NONE') {
+                  <span class="badge badge--neutral">{{ payment.refundState }}</span>
+                }
+              </div>
+
+              <p class="item__seller">Order {{ payment.orderReference }}</p>
+              <p class="item__meta">
+                ₹{{ payment.amount }} {{ payment.currency }} · {{ payment.method }}
+                @if (payment.maskedInstrument) { · {{ payment.maskedInstrument }} }
+                · initiated {{ payment.initiatedAt | date: 'd MMM y, h:mm a' }}
+              </p>
+
+              @if (payment.refundedAmount) {
+                <p class="item__meta">Refunded ₹{{ payment.refundedAmount }} of ₹{{ payment.amount }}</p>
+              }
+              @if (payment.failureReason) {
+                <p class="item__warn">{{ payment.failureReason }}</p>
+              }
+              @if (payment.simulated) {
+                <p class="item__note">Simulated capture — no real money moved.</p>
+              }
+            </div>
+
+            <div class="item__actions">
+              @if (refundable(payment)) {
+                <button
+                  type="button"
+                  class="btn btn--quiet item__action"
+                  [disabled]="busyId() === payment.paymentReference"
+                  (click)="openId() === payment.paymentReference ? close() : openAction(payment.paymentReference, remaining(payment))"
+                >
+                  {{ openId() === payment.paymentReference ? 'Cancel' : 'Refund' }}
+                </button>
+              } @else {
+                <span class="item__final">
+                  {{ payment.status === 'CAPTURED' ? 'Fully refunded' : 'Not refundable' }}
+                </span>
+              }
+            </div>
+
+            @if (openId() === payment.paymentReference) {
+              <div class="decision">
+                <div class="decision__row">
+                  <div class="field">
+                    <label class="field__label" [for]="'amount-' + payment.paymentReference">Amount ₹</label>
+                    <input
+                      [id]="'amount-' + payment.paymentReference"
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      [max]="remaining(payment)"
+                      [ngModel]="amount()"
+                      (ngModelChange)="amount.set($event)"
+                    />
+                    <span class="field__hint field__hint--muted">
+                      ₹{{ remaining(payment) }} left to refund. Prefilled with the full remainder.
+                    </span>
+                  </div>
+
+                  <div class="field">
+                    <label class="field__label" [for]="'refund-reason-' + payment.paymentReference">Reason</label>
+                    <input
+                      [id]="'refund-reason-' + payment.paymentReference"
+                      type="text"
+                      maxlength="300"
+                      [ngModel]="reason()"
+                      (ngModelChange)="reason.set($event)"
+                      placeholder="Why is this being refunded?"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  class="btn btn--cta"
+                  [disabled]="busyId() === payment.paymentReference"
+                  (click)="refund(payment)"
+                >
+                  Issue refund
+                </button>
+              </div>
+            }
+
+          </article>
+        }
+      </div>
+    }
+
+  }
+
+</div>

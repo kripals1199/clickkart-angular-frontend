@@ -1,0 +1,241 @@
+<div class="page">
+
+  <h1 class="page__title">Moderation</h1>
+  <p class="page__subtitle">Listings waiting to go on sale, and sellers waiting to be allowed to sell.</p>
+
+  <nav class="account-nav">
+    <a class="account-nav__link account-nav__link--active" routerLink="/admin/moderation">Moderation</a>
+    <a class="account-nav__link" routerLink="/admin/operations">Operations</a>
+    <a class="account-nav__link" routerLink="/admin/categories">Categories</a>
+  </nav>
+
+  @if (savedMessage()) {
+    <p class="notice" role="status">{{ savedMessage() }}</p>
+  }
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  <div class="toolbar">
+    <div class="tabs">
+      <button type="button" class="tabs__tab" [class.tabs__tab--active]="tab() === 'listings'" (click)="switchTab('listings')">
+        Listings
+      </button>
+      <button type="button" class="tabs__tab" [class.tabs__tab--active]="tab() === 'sellers'" (click)="switchTab('sellers')">
+        Sellers
+      </button>
+    </div>
+
+    @if (tab() === 'sellers') {
+      <div class="tabs">
+        @for (option of sellerFilters; track option.label) {
+          <button
+            type="button"
+            class="tabs__tab"
+            [class.tabs__tab--active]="sellerFilter() === option.value"
+            (click)="setSellerFilter(option.value)"
+          >
+            {{ option.label }}
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  @if (loading()) {
+
+    <div class="card">
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+    </div>
+
+  } @else if (failed()) {
+
+    <p class="alert" role="alert">The moderation queue could not be loaded.</p>
+    <button type="button" class="btn btn--quiet" (click)="fetch()">Try again</button>
+
+  } @else if (tab() === 'listings') {
+
+    @if (listings().length === 0) {
+      <div class="empty">
+        <p class="empty__title">Queue is clear</p>
+        <p class="empty__copy">No listings are waiting for review.</p>
+      </div>
+    } @else {
+      <div class="queue">
+        @for (product of listings(); track product.publicId) {
+          <article class="item card">
+
+            <div class="item__main">
+              <p class="item__name">{{ product.name }}</p>
+              <p class="item__meta">
+                {{ product.brand || 'No brand' }} ·
+                {{ product.variants.length }} variant{{ product.variants.length === 1 ? '' : 's' }} ·
+                submitted {{ product.updatedDate | date: 'd MMM y, h:mm a' }}
+              </p>
+              <p class="item__seller">Seller {{ product.sellerPublicId }}</p>
+
+              @if (product.description) {
+                <p class="item__description">{{ product.description }}</p>
+              }
+
+              <ul class="variants">
+                @for (variant of product.variants; track variant.sku) {
+                  <li>
+                    <span class="variants__sku">{{ variant.sku }}</span>
+                    {{ variant.variantName }} — ₹{{ variant.sellingPrice }}
+                    @if (variant.mrp > variant.sellingPrice) {
+                      <span class="variants__mrp">MRP ₹{{ variant.mrp }}</span>
+                    }
+                  </li>
+                }
+              </ul>
+            </div>
+
+            <div class="item__actions">
+              <button
+                type="button"
+                class="btn btn--brand item__action"
+                [disabled]="busyId() === product.publicId"
+                (click)="approveListing(product)"
+              >
+                Approve
+              </button>
+              <button
+                type="button"
+                class="btn btn--quiet item__action"
+                [disabled]="busyId() === product.publicId"
+                (click)="openId() === product.publicId ? close() : openRejection(product.publicId)"
+              >
+                {{ openId() === product.publicId ? 'Cancel' : 'Reject' }}
+              </button>
+            </div>
+
+            @if (openId() === product.publicId) {
+              <div class="decision">
+                <div class="field">
+                  <label class="field__label" [for]="'reason-' + product.publicId">Why is this rejected?</label>
+                  <input
+                    [id]="'reason-' + product.publicId"
+                    type="text"
+                    maxlength="500"
+                    [ngModel]="reason()"
+                    (ngModelChange)="reason.set($event)"
+                    placeholder="e.g. Photos do not match the described product"
+                  />
+                  <span class="field__hint field__hint--muted">
+                    The seller sees exactly this, and nothing else.
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  class="btn btn--cta"
+                  [disabled]="busyId() === product.publicId"
+                  (click)="rejectListing(product)"
+                >
+                  Confirm rejection
+                </button>
+              </div>
+            }
+
+          </article>
+        }
+      </div>
+    }
+
+  } @else {
+
+    @if (sellers().length === 0) {
+      <div class="empty">
+        <p class="empty__title">Nothing here</p>
+        <p class="empty__copy">No seller profiles match that filter.</p>
+      </div>
+    } @else {
+      <div class="queue">
+        @for (seller of sellers(); track seller.userPublicId) {
+          <article class="item card">
+
+            <div class="item__main">
+              <div class="item__head">
+                <p class="item__name">{{ seller.businessName }}</p>
+                <span [class]="'badge badge--' + sellerTone(seller)">{{ seller.verificationStatus }}</span>
+              </div>
+
+              <p class="item__seller">{{ seller.userPublicId }}</p>
+              <p class="item__meta">
+                GSTIN {{ seller.gstin || '—' }} ·
+                {{ seller.supportEmail || 'no support email' }} ·
+                {{ seller.supportPhone || 'no phone' }}
+              </p>
+              <p class="item__meta">
+                Registered {{ seller.createdDate | date: 'd MMM y' }}
+                @if (seller.verificationDecidedAt) {
+                  · decided {{ seller.verificationDecidedAt | date: 'd MMM y' }}
+                }
+              </p>
+
+              @if (seller.verificationNote) {
+                <p class="item__note">Note on file: {{ seller.verificationNote }}</p>
+              }
+
+              @if (!seller.pickupAddressId) {
+                <p class="item__warn">No pickup address set — they cannot ship yet.</p>
+              }
+            </div>
+
+            <div class="item__actions">
+              @if (seller.verificationStatus !== 'VERIFIED') {
+                <button
+                  type="button"
+                  class="btn btn--brand item__action"
+                  [disabled]="busyId() === seller.userPublicId"
+                  (click)="verifySeller(seller)"
+                >
+                  Verify
+                </button>
+              }
+              @if (seller.verificationStatus !== 'REJECTED') {
+                <button
+                  type="button"
+                  class="btn btn--quiet item__action"
+                  [disabled]="busyId() === seller.userPublicId"
+                  (click)="openId() === seller.userPublicId ? close() : openRejection(seller.userPublicId)"
+                >
+                  {{ openId() === seller.userPublicId ? 'Cancel' : 'Reject' }}
+                </button>
+              }
+            </div>
+
+            @if (openId() === seller.userPublicId) {
+              <div class="decision">
+                <div class="field">
+                  <label class="field__label" [for]="'note-' + seller.userPublicId">Why is verification refused?</label>
+                  <input
+                    [id]="'note-' + seller.userPublicId"
+                    type="text"
+                    maxlength="500"
+                    [ngModel]="reason()"
+                    (ngModelChange)="reason.set($event)"
+                    placeholder="e.g. GSTIN does not match the business name"
+                  />
+                  <span class="field__hint field__hint--muted">The seller sees this note.</span>
+                </div>
+                <button
+                  type="button"
+                  class="btn btn--cta"
+                  [disabled]="busyId() === seller.userPublicId"
+                  (click)="rejectSeller(seller)"
+                >
+                  Confirm rejection
+                </button>
+              </div>
+            }
+
+          </article>
+        }
+      </div>
+    }
+
+  }
+
+</div>

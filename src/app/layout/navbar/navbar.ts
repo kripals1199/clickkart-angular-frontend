@@ -10,6 +10,7 @@
 
 import {
   Component,
+  computed,
   effect,
   inject,
   signal
@@ -26,7 +27,6 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatBadgeModule } from '@angular/material/badge';
 import { MatSidenavModule } from '@angular/material/sidenav';
 
 @Component({
@@ -39,7 +39,6 @@ import { MatSidenavModule } from '@angular/material/sidenav';
     MatButtonModule,
     MatIconModule,
     MatInputModule,
-    MatBadgeModule,
     MatSidenavModule
   ],
   templateUrl: './navbar.html',
@@ -59,6 +58,15 @@ export class Navbar {
   readonly isAuthenticated = this.auth.isAuthenticated;
   readonly currentUser = this.auth.currentUser;
   readonly cartCount = this.cart.itemCount;
+
+  /**
+   * Only actual sellers see the console entry. There is no "become a seller" flow built yet, so
+   * showing the link to everyone would advertise a door that opens onto a redirect.
+   */
+  readonly isSeller = computed(() => this.auth.hasRole('SELLER'));
+
+  /** Same reasoning as the seller entry: only operators see the console link. */
+  readonly isAdmin = computed(() => this.auth.hasRole('ADMIN'));
 
   constructor() {
     // Load the basket once on arrival if there is already a session, so the badge is right on a

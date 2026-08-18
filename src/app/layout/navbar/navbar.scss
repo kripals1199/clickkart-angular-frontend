@@ -219,3 +219,110 @@
   }
 
 }
+/* CART
+   ClickKart's own control rather than a Material icon button. The rest of this bar is white text
+   on the brand blue, so a lone glyph with Material's detached warn-red badge read as a borrowed
+   widget sitting in someone else's navbar. Icon plus label matches the neighbours; the count uses
+   the storefront's CTA orange, which is the accent already carrying "act on this" everywhere else
+   on the site. */
+
+.cart {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 6px 12px;
+  border-radius: 4px;
+
+  color: white;
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  transition: background 0.15s ease;
+}
+
+.cart:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.cart:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.cart__icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Stroked rather than filled, so it sits at the same visual weight as the text beside it - a
+   solid glyph next to 500-weight type reads as heavier than everything else in the bar. */
+.cart__icon svg {
+  width: 24px;
+  height: 24px;
+
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cart__count {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+
+  border-radius: 9px;
+  background: #fb641b;
+
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+
+  /* Rings the bubble in the bar's own blue so it stays legible where it crosses the cart's
+     strokes, instead of the two fighting each other. */
+  box-shadow: 0 0 0 2px #2874f0;
+}
+
+/* The mobile menu is white with dark text, so the count rides inline next to the label there
+   rather than floating over an icon that menu does not show. */
+.cart__count-inline {
+  display: inline-block;
+
+  min-width: 18px;
+  margin-left: 6px;
+  padding: 0 5px;
+
+  border-radius: 9px;
+  background: #fb641b;
+
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+/* Tight desktop widths: drop the word before the search box starts losing room. The icon and its
+   count still say everything the label did. */
+@media screen and (max-width: 900px) {
+
+  .cart__label {
+    display: none;
+  }
+
+  .cart {
+    padding: 6px 8px;
+  }
+
+}

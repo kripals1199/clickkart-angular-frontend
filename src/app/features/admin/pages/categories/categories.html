@@ -1,0 +1,195 @@
+<div class="page">
+
+  <h1 class="page__title">Categories</h1>
+  <p class="page__subtitle">The catalog taxonomy, including branches hidden from the storefront.</p>
+
+  <nav class="account-nav">
+    <a class="account-nav__link" routerLink="/admin/moderation">Moderation</a>
+    <a class="account-nav__link" routerLink="/admin/operations">Operations</a>
+    <a class="account-nav__link account-nav__link--active" routerLink="/admin/categories">Categories</a>
+  </nav>
+
+  @if (savedMessage()) {
+    <p class="notice" role="status">{{ savedMessage() }}</p>
+  }
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (formOpen()) {
+    <form class="card category-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <h2 class="category-form__title">
+        {{ editingId() === null ? 'New category' : 'Edit category' }}
+      </h2>
+
+      <div class="category-form__row">
+        <div class="field" [class.field--invalid]="form.controls.name.touched && form.controls.name.invalid">
+          <label class="field__label" for="name">Name</label>
+          <input id="name" type="text" formControlName="name" maxlength="120" />
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <span class="field__hint">A name is required.</span>
+          }
+        </div>
+
+        <div class="field" [class.field--invalid]="form.controls.slug.touched && form.controls.slug.invalid">
+          <label class="field__label" for="slug">Slug</label>
+          <input id="slug" type="text" formControlName="slug" maxlength="140" placeholder="leave blank to derive" />
+          @if (form.controls.slug.touched && form.controls.slug.invalid) {
+            <span class="field__hint">Lowercase letters, digits and single hyphens.</span>
+          }
+          <span class="field__hint field__hint--muted">This becomes the customer-visible URL segment.</span>
+        </div>
+      </div>
+
+      <div class="category-form__row">
+        <div class="field">
+          <label class="field__label" for="parent">Parent</label>
+          <select id="parent" formControlName="parentPublicId">
+            <option value="">None — this is a root category</option>
+            @for (row of parentOptions(); track row.category.publicId) {
+              <option [value]="row.category.publicId">
+                {{ '— '.repeat(row.depth) }}{{ row.category.name }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="displayOrder">Display order</label>
+          <input id="displayOrder" type="number" min="0" formControlName="displayOrder" />
+          <span class="field__hint field__hint--muted">Lower sorts first among siblings.</span>
+        </div>
+      </div>
+
+      <div class="field" [class.field--invalid]="form.controls.imageUrl.touched && form.controls.imageUrl.invalid">
+        <label class="field__label" for="imageUrl">Image URL</label>
+        <input id="imageUrl" type="url" formControlName="imageUrl" maxlength="500" placeholder="https://…" />
+        @if (form.controls.imageUrl.touched && form.controls.imageUrl.invalid) {
+          <span class="field__hint">Must be an https:// URL, or left empty.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="description">Description</label>
+        <textarea id="description" formControlName="description" rows="3" maxlength="1000"></textarea>
+      </div>
+
+      <div class="category-form__actions">
+        <button type="submit" class="btn btn--brand" [disabled]="saving()">
+          {{ saving() ? 'Saving…' : editingId() === null ? 'Create category' : 'Save changes' }}
+        </button>
+        <button type="button" class="btn btn--quiet" (click)="cancel()">Cancel</button>
+      </div>
+    </form>
+  }
+
+  @if (loading()) {
+
+    <div class="card">
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+    </div>
+
+  } @else if (failed()) {
+
+    <p class="alert" role="alert">The category tree could not be loaded.</p>
+    <button type="button" class="btn btn--quiet" (click)="load()">Try again</button>
+
+  } @else {
+
+    @if (!formOpen()) {
+      <button type="button" class="btn btn--cta tree__add" (click)="startAdd()">New root category</button>
+    }
+
+    @if (rows().length === 0) {
+      <div class="empty">
+        <p class="empty__title">No categories yet</p>
+        <p class="empty__copy">Create a root category to start the taxonomy.</p>
+      </div>
+    } @else {
+      <div class="tree card">
+        @for (row of rows(); track row.category.publicId) {
+          <div class="node" [style.padding-left.rem]="1 + row.depth * 1.5">
+
+            <div class="node__main">
+              <span class="node__name" [class.node__name--inactive]="!row.category.active">
+                {{ row.category.name }}
+              </span>
+
+              @if (!row.category.active) {
+                <span class="badge badge--neutral">Hidden</span>
+              }
+              @if (row.category.leaf) {
+                <span class="node__leaf">leaf — can hold products</span>
+              }
+
+              <span class="node__slug">/{{ row.category.slug }}</span>
+            </div>
+
+            <div class="node__actions">
+              <button
+                type="button"
+                class="btn btn--quiet node__action"
+                [disabled]="busyId() === row.category.publicId"
+                (click)="startEdit(row.category)"
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                class="btn btn--quiet node__action"
+                [disabled]="busyId() === row.category.publicId"
+                (click)="startAdd(row.category.publicId)"
+              >
+                Add child
+              </button>
+              <button
+                type="button"
+                class="btn btn--quiet node__action"
+                [disabled]="busyId() === row.category.publicId"
+                (click)="toggleActive(row.category)"
+              >
+                {{ row.category.active ? 'Hide' : 'Show' }}
+              </button>
+              <button
+                type="button"
+                class="btn btn--danger-text"
+                [disabled]="busyId() === row.category.publicId"
+                (click)="confirmDelete(row.category.publicId)"
+              >
+                Delete
+              </button>
+            </div>
+
+            @if (confirmingDelete() === row.category.publicId) {
+              <div class="node__confirm">
+                <!-- Says what the platform actually does. Category deletion does not currently
+                     refuse a category that still has products on it, so promising the server will
+                     catch that would be wrong. Hiding is the reversible option. -->
+                <p class="warn">
+                  Delete <strong>{{ row.category.name }}</strong>? This cannot be undone, and the
+                  platform does not currently stop you deleting a category that still has products
+                  assigned to it. If you only want it off the storefront, hide it instead.
+                </p>
+                <div class="node__confirm-actions">
+                  <button
+                    type="button"
+                    class="btn btn--cta"
+                    [disabled]="busyId() === row.category.publicId"
+                    (click)="remove(row.category)"
+                  >
+                    Delete permanently
+                  </button>
+                  <button type="button" class="btn btn--quiet" (click)="cancelDelete()">Keep it</button>
+                </div>
+              </div>
+            }
+
+          </div>
+        }
+      </div>
+    }
+
+  }
+
+</div>

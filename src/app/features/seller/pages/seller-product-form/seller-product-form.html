@@ -1,0 +1,178 @@
+<div class="page">
+
+  <a class="form__back" routerLink="/seller/products">← Your listings</a>
+
+  @if (loading()) {
+
+    <div class="card">
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+    </div>
+
+  } @else if (failed()) {
+
+    <div class="empty">
+      <p class="empty__title">We couldn't load that listing</p>
+      <p class="empty__copy">It may not exist, or it may belong to another seller.</p>
+      <a class="btn btn--quiet" routerLink="/seller/products">Back to your listings</a>
+    </div>
+
+  } @else {
+
+    <h1 class="page__title">{{ isNew() ? 'New listing' : existing()?.name }}</h1>
+
+    @if (statusHint(); as status) {
+      <p class="page__subtitle">
+        <span [class]="'badge badge--' + status.tone">{{ status.label }}</span>
+        <span class="form__status-hint">{{ status.hint }}</span>
+      </p>
+    }
+
+    @if (readOnly()) {
+      <p class="warn">
+        This listing isn't editable in its current state — it's shown here read-only.
+      </p>
+    }
+
+    @if (existing()?.rejectionReason; as reason) {
+      <p class="alert">Moderation rejected this: {{ reason }}</p>
+    }
+
+    @if (errorMessage()) {
+      <p class="alert" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+
+      <section class="card form__section">
+        <h2 class="form__heading">Listing details</h2>
+
+        <div class="field" [class.field--invalid]="form.controls.name.touched && form.controls.name.invalid">
+          <label class="field__label" for="name">Product name</label>
+          <input id="name" type="text" formControlName="name" maxlength="200" />
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <span class="field__hint">A name is required.</span>
+          }
+        </div>
+
+        <div class="form__row">
+          <div class="field" [class.field--invalid]="form.controls.brand.touched && form.controls.brand.invalid">
+            <label class="field__label" for="brand">Brand</label>
+            <input id="brand" type="text" formControlName="brand" maxlength="120" />
+          </div>
+
+          <div class="field" [class.field--invalid]="form.controls.categoryPublicId.touched && form.controls.categoryPublicId.invalid">
+            <label class="field__label" for="category">Category</label>
+            <select id="category" formControlName="categoryPublicId">
+              <option value="">Choose a category</option>
+              @for (category of categories(); track category.publicId) {
+                <option [value]="category.publicId">{{ category.name }}</option>
+              }
+            </select>
+            <span class="field__hint field__hint--muted">
+              Only the most specific categories can hold products.
+            </span>
+          </div>
+        </div>
+
+        <div class="field" [class.field--invalid]="form.controls.slug.touched && form.controls.slug.invalid">
+          <label class="field__label" for="slug">URL slug</label>
+          <input id="slug" type="text" formControlName="slug" maxlength="220" placeholder="left blank, we'll make one" />
+          @if (form.controls.slug.touched && form.controls.slug.invalid) {
+            <span class="field__hint">Lowercase letters, digits and single hyphens only.</span>
+          }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="description">Description</label>
+          <textarea id="description" formControlName="description" rows="5" maxlength="4000"></textarea>
+        </div>
+      </section>
+
+      <section class="card form__section">
+        <div class="form__section-head">
+          <h2 class="form__heading">Variants</h2>
+          @if (!readOnly()) {
+            <button type="button" class="btn btn--quiet form__add" (click)="addVariant()">
+              Add a variant
+            </button>
+          }
+        </div>
+
+        <p class="form__note">
+          Each variant is what customers actually buy — the SKU travels through stock, baskets and
+          orders, so it can't be changed casually once it's in use.
+        </p>
+
+        <div formArrayName="variants" class="variants">
+          @for (variant of variants.controls; track $index; let i = $index) {
+            <fieldset class="variant" [formGroupName]="i">
+              <legend class="variant__legend">Variant {{ i + 1 }}</legend>
+
+              <div class="form__row">
+                <div class="field" [class.field--invalid]="variant.get('sku')?.touched && variant.get('sku')?.invalid">
+                  <label class="field__label" [for]="'sku-' + i">SKU</label>
+                  <input [id]="'sku-' + i" type="text" formControlName="sku" maxlength="64" />
+                  @if (variant.get('sku')?.touched && variant.get('sku')?.invalid) {
+                    <span class="field__hint">3–64 letters, digits, hyphens or underscores.</span>
+                  }
+                </div>
+
+                <div class="field" [class.field--invalid]="variant.get('variantName')?.touched && variant.get('variantName')?.invalid">
+                  <label class="field__label" [for]="'variantName-' + i">Variant name</label>
+                  <input [id]="'variantName-' + i" type="text" formControlName="variantName" maxlength="150" placeholder="e.g. Blue / M" />
+                </div>
+              </div>
+
+              <div class="form__row">
+                <div class="field" [class.field--invalid]="variant.get('mrp')?.touched && variant.get('mrp')?.invalid">
+                  <label class="field__label" [for]="'mrp-' + i">MRP ₹</label>
+                  <input [id]="'mrp-' + i" type="number" step="0.01" min="0.01" formControlName="mrp" />
+                </div>
+
+                <div class="field" [class.field--invalid]="variant.get('sellingPrice')?.touched && variant.get('sellingPrice')?.invalid">
+                  <label class="field__label" [for]="'sellingPrice-' + i">Selling price ₹</label>
+                  <input [id]="'sellingPrice-' + i" type="number" step="0.01" min="0.01" formControlName="sellingPrice" />
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field__label" [for]="'attributes-' + i">Attributes</label>
+                <textarea
+                  [id]="'attributes-' + i"
+                  formControlName="attributes"
+                  rows="3"
+                  placeholder="colour: Blue&#10;size: M"
+                ></textarea>
+                <span class="field__hint field__hint--muted">One per line, as “name: value”. Up to 20.</span>
+              </div>
+
+              @if (!readOnly() && variants.length > 1) {
+                <button type="button" class="btn btn--danger-text" (click)="removeVariant(i)">
+                  Remove this variant
+                </button>
+              }
+            </fieldset>
+          }
+        </div>
+      </section>
+
+      @if (!readOnly()) {
+        <div class="form__actions">
+          <button type="submit" class="btn btn--cta" [disabled]="saving()">
+            {{ saving() ? 'Saving…' : isNew() ? 'Create listing' : 'Save changes' }}
+          </button>
+          <a class="btn btn--quiet" routerLink="/seller/products">Cancel</a>
+        </div>
+
+        <p class="form__note">
+          Saving keeps this as a draft. It only reaches customers once you submit it for review from
+          the listings page.
+        </p>
+      }
+
+    </form>
+
+  }
+
+</div>

@@ -1,0 +1,110 @@
+@use '../../seller' as *;
+
+.stock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 1.5rem;
+  align-items: center;
+
+  &--low {
+    border-color: #f0d3a8;
+    background: #fffdf8;
+  }
+
+  &__sku {
+    margin: 0 0 0.2rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: $ink;
+    letter-spacing: 0.02em;
+  }
+
+  &__updated {
+    margin: 0;
+    font-size: 0.78rem;
+    color: $muted;
+  }
+
+  &__low {
+    margin: 0.4rem 0 0;
+    font-size: 0.8rem;
+    color: #7a4a00;
+  }
+
+  &__untracked {
+    margin: 0.4rem 0 0;
+    font-size: 0.8rem;
+    color: $muted;
+  }
+
+  &__numbers {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 9rem;
+  }
+
+  &__action {
+    padding: 0.45rem 0.8rem;
+    font-size: 0.8rem;
+  }
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 4.5rem;
+
+  &__value {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: $ink;
+
+    &--muted { color: $muted; }
+  }
+
+  &__label {
+    font-size: 0.7rem;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+}
+
+.adjust {
+  grid-column: 1 / -1;
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid $line;
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 55rem) {
+  .row {
+    grid-template-columns: 1fr;
+
+    &__actions {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+  }
+
+  .adjust__row { grid-template-columns: 1fr; }
+}

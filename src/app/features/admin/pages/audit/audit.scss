@@ -1,0 +1,111 @@
+// This page renders no queue rows or decision panels, so it takes the console furniture and the
+// badge directly rather than the whole admin partial - carrying rules it never draws is what
+// pushed it past the component style budget.
+@use '../../../console' as *;
+@use '../../../orders/badge' as *;
+@use '../../../account/account-nav' as *;
+
+.audit__count {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  color: $muted;
+}
+
+.chain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.entry {
+  padding: 0.9rem 1.1rem;
+
+  // The row the verification blames. Loud on purpose: everything recorded after it is unproven.
+  &--broken {
+    border-color: $danger;
+    box-shadow: inset 0 0 0 1px $danger;
+    background: #fffafa;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+
+  &__action {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: $ink;
+    letter-spacing: 0.02em;
+  }
+
+  &__when {
+    margin-left: auto;
+    font-size: 0.78rem;
+    color: $muted;
+  }
+
+  &__meta {
+    margin: 0 0 0.3rem;
+    font-size: 0.8rem;
+    color: #414141;
+
+    &--faint {
+      color: $muted;
+      font-size: 0.75rem;
+    }
+  }
+
+  &__label {
+    font-size: 0.68rem;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__details {
+    margin: 0.4rem 0 0;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: #414141;
+  }
+}
+
+.hashes {
+  margin-top: 0.7rem;
+  padding-top: 0.6rem;
+  border-top: 1px dashed $line;
+
+  &__row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.15rem 0;
+  }
+
+  &__value {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 0.75rem;
+    color: $ink;
+
+    // The link backwards is deliberately quieter than the entry's own hash.
+    &--prev { color: $muted; }
+  }
+
+  &__id {
+    margin-left: auto;
+    font-size: 0.7rem;
+    color: $muted;
+  }
+}
+
+// The server's own words about why it failed, kept on its own line - it is free text with no
+// guaranteed punctuation, so splicing it mid-sentence produced run-ons.
+.audit__reason {
+  display: block;
+  margin-top: 0.35rem;
+  font-style: italic;
+}

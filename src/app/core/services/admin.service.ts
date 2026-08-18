@@ -8,6 +8,7 @@ import { Category, Product } from '@core/models/catalog.model';
 import { Order, OrderStatus, OrderSummary } from '@core/models/order.model';
 import { Payment, PaymentStatus } from '@core/models/payment.model';
 import { UserProfile } from '@core/models/user.model';
+import { UserSummary } from '@core/models/auth.model';
 import {
   CategoryRequest,
   Refund,
@@ -35,6 +36,7 @@ export class AdminService {
   private readonly orders = `${environment.gatewayUrl}/api/v1/orders/admin`;
   private readonly payments = `${environment.gatewayUrl}/api/v1/payments/admin`;
   private readonly users = `${environment.gatewayUrl}/api/v1/users`;
+  private readonly accounts = `${environment.gatewayUrl}/api/v1/auth/accounts`;
 
   private paged(page: number, size: number): HttpParams {
     return new HttpParams().set('page', String(page)).set('size', String(size));
@@ -152,6 +154,56 @@ export class AdminService {
   listRefunds(paymentReference: string): Observable<ApiResponse<Refund[]>> {
     return this.http.get<ApiResponse<Refund[]>>(
       `${this.payments}/${encodeURIComponent(paymentReference)}/refunds`,
+    );
+  }
+
+  // ---- accounts -----------------------------------------------------------
+  // Auth Service owns credentials and roles; User Service owns the profile. These are the
+  // credential-side controls, which is why they live under /auth rather than /users.
+
+  browseAccounts(
+    roleType: string | null,
+    locked: boolean | null,
+    email: string,
+    page = 0,
+    size = 20,
+  ): Observable<ApiResponse<PageResponse<UserSummary>>> {
+    let params = this.paged(page, size);
+    if (roleType) {
+      params = params.set('roleType', roleType);
+    }
+    if (locked !== null) {
+      params = params.set('locked', String(locked));
+    }
+    if (email.trim()) {
+      params = params.set('email', email.trim());
+    }
+    return this.http.get<ApiResponse<PageResponse<UserSummary>>>(this.accounts, { params });
+  }
+
+  /**
+   * Locking revokes the account's live sessions as well as blocking new sign-ins - blocking only
+   * the front door would leave whoever is already inside there.
+   */
+  lockAccount(publicId: string): Observable<ApiResponse<UserSummary>> {
+    return this.http.post<ApiResponse<UserSummary>>(
+      `${this.accounts}/${encodeURIComponent(publicId)}/lock`,
+      {},
+    );
+  }
+
+  unlockAccount(publicId: string): Observable<ApiResponse<UserSummary>> {
+    return this.http.post<ApiResponse<UserSummary>>(
+      `${this.accounts}/${encodeURIComponent(publicId)}/unlock`,
+      {},
+    );
+  }
+
+  /** Soft delete - the row survives so past orders still resolve to someone. */
+  deleteAccount(publicId: string): Observable<ApiResponse<UserSummary>> {
+    return this.http.post<ApiResponse<UserSummary>>(
+      `${this.accounts}/${encodeURIComponent(publicId)}/delete`,
+      {},
     );
   }
 

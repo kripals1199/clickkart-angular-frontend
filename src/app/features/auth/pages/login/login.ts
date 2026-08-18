@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '@core/services/auth.service';
+import { OtpChannel } from '@core/models/auth.model';
 
 /**
  * Sign-in. Deliberately thinner than registration in two ways.
@@ -33,6 +34,16 @@ export class Login {
   readonly errorMessage = signal<string | null>(null);
   readonly showPassword = signal(false);
 
+  /**
+   * Passwordless mode. A separate mode rather than a separate page, because the identifier is the
+   * same thing either way - switching should not make the user retype it.
+   */
+  readonly mode = signal<'password' | 'otp'>('password');
+  readonly otpChannel = signal<OtpChannel>('EMAIL');
+  readonly otpSent = signal(false);
+  readonly otpCode = signal('');
+  readonly sendingOtp = signal(false);
+
   readonly form = this.fb.nonNullable.group({
     identifier: ['', [Validators.required]],
     // Only `required` - the password policy belongs on the forms that set a password. Enforcing
@@ -43,6 +54,75 @@ export class Login {
 
   togglePassword(): void {
     this.showPassword.update((shown) => !shown);
+  }
+
+  /**
+   * One submit handler so the Enter key does whatever the visible button does. Without this the
+   * form would always attempt a password login, which in one-time-code mode means submitting a
+   * password field that is not even on screen.
+   */
+  onSubmit(): void {
+    if (this.mode() === 'password') {
+      this.submit();
+    } else if (this.otpSent()) {
+      this.verifyOtp();
+    } else {
+      this.sendOtp();
+    }
+  }
+
+  switchMode(mode: 'password' | 'otp'): void {
+    this.mode.set(mode);
+    this.errorMessage.set(null);
+    this.otpSent.set(false);
+    this.otpCode.set('');
+  }
+
+  /**
+   * Step one. The response is identical whether or not the identifier matches an account, and this
+   * says the same - "if there is an account" - rather than confirming one exists.
+   */
+  sendOtp(): void {
+    const identifier = this.form.controls.identifier.value.trim();
+    if (!identifier || this.sendingOtp()) {
+      this.form.controls.identifier.markAsTouched();
+      return;
+    }
+
+    this.sendingOtp.set(true);
+    this.errorMessage.set(null);
+
+    this.auth.requestOtp(identifier, this.otpChannel()).subscribe({
+      next: () => {
+        this.sendingOtp.set(false);
+        this.otpSent.set(true);
+      },
+      error: (err) => {
+        this.sendingOtp.set(false);
+        this.errorMessage.set(this.describe(err?.error?.error));
+      },
+    });
+  }
+
+  /** Step two. Establishes a session exactly as a password login does. */
+  verifyOtp(): void {
+    const identifier = this.form.controls.identifier.value.trim();
+    const code = this.otpCode().trim();
+    if (!identifier || !code || this.submitting()) {
+      return;
+    }
+
+    this.submitting.set(true);
+    this.errorMessage.set(null);
+
+    this.auth.verifyOtp(identifier, code).subscribe({
+      next: () => this.router.navigateByUrl(this.returnUrl()),
+      error: (err) => {
+        this.submitting.set(false);
+        this.errorMessage.set(this.describe(err?.error?.error));
+        this.otpCode.set('');
+      },
+    });
   }
 
   submit(): void {
@@ -94,6 +174,8 @@ export class Login {
         return 'Those details did not match an account. Check them and try again.';
       case 'ACCOUNT_LOCKED':
         return this.describeLockout(error?.metadata?.['lockedUntil']);
+      case 'INVALID_OTP':
+        return 'That code is not right, or it has expired. Ask for a new one.';
       case 'RATE_LIMIT_EXCEEDED':
         return 'Too many attempts from this network. Please wait a little and try again.';
       case 'VALIDATION_FAILED':

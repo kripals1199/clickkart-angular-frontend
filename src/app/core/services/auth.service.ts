@@ -5,13 +5,19 @@ import { Observable, tap } from 'rxjs';
 import { environment } from '@env/environment';
 import {
   AuthTokens,
+  ChangePasswordRequest,
+  ConfirmContactVerificationRequest,
   ForgotPasswordRequest,
   LoginRequest,
   LoginResponse,
+  OtpChannel,
   RegisterRequest,
+  RequestContactVerificationRequest,
+  RequestOtpRequest,
   ResetPasswordRequest,
   SessionUser,
   UserSummary,
+  VerifyOtpRequest,
 } from '@core/models/auth.model';
 import { ApiResponse } from '@core/models/api-response';
 
@@ -130,6 +136,49 @@ export class AuthService {
    */
   resetPassword(request: ResetPasswordRequest): Observable<ApiResponse<void>> {
     return this.http.post<ApiResponse<void>>(`${this.baseUrl}/reset-password`, request);
+  }
+
+  /**
+   * Changes the password of the signed-in account. The current one is required even though the
+   * session is already authenticated: a stolen token should not be enough to lock the real owner
+   * out. Establishes no new session - the existing token keeps working.
+   */
+  changePassword(request: ChangePasswordRequest): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.baseUrl}/change-password`, request);
+  }
+
+  /**
+   * Sends a code to the address or number already on the account. There is no parameter for a new
+   * contact on purpose - this proves you control what is on file, it does not change it.
+   */
+  requestContactVerification(channel: OtpChannel): Observable<ApiResponse<void>> {
+    const request: RequestContactVerificationRequest = { channel };
+    return this.http.post<ApiResponse<void>>(`${this.baseUrl}/verify-contact/request`, request);
+  }
+
+  confirmContactVerification(channel: OtpChannel, code: string): Observable<ApiResponse<void>> {
+    const request: ConfirmContactVerificationRequest = { channel, code };
+    return this.http.post<ApiResponse<void>>(`${this.baseUrl}/verify-contact/confirm`, request);
+  }
+
+  /**
+   * Step one of passwordless sign-in. Public, and answered identically whether or not the
+   * identifier matches an account - so callers must not report "no such account" from it either.
+   */
+  requestOtp(identifier: string, channel: OtpChannel): Observable<ApiResponse<void>> {
+    const request: RequestOtpRequest = { identifier, channel };
+    return this.http.post<ApiResponse<void>>(`${this.baseUrl}/otp/request`, request);
+  }
+
+  /**
+   * Step two. Returns the same payload as a password login and therefore establishes a session the
+   * same way - which is why it goes through store() rather than being treated as a bare check.
+   */
+  verifyOtp(identifier: string, otp: string): Observable<ApiResponse<LoginResponse>> {
+    const request: VerifyOtpRequest = { identifier, otp };
+    return this.http
+      .post<ApiResponse<LoginResponse>>(`${this.baseUrl}/otp/verify`, request)
+      .pipe(tap((res) => res.data && this.store(res.data)));
   }
 
   private store(response: LoginResponse): void {

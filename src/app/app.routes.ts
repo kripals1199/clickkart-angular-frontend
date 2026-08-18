@@ -155,6 +155,20 @@ export const routes: Routes = [
                         .then(m => m.Operations)
             },
             {
+                path: 'admin/accounts',
+                canActivate: [roleGuard('ADMIN')],
+                loadComponent: () =>
+                    import('@features/admin/pages/accounts/accounts')
+                        .then(m => m.Accounts)
+            },
+            {
+                path: 'admin/audit',
+                canActivate: [roleGuard('ADMIN')],
+                loadComponent: () =>
+                    import('@features/admin/pages/audit/audit')
+                        .then(m => m.Audit)
+            },
+            {
                 path: 'admin/categories',
                 canActivate: [roleGuard('ADMIN')],
                 loadComponent: () =>
@@ -168,6 +182,13 @@ export const routes: Routes = [
                 loadComponent: () =>
                     import('@features/account/pages/profile/profile')
                         .then(m => m.Profile)
+            },
+            {
+                path: 'account/security',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                    import('@features/account/pages/security/security')
+                        .then(m => m.Security)
             },
             {
                 path: 'account/addresses',

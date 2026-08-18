@@ -1,0 +1,154 @@
+<div class="page">
+
+  <h1 class="page__title">Audit trail</h1>
+  <p class="page__subtitle">
+    Every state change, hash-chained so tampering shows. Each service keeps its own chain.
+  </p>
+
+  <nav class="account-nav">
+    <a class="account-nav__link" routerLink="/admin/moderation">Moderation</a>
+    <a class="account-nav__link" routerLink="/admin/operations">Operations</a>
+    <a class="account-nav__link" routerLink="/admin/categories">Categories</a>
+    <a class="account-nav__link" routerLink="/admin/accounts">Accounts</a>
+    <a class="account-nav__link account-nav__link--active" routerLink="/admin/audit">Audit</a>
+  </nav>
+
+  <div class="toolbar">
+    <div class="tabs">
+      @for (option of sources; track option.key) {
+        <button
+          type="button"
+          class="tabs__tab"
+          [class.tabs__tab--active]="source().key === option.key"
+          (click)="select(option)"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+
+    <button type="button" class="btn btn--brand" [disabled]="verifying()" (click)="verify()">
+      {{ verifying() ? 'Verifying…' : 'Verify this chain' }}
+    </button>
+  </div>
+
+  @if (verifyFailed()) {
+    <!-- Deliberately not phrased as a broken chain: a failed check says nothing either way. -->
+    <p class="alert" role="alert">
+      The verification could not be run. That's a problem reaching the service, not a finding about
+      the chain.
+    </p>
+  }
+
+  @if (report(); as result) {
+    @if (result.intact) {
+      <p class="notice" role="status">
+        Chain intact — {{ result.entriesChecked }}
+        {{ result.entriesChecked === 1 ? 'entry' : 'entries' }} recomputed and every link matched.
+      </p>
+    } @else {
+      <p class="alert" role="alert">
+        <strong>Chain broken.</strong>
+        Checked {{ result.entriesChecked }}
+        {{ result.entriesChecked === 1 ? 'entry' : 'entries' }}; the first mismatch is at entry
+        {{ result.brokenAtEntryId }}. Everything recorded after that point should be treated as
+        unproven.
+        <span class="audit__reason">
+          {{ result.reason || 'Recomputation disagreed with a stored hash.' }}
+        </span>
+      </p>
+    }
+  }
+
+  @if (loading()) {
+
+    <div class="card">
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+    </div>
+
+  } @else if (failed()) {
+
+    <p class="alert" role="alert">The {{ source().label }} audit log could not be loaded.</p>
+    <button type="button" class="btn btn--quiet" (click)="fetch(0)">Try again</button>
+
+  } @else if (entries().length === 0) {
+
+    <div class="empty">
+      <p class="empty__title">Nothing recorded yet</p>
+      <p class="empty__copy">{{ source().label }} has no audit entries.</p>
+    </div>
+
+  } @else {
+
+    <p class="audit__count">
+      {{ totalEntries() }} {{ totalEntries() === 1 ? 'entry' : 'entries' }} in the
+      {{ source().label }} chain, newest first
+    </p>
+
+    <div class="chain">
+      @for (entry of entries(); track entry.id) {
+        <article class="entry card" [class.entry--broken]="isBroken(entry)">
+
+          <div class="entry__head">
+            <span class="entry__action">{{ entry.action }}</span>
+            <span [class]="'badge badge--' + (entry.outcome === 'SUCCESS' ? 'good' : 'bad')">
+              {{ entry.outcome }}
+            </span>
+            @if (isBroken(entry)) {
+              <span class="badge badge--bad">Chain breaks here</span>
+            }
+            <span class="entry__when">{{ entry.occurredAt | date: 'd MMM y, HH:mm:ss' }}</span>
+          </div>
+
+          <p class="entry__meta">
+            <span class="entry__label">Actor</span> {{ entry.actor || 'system' }}
+            @if (entry.ipAddress) {
+              · <span class="entry__label">IP</span> {{ entry.ipAddress }}
+            }
+            @if (entry.correlationId) {
+              · <span class="entry__label">Correlation</span> {{ entry.correlationId }}
+            }
+          </p>
+
+          @if (entry.userAgent) {
+            <p class="entry__meta entry__meta--faint">{{ entry.userAgent }}</p>
+          }
+
+          @if (entry.details) {
+            <p class="entry__details">{{ entry.details }}</p>
+          }
+
+          <!-- Shown as a link, because that is what it is: each hash covers the row plus the hash
+               before it, which is exactly why editing history cannot go unnoticed. -->
+          <div class="hashes">
+            <div class="hashes__row">
+              <span class="entry__label">Follows</span>
+              <code class="hashes__value hashes__value--prev">{{ short(entry.previousEntryHash) }}</code>
+            </div>
+            <div class="hashes__row">
+              <span class="entry__label">This entry</span>
+              <code class="hashes__value" [title]="entry.entryHash">{{ short(entry.entryHash) }}</code>
+              <span class="hashes__id">#{{ entry.id }}</span>
+            </div>
+          </div>
+
+        </article>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <nav class="pager" aria-label="Pagination">
+        <button type="button" class="btn btn--quiet" [disabled]="pageIndex() === 0" (click)="fetch(pageIndex() - 1)">
+          Previous
+        </button>
+        <span class="pager__position">Page {{ pageIndex() + 1 }} of {{ totalPages() }}</span>
+        <button type="button" class="btn btn--quiet" [disabled]="isLast()" (click)="fetch(pageIndex() + 1)">
+          Next
+        </button>
+      </nav>
+    }
+
+  }
+
+</div>

@@ -1,0 +1,33 @@
+@use '../../admin' as *;
+
+.search {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+  max-width: 30rem;
+
+  input {
+    flex: 1;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid $line;
+    border-radius: 2px;
+    font-size: 0.9rem;
+    color: $ink;
+
+    &:focus {
+      outline: none;
+      border-color: $brand;
+    }
+  }
+}
+
+.item__final {
+  font-size: 0.76rem;
+  color: $muted;
+  text-align: right;
+}
+
+.decision__actions {
+  display: flex;
+  gap: 0.6rem;
+}

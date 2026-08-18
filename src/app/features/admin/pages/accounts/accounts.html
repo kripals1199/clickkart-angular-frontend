@@ -1,0 +1,200 @@
+<div class="page">
+
+  <h1 class="page__title">Accounts</h1>
+  <p class="page__subtitle">Credentials, roles and lockouts. Profiles and addresses live elsewhere.</p>
+
+  <nav class="account-nav">
+    <a class="account-nav__link" routerLink="/admin/moderation">Moderation</a>
+    <a class="account-nav__link" routerLink="/admin/operations">Operations</a>
+    <a class="account-nav__link" routerLink="/admin/categories">Categories</a>
+    <a class="account-nav__link account-nav__link--active" routerLink="/admin/accounts">Accounts</a>
+    <a class="account-nav__link" routerLink="/admin/audit">Audit</a>
+  </nav>
+
+  @if (savedMessage()) {
+    <p class="notice" role="status">{{ savedMessage() }}</p>
+  }
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  <div class="toolbar">
+    <div class="tabs">
+      @for (option of roles; track option.label) {
+        <button
+          type="button"
+          class="tabs__tab"
+          [class.tabs__tab--active]="roleFilter() === option.value"
+          (click)="setRole(option.value)"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+
+    <div class="tabs">
+      <button type="button" class="tabs__tab" [class.tabs__tab--active]="lockedFilter() === null" (click)="setLocked(null)">
+        Any state
+      </button>
+      <button type="button" class="tabs__tab" [class.tabs__tab--active]="lockedFilter() === true" (click)="setLocked(true)">
+        Locked
+      </button>
+      <button type="button" class="tabs__tab" [class.tabs__tab--active]="lockedFilter() === false" (click)="setLocked(false)">
+        Unlocked
+      </button>
+    </div>
+  </div>
+
+  <div class="search">
+    <input
+      type="search"
+      [ngModel]="emailQuery()"
+      (ngModelChange)="emailQuery.set($event)"
+      (keyup.enter)="search()"
+      placeholder="Filter by email"
+      aria-label="Filter by email"
+    />
+    <button type="button" class="btn btn--quiet" (click)="search()">Search</button>
+  </div>
+
+  @if (loading()) {
+
+    <div class="card">
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+    </div>
+
+  } @else if (failed()) {
+
+    <p class="alert" role="alert">Accounts could not be loaded.</p>
+    <button type="button" class="btn btn--quiet" (click)="fetch(0)">Try again</button>
+
+  } @else if (accounts().length === 0) {
+
+    <div class="empty">
+      <p class="empty__title">No accounts match</p>
+      <p class="empty__copy">Try a different role, state or email.</p>
+    </div>
+
+  } @else {
+
+    <div class="queue">
+      @for (account of accounts(); track account.publicId) {
+        <article class="item card">
+
+          <div class="item__main">
+            <div class="item__head">
+              <p class="item__name">{{ account.email }}</p>
+
+              @if (account.locked) {
+                <span class="badge badge--bad">Locked</span>
+              }
+              @if (!account.enabled) {
+                <span class="badge badge--neutral">Deleted</span>
+              }
+              @if (isSelf(account)) {
+                <span class="badge badge--pending">You</span>
+              }
+            </div>
+
+            <p class="item__seller">{{ account.publicId }}</p>
+
+            <p class="item__meta">
+              {{ account.mobileNumber }} ·
+              {{ account.roles.length ? account.roles.join(', ') : 'no roles' }}
+            </p>
+
+            <p class="item__meta">
+              Joined {{ account.createdDate | date: 'd MMM y' }}
+              @if (account.lastLoginAt) {
+                · last signed in {{ account.lastLoginAt | date: 'd MMM y, HH:mm' }}
+              } @else {
+                · never signed in
+              }
+            </p>
+
+            <p class="item__meta">
+              Email {{ account.emailVerified ? 'verified' : 'unverified' }} ·
+              mobile {{ account.mobileVerified ? 'verified' : 'unverified' }}
+            </p>
+          </div>
+
+          <div class="item__actions">
+            @if (isSelf(account)) {
+              <!-- No self-service lockout. The server may well allow it; letting an operator do it
+                   by accident costs someone else a database edit to undo. -->
+              <span class="item__final">This is your own account</span>
+            } @else {
+              @if (account.locked) {
+                <button
+                  type="button"
+                  class="btn btn--brand item__action"
+                  [disabled]="busyId() === account.publicId"
+                  (click)="unlock(account)"
+                >
+                  Unlock
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  class="btn btn--quiet item__action"
+                  [disabled]="busyId() === account.publicId"
+                  (click)="lock(account)"
+                >
+                  Lock
+                </button>
+              }
+
+              @if (account.enabled) {
+                <button
+                  type="button"
+                  class="btn btn--danger-text"
+                  [disabled]="busyId() === account.publicId"
+                  (click)="confirmDelete(account.publicId)"
+                >
+                  Delete
+                </button>
+              }
+            }
+          </div>
+
+          @if (confirmingDelete() === account.publicId) {
+            <div class="decision">
+              <p class="warn">
+                Delete <strong>{{ account.email }}</strong>? This is a soft delete — the record stays
+                so past orders and audit entries still resolve to someone, but the account can no
+                longer sign in.
+              </p>
+              <div class="decision__actions">
+                <button
+                  type="button"
+                  class="btn btn--cta"
+                  [disabled]="busyId() === account.publicId"
+                  (click)="remove(account)"
+                >
+                  Delete account
+                </button>
+                <button type="button" class="btn btn--quiet" (click)="cancelDelete()">Keep it</button>
+              </div>
+            </div>
+          }
+
+        </article>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <nav class="pager" aria-label="Pagination">
+        <button type="button" class="btn btn--quiet" [disabled]="pageIndex() === 0" (click)="fetch(pageIndex() - 1)">
+          Previous
+        </button>
+        <span class="pager__position">Page {{ pageIndex() + 1 }} of {{ totalPages() }}</span>
+        <button type="button" class="btn btn--quiet" [disabled]="isLast()" (click)="fetch(pageIndex() + 1)">
+          Next
+        </button>
+      </nav>
+    }
+
+  }
+
+</div>

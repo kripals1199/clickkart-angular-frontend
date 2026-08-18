@@ -15,7 +15,31 @@
       </ul>
     </aside>
 
-    <form class="auth__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <form class="auth__form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+      <!-- Two ways in, one identifier. Switching modes keeps whatever was already typed. -->
+      <div class="modes" role="tablist">
+        <button
+          type="button"
+          class="modes__tab"
+          [class.modes__tab--active]="mode() === 'password'"
+          [attr.aria-selected]="mode() === 'password'"
+          role="tab"
+          (click)="switchMode('password')"
+        >
+          Password
+        </button>
+        <button
+          type="button"
+          class="modes__tab"
+          [class.modes__tab--active]="mode() === 'otp'"
+          [attr.aria-selected]="mode() === 'otp'"
+          role="tab"
+          (click)="switchMode('otp')"
+        >
+          One-time code
+        </button>
+      </div>
 
       @if (errorMessage()) {
         <p class="alert" role="alert">{{ errorMessage() }}</p>
@@ -38,38 +62,110 @@
         }
       </div>
 
-      <div class="field">
-        <label class="field__label" for="password">Password</label>
-        <div class="field__with-action">
-          <input
-            id="password"
-            [type]="showPassword() ? 'text' : 'password'"
-            formControlName="password"
-            autocomplete="current-password"
-            placeholder="Your password"
-            [class.field__input--invalid]="form.controls.password.touched && form.controls.password.invalid"
-          />
-          <button
-            type="button"
-            class="field__action"
-            (click)="togglePassword()"
-            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
-          >
-            {{ showPassword() ? 'Hide' : 'Show' }}
-          </button>
+      @if (mode() === 'password') {
+
+        <div class="field">
+          <label class="field__label" for="password">Password</label>
+          <div class="field__with-action">
+            <input
+              id="password"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              autocomplete="current-password"
+              placeholder="Your password"
+              [class.field__input--invalid]="form.controls.password.touched && form.controls.password.invalid"
+            />
+            <button
+              type="button"
+              class="field__action"
+              (click)="togglePassword()"
+              [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+            >
+              {{ showPassword() ? 'Hide' : 'Show' }}
+            </button>
+          </div>
+          @if (form.controls.password.touched && form.controls.password.invalid) {
+            <span class="field__hint">Enter your password.</span>
+          }
         </div>
-        @if (form.controls.password.touched && form.controls.password.invalid) {
-          <span class="field__hint">Enter your password.</span>
+
+        <p class="auth__helper">
+          <a routerLink="/forgot-password">Forgot password?</a>
+        </p>
+
+        <button type="submit" class="auth__submit" [disabled]="submitting()">
+          {{ submitting() ? 'Signing in…' : 'Sign in' }}
+        </button>
+
+      } @else {
+
+        @if (!otpSent()) {
+
+          <div class="field">
+            <span class="field__label">Send the code to</span>
+            <div class="channels">
+              <button
+                type="button"
+                class="channels__option"
+                [class.channels__option--selected]="otpChannel() === 'EMAIL'"
+                [attr.aria-pressed]="otpChannel() === 'EMAIL'"
+                (click)="otpChannel.set('EMAIL')"
+              >
+                Email
+              </button>
+              <button
+                type="button"
+                class="channels__option"
+                [class.channels__option--selected]="otpChannel() === 'SMS'"
+                [attr.aria-pressed]="otpChannel() === 'SMS'"
+                (click)="otpChannel.set('SMS')"
+              >
+                SMS
+              </button>
+            </div>
+            <span class="field__hint field__hint--muted">
+              The code goes to the address or number on the account — not to whatever you type above.
+            </span>
+          </div>
+
+          <button type="submit" class="auth__submit" [disabled]="sendingOtp()">
+            {{ sendingOtp() ? 'Sending…' : 'Send me a code' }}
+          </button>
+
+        } @else {
+
+          <!-- Deliberately conditional: the server answers the same whether or not the identifier
+               matches an account, so this must not confirm that one does. -->
+          <p class="notice" role="status">
+            If there's an account for that, a code is on its way.
+          </p>
+
+          <div class="field">
+            <label class="field__label" for="otp">Enter the code</label>
+            <input
+              id="otp"
+              type="text"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              maxlength="10"
+              spellcheck="false"
+              [value]="otpCode()"
+              (input)="otpCode.set($any($event.target).value)"
+              placeholder="6-digit code"
+            />
+          </div>
+
+          <button type="submit" class="auth__submit" [disabled]="submitting() || !otpCode()">
+            {{ submitting() ? 'Signing in…' : 'Sign in' }}
+          </button>
+
+          <p class="auth__helper">
+            <a href="#" (click)="$event.preventDefault(); switchMode('otp')">Send a new code</a>
+          </p>
+
         }
-      </div>
 
-      <p class="auth__helper">
-        <a routerLink="/forgot-password">Forgot password?</a>
-      </p>
-
-      <button type="submit" class="auth__submit" [disabled]="submitting()">
-        {{ submitting() ? 'Signing in…' : 'Sign in' }}
-      </button>
+      }
 
       <p class="auth__alt">
         New to ClickKart? <a routerLink="/register">Create an account</a>

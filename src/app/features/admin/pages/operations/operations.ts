@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { AdminService } from '@core/services/admin.service';
 import { OrderStatus, OrderSummary } from '@core/models/order.model';
@@ -29,6 +29,7 @@ type View = 'orders' | 'refunds' | 'payments' | 'unreported';
 })
 export class Operations {
   private readonly admin = inject(AdminService);
+  private readonly route = inject(ActivatedRoute);
 
   readonly view = signal<View>('orders');
   readonly loading = signal(true);
@@ -70,6 +71,13 @@ export class Operations {
   readonly paymentStatuses: PaymentStatus[] = ['INITIATED', 'CAPTURED', 'FAILED', 'ABANDONED'];
 
   constructor() {
+    // The dashboard's worklist links straight at a queue, so honour ?view= rather than always
+    // opening on Orders - a link that names a queue and then lands somewhere else is worse than
+    // no link. Anything unrecognised falls back to the default rather than showing an empty page.
+    const requested = this.route.snapshot.queryParamMap.get('view');
+    if (requested && this.views.some((option) => option.value === requested)) {
+      this.view.set(requested as View);
+    }
     this.fetch();
   }
 

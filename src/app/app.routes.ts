@@ -132,13 +132,15 @@ export const routes: Routes = [
             },
 
             // ---- admin console: ROLE_ADMIN only ---------------------------
-            // No guard on the redirect itself. A route cannot usefully carry both a redirect and a
-            // canActivate guard - the pair renders a blank page - and the target route
-            // below is guarded, which is where the check belongs anyway.
+            // /admin is the dashboard rather than a redirect into one of the work surfaces:
+            // moderation was an arbitrary landing place, and the worklist is what an operator
+            // actually wants to see first.
             {
                 path: 'admin',
-                redirectTo: 'admin/moderation',
-                pathMatch: 'full'
+                canActivate: [roleGuard('ADMIN')],
+                loadComponent: () =>
+                    import('@features/admin/pages/dashboard/dashboard')
+                        .then(m => m.AdminDashboard)
             },
             {
                 path: 'admin/moderation',

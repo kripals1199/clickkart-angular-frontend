@@ -217,6 +217,30 @@ export class AdminService {
     return this.http.get<ApiResponse<PageResponse<UserProfile>>>(this.users, { params });
   }
 
+  profile(userPublicId: string): Observable<ApiResponse<UserProfile>> {
+    return this.http.get<ApiResponse<UserProfile>>(
+      `${this.users}/${encodeURIComponent(userPublicId)}`,
+    );
+  }
+
+  /**
+   * Data-protection erasure: wipes the personal fields and stamps `erasedAt`, leaving the row so
+   * past orders still resolve to someone.
+   *
+   * <p>Not the same action as locking or soft-deleting the account, which lives on Auth Service and
+   * governs whether they can sign in. One removes the person's data; the other removes their way
+   * in. Doing either does not do the other, and callers must not imply otherwise.
+   *
+   * <p>This is the only write on the whole admin profile surface - an operator may look a customer
+   * up for a support case, but editing someone else's profile on their behalf is deliberately not a
+   * flow, because the change would not be attributable to the customer who supposedly made it.
+   */
+  eraseProfile(userPublicId: string): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(
+      `${this.users}/${encodeURIComponent(userPublicId)}`,
+    );
+  }
+
   browseSellers(
     status: SellerVerificationStatus | null,
     page = 0,

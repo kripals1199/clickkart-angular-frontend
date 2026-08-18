@@ -162,6 +162,13 @@ export const routes: Routes = [
                         .then(m => m.Accounts)
             },
             {
+                path: 'admin/profiles',
+                canActivate: [roleGuard('ADMIN')],
+                loadComponent: () =>
+                    import('@features/admin/pages/profiles/profiles')
+                        .then(m => m.Profiles)
+            },
+            {
                 path: 'admin/audit',
                 canActivate: [roleGuard('ADMIN')],
                 loadComponent: () =>

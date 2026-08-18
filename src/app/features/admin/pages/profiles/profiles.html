@@ -1,0 +1,161 @@
+<div class="page">
+
+  <h1 class="page__title">Customer profiles</h1>
+  <p class="page__subtitle">Look a customer up for a support case, or action a data-protection request.</p>
+
+  <nav class="account-nav">
+    <a class="account-nav__link" routerLink="/admin/moderation">Moderation</a>
+    <a class="account-nav__link" routerLink="/admin/operations">Operations</a>
+    <a class="account-nav__link" routerLink="/admin/categories">Categories</a>
+    <a class="account-nav__link" routerLink="/admin/accounts">Accounts</a>
+    <a class="account-nav__link account-nav__link--active" routerLink="/admin/profiles">Profiles</a>
+    <a class="account-nav__link" routerLink="/admin/audit">Audit</a>
+  </nav>
+
+  @if (savedMessage()) {
+    <p class="notice" role="status">{{ savedMessage() }}</p>
+  }
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  <!-- The two "remove this person" actions live on different pages and do different things. Saying
+       so here is cheaper than an operator discovering it the wrong way round. -->
+  <p class="warn">
+    Profiles are read-only apart from erasure. Erasing wipes someone's personal data but leaves them
+    able to sign in — to stop that, lock or delete the account on
+    <a routerLink="/admin/accounts">Accounts</a>.
+  </p>
+
+  <div class="search">
+    <input
+      type="search"
+      [ngModel]="query()"
+      (ngModelChange)="query.set($event)"
+      (keyup.enter)="search()"
+      placeholder="Search by name or public id"
+      aria-label="Search by name or public id"
+    />
+    <button type="button" class="btn btn--quiet" (click)="search()">Search</button>
+  </div>
+
+  @if (loading()) {
+
+    <div class="card">
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+    </div>
+
+  } @else if (failed()) {
+
+    <p class="alert" role="alert">Profiles could not be loaded.</p>
+    <button type="button" class="btn btn--quiet" (click)="fetch(0)">Try again</button>
+
+  } @else if (profiles().length === 0) {
+
+    <div class="empty">
+      <p class="empty__title">No profiles match</p>
+      <p class="empty__copy">Try a different name or public id.</p>
+    </div>
+
+  } @else {
+
+    <p class="profiles__count">
+      {{ total() }} profile{{ total() === 1 ? '' : 's' }}
+    </p>
+
+    <div class="queue">
+      @for (profile of profiles(); track profile.userPublicId) {
+        <article class="item card" [class.item--erased]="profile.erasedAt">
+
+          <div class="item__main">
+            <div class="item__head">
+              <p class="item__name">{{ displayName(profile) }}</p>
+              @if (profile.erasedAt) {
+                <span class="badge badge--neutral">Erased</span>
+              }
+            </div>
+
+            <p class="item__seller">{{ profile.userPublicId }}</p>
+
+            @if (profile.erasedAt) {
+              <!-- Distinguishes an erased profile from one simply never filled in - both otherwise
+                   look identical, a profile of nulls. -->
+              <p class="item__meta">
+                Personal data erased {{ profile.erasedAt | date: 'd MMM y, HH:mm' }}.
+              </p>
+            } @else {
+              <p class="item__meta">
+                @if (profile.dateOfBirth) { Born {{ profile.dateOfBirth }} · }
+                {{ profile.gender || 'gender not specified' }} ·
+                {{ profile.preferredLanguage }} / {{ profile.preferredCurrency }}
+              </p>
+              <p class="item__meta">
+                Marketing: email {{ profile.marketingEmailOptIn ? 'yes' : 'no' }},
+                SMS {{ profile.marketingSmsOptIn ? 'yes' : 'no' }}
+              </p>
+            }
+
+            <p class="item__meta">
+              Created {{ profile.createdDate | date: 'd MMM y' }} ·
+              updated {{ profile.updatedDate | date: 'd MMM y' }}
+            </p>
+          </div>
+
+          <div class="item__actions">
+            @if (profile.erasedAt) {
+              <span class="item__final">Already erased</span>
+            } @else {
+              <button
+                type="button"
+                class="btn btn--danger-text"
+                [disabled]="busyId() === profile.userPublicId"
+                (click)="confirmErase(profile.userPublicId)"
+              >
+                Erase personal data
+              </button>
+            }
+          </div>
+
+          @if (confirmingErase() === profile.userPublicId) {
+            <div class="decision">
+              <p class="warn">
+                Erase the personal data on <strong>{{ profile.userPublicId }}</strong>? Name, date of
+                birth and preferences are wiped and cannot be recovered. The record itself stays so
+                past orders still resolve to someone, and
+                <strong>the account can still sign in</strong> — lock or delete it on Accounts if
+                that is what you meant.
+              </p>
+              <div class="decision__actions">
+                <button
+                  type="button"
+                  class="btn btn--cta"
+                  [disabled]="busyId() === profile.userPublicId"
+                  (click)="erase(profile)"
+                >
+                  Erase personal data
+                </button>
+                <button type="button" class="btn btn--quiet" (click)="cancelErase()">Cancel</button>
+              </div>
+            </div>
+          }
+
+        </article>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <nav class="pager" aria-label="Pagination">
+        <button type="button" class="btn btn--quiet" [disabled]="pageIndex() === 0" (click)="fetch(pageIndex() - 1)">
+          Previous
+        </button>
+        <span class="pager__position">Page {{ pageIndex() + 1 }} of {{ totalPages() }}</span>
+        <button type="button" class="btn btn--quiet" [disabled]="isLast()" (click)="fetch(pageIndex() + 1)">
+          Next
+        </button>
+      </nav>
+    }
+
+  }
+
+</div>

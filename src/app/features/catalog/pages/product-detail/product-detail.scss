@@ -160,3 +160,17 @@
     &__media { max-width: 18rem; }
   }
 }
+
+// ---- stock band ----------------------------------------------------------
+// Three states only, matching what the server discloses. There is deliberately no styling for an
+// exact count above the low threshold, because the server never sends one.
+.stock {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  &--good { color: $ok; }
+  &--low  { color: #b26a00; }
+  &--out  { color: $danger; }
+}

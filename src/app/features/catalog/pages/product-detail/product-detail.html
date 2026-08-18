@@ -70,6 +70,9 @@
                 >
                   <span class="options__name">{{ variant.variantName }}</span>
                   <span class="options__price">₹{{ variant.sellingPrice }}</span>
+                  @if (describeStock(variant.sku); as stock) {
+                    <span class="stock" [class]="'stock stock--' + stock.tone">{{ stock.label }}</span>
+                  }
                 </button>
               }
             </div>
@@ -99,13 +102,27 @@
             </p>
           }
 
+          @if (outOfStock()) {
+            <!-- Said before the button rather than only on it, because "why can't I buy this?" is
+                 the question a greyed-out button raises without answering. -->
+            <p class="warn">
+              That option is sold out. Pick another, or check back later.
+            </p>
+          }
+
           <button
             type="button"
             class="btn btn--cta detail__add"
-            [disabled]="!selected() || adding()"
+            [disabled]="!selected() || adding() || outOfStock()"
             (click)="addToCart()"
           >
-            {{ adding() ? 'Adding…' : selected() ? 'Add to basket' : 'Choose an option' }}
+            {{ adding()
+              ? 'Adding…'
+              : outOfStock()
+                ? 'Out of stock'
+                : selected()
+                  ? 'Add to basket'
+                  : 'Choose an option' }}
           </button>
 
           @if (!isAuthenticated()) {

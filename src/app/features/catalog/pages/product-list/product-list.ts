@@ -6,6 +6,8 @@ import { CatalogService } from '@core/services/catalog.service';
 import { Category, Product, ProductSearchParams } from '@core/models/catalog.model';
 import { PageResponse } from '@core/models/api-response';
 import { cheapestVariant } from '@shared/pricing';
+import { AvailabilityService } from '@core/services/availability.service';
+import { Availability, describeAvailability } from '@core/models/availability.model';
 
 /**
  * The listing page: search, filters and paging over the public catalog.
@@ -24,6 +26,7 @@ import { cheapestVariant } from '@shared/pricing';
 })
 export class ProductList {
   private readonly catalog = inject(CatalogService);
+  private readonly availability = inject(AvailabilityService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
@@ -32,6 +35,9 @@ export class ProductList {
   readonly failed = signal(false);
   readonly page = signal<PageResponse<Product> | null>(null);
   readonly categories = signal<Category[]>([]);
+
+  /** Availability for the SKUs this page quotes, keyed by SKU. */
+  readonly stock = signal<Map<string, Availability>>(new Map());
 
   readonly products = computed(() => this.page()?.content ?? []);
   readonly total = computed(() => this.page()?.totalElements ?? 0);
@@ -97,6 +103,16 @@ export class ProductList {
     return cheapestVariant(product);
   }
 
+  /**
+   * The band for the variant this tile quotes, not for the product as a whole. A listing can have
+   * one size sold out and the rest in stock, and the tile is only ever making a claim about the
+   * option it is showing a price for.
+   */
+  describeStock(product: Product) {
+    const variant = cheapestVariant(product);
+    return variant ? describeAvailability(this.stock().get(variant.sku)) : null;
+  }
+
   private fetch(page: number): void {
     this.loading.set(true);
     this.failed.set(false);
@@ -107,11 +123,33 @@ export class ProductList {
       next: (res) => {
         this.page.set(res.data);
         this.loading.set(false);
+        this.loadAvailability();
       },
       error: () => {
         this.loading.set(false);
         this.failed.set(true);
       },
+    });
+  }
+
+  /**
+   * One bulk lookup per page of results, for the quoted SKUs only - not every variant of every
+   * product, which would be a much larger request to render a single badge per tile.
+   */
+  private loadAvailability(): void {
+    const skus = this.products()
+      .map((product) => cheapestVariant(product)?.sku)
+      .filter((sku): sku is string => !!sku);
+
+    if (skus.length === 0) {
+      this.stock.set(new Map());
+      return;
+    }
+
+    this.availability.forSkus(skus).subscribe({
+      // Badges are an enhancement; the listing is still usable without them.
+      next: (map) => this.stock.set(map),
+      error: () => this.stock.set(new Map()),
     });
   }
 

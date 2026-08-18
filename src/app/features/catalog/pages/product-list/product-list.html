@@ -83,6 +83,9 @@
                   <span class="price__off">{{ variant.discountPercentage }}% off</span>
                 }
               </p>
+              @if (describeStock(product); as stock) {
+                <p class="stock" [class]="'stock stock--' + stock.tone">{{ stock.label }}</p>
+              }
               @if (product.variants.length > 1) {
                 <p class="tile__variants">{{ product.variants.length }} options</p>
               }

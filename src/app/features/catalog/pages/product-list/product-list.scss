@@ -100,3 +100,16 @@
     grid-template-columns: 1fr;
   }
 }
+
+// Matches the product page's bands, so a tile and the page it leads to say the same thing.
+.stock {
+  margin: 0.35rem 0 0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  &--good { color: $ok; }
+  &--low  { color: #b26a00; }
+  &--out  { color: $danger; }
+}

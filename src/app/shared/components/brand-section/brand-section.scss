@@ -1,8 +1,4 @@
-.brand-section {
-  padding: 20px;
-}
-
-.brand-grid {
+.brand-container {
   display: grid;
 
   grid-template-columns:
@@ -10,19 +6,22 @@
 
   gap: 16px;
 
-  margin-top: 20px;
+  padding: 20px;
 }
 
 .brand-card {
   background: white;
-  padding: 30px 20px;
+  padding: 24px 20px;
 
   text-align: center;
 
   border-radius: 12px;
 
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
+
+  color: #212121;
+  text-decoration: none;
 
   transition: 0.3s;
   cursor: pointer;

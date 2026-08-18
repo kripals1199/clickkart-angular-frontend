@@ -1,6 +1,6 @@
 <app-category-section />
 
-<app-brand-section /> 
+<app-brand-section />
 
 <app-hero-banner />
 
@@ -9,25 +9,54 @@
   <div class="section-header">
 
     <h2>
-      Trending Fashion
+      New in
     </h2>
 
-    <button>
+    <a class="section-header__all" routerLink="/products">
       View All
-    </button>
+    </a>
 
   </div>
 
-  <div class="product-grid">
+  @if (loading()) {
 
-    @for(product of products(); track product.name) {
+    <div class="product-grid">
+      @for (placeholder of [1,2,3,4,5,6,7,8]; track placeholder) {
+        <div class="product-skeleton" aria-hidden="true"></div>
+      }
+    </div>
 
-      <app-product-card
-        [product]="product"
-      />
+  } @else if (failed()) {
 
-    }
+    <!-- Not followed by the empty state: "nothing here yet" is a claim about a catalog that
+         answered, and this one did not. -->
+    <div class="product-message">
+      <p class="product-message__title">The catalog isn't reachable right now</p>
+      <p class="product-message__copy">This is a connection problem, not an empty shop.</p>
+      <button type="button" class="product-message__action" (click)="load()">Try again</button>
+    </div>
 
-  </div>
+  } @else if (isEmpty()) {
+
+    <div class="product-message">
+      <p class="product-message__title">Nothing on sale yet</p>
+      <p class="product-message__copy">
+        No products have been published to the catalog. Once a seller's listing is approved, it
+        shows up here.
+      </p>
+    </div>
+
+  } @else {
+
+    <div class="product-grid">
+      @for (product of products(); track product.publicId) {
+        <app-product-card
+          [product]="product"
+          [availability]="availabilityFor(product)"
+        />
+      }
+    </div>
+
+  }
 
 </div>

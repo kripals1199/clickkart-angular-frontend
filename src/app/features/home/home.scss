@@ -31,7 +31,7 @@
   font-weight: 700;
 }
 
-.section-header button {
+.section-header__all {
   background: #2874f0;
   color: white;
 
@@ -59,4 +59,65 @@
     font-size: 24px;
   }
 
+}
+.section-header__all {
+  display: inline-block;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+// Holds the grid's height while the catalog loads, so the page below does not jump.
+.product-skeleton {
+  height: 20rem;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e4e4e4 37%, #f0f0f0 63%);
+  background-size: 400% 100%;
+  animation: product-shimmer 1.3s ease infinite;
+}
+
+@keyframes product-shimmer {
+  from { background-position: 100% 50%; }
+  to   { background-position: 0 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-skeleton { animation: none; }
+}
+
+// Empty and unreachable both land here, with different words - see home.html.
+.product-message {
+  padding: 3rem 1rem;
+  text-align: center;
+  background: #fff;
+  border: 1px solid #dfe1e5;
+  border-radius: 4px;
+
+  &__title {
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #212121;
+  }
+
+  &__copy {
+    margin: 0 auto;
+    max-width: 32rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #878787;
+  }
+
+  &__action {
+    margin-top: 1.25rem;
+    padding: 0.7rem 1.4rem;
+    border: 1px solid #dfe1e5;
+    border-radius: 2px;
+    background: #fff;
+    color: #2874f0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover { border-color: #2874f0; }
+  }
 }

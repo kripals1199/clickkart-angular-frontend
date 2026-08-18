@@ -1,28 +1,35 @@
-// import { Component } from '@angular/core';
-
-// @Component({
-//   selector: 'app-home',
-//   standalone: true,
-//   imports: [],
-//   templateUrl: './home.html',
-//   styleUrl: './home.scss',
-// })
-// export class Home {
-  
-// }
-
-import { Component, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { HeroBanner } from '@shared/components/hero-banner/hero-banner';
 import { CategorySection } from '@shared/components/category-section/category-section';
 import { ProductCard } from '@shared/components/product-card/product-card';
 import { BrandSection } from '@shared/components/brand-section/brand-section';
 
-// The navbar and footer come from the shell this page now routes inside, not from here.
+import { CatalogService } from '@core/services/catalog.service';
+import { AvailabilityService } from '@core/services/availability.service';
+import { Product } from '@core/models/catalog.model';
+import { Availability } from '@core/models/availability.model';
+import { cheapestVariant } from '@shared/pricing';
+
+/**
+ * The storefront's front page.
+ *
+ * <p>It used to render four hardcoded products with Unsplash photographs, which meant the first
+ * screen every visitor saw was a mockup: nothing was clickable through to a real product, and the
+ * page looked identical whether the catalog had ten thousand products or none.
+ *
+ * <p>Now it shows a real page of the catalog. That also means it has to handle the three states a
+ * mock never has - still loading, nothing published yet, and the catalog being unreachable - and
+ * the empty state has to be honest rather than looking like a rendering fault.
+ *
+ * <p>The navbar and footer come from the shell this page routes inside, not from here.
+ */
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
+    RouterLink,
     HeroBanner,
     CategorySection,
     ProductCard,
@@ -32,63 +39,59 @@ import { BrandSection } from '@shared/components/brand-section/brand-section';
   styleUrl: './home.scss'
 })
 export class Home {
+  private readonly catalog = inject(CatalogService);
+  private readonly availability = inject(AvailabilityService);
 
-  // readonly products = signal([
-  //   {
-  //     name: 'iPhone 16 Pro',
-  //     price: 129999,
-  //     image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9'
-  //   },
-  //   {
-  //     name: 'Gaming Laptop',
-  //     price: 89999,
-  //     image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853'
-  //   },
-  //   {
-  //     name: 'Smart Watch',
-  //     price: 9999,
-  //     image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30'
-  //   },
-  //   {
-  //     name: 'Headphones',
-  //     price: 4999,
-  //     image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e'
-  //   }
-  // ]);
+  readonly loading = signal(true);
+  readonly failed = signal(false);
+  readonly products = signal<Product[]>([]);
+  readonly stock = signal<Map<string, Availability>>(new Map());
 
-  readonly products = signal([
-  {
-    name: 'Men Oversized T-Shirt',
-    brand: 'Roadster',
-    price: 799,
-    originalPrice: 1499,
-    discount: '47% OFF',
-    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab'
-  },
-  {
-    name: 'Women Casual Dress',
-    brand: 'Tokyo Talkies',
-    price: 1299,
-    originalPrice: 2499,
-    discount: '48% OFF',
-    image: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c'
-  },
-  {
-    name: 'Denim Jacket',
-    brand: 'Levis',
-    price: 2499,
-    originalPrice: 4999,
-    discount: '50% OFF',
-    image: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246'
-  },
-  {
-    name: 'Women Ethnic Kurti',
-    brand: 'Libas',
-    price: 999,
-    originalPrice: 1999,
-    discount: '50% OFF',
-    image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b'
+  readonly isEmpty = computed(() => !this.loading() && !this.failed() && this.products().length === 0);
+
+  constructor() {
+    this.load();
   }
-]);
 
+  load(): void {
+    this.loading.set(true);
+    this.failed.set(false);
+
+    // Newest first: with no recommendation engine on the platform, "what went up most recently" is
+    // an honest ordering for a front page, where "trending" would be a claim nothing measures.
+    this.catalog.searchProducts({ page: 0, size: 8, sort: 'createdDate,desc' }).subscribe({
+      next: (res) => {
+        this.products.set(res.data?.content ?? []);
+        this.loading.set(false);
+        this.loadAvailability();
+      },
+      error: () => {
+        this.loading.set(false);
+        this.failed.set(true);
+      },
+    });
+  }
+
+  /** The tile quotes one variant, so only that SKU's availability is worth fetching. */
+  availabilityFor(product: Product): Availability | undefined {
+    const variant = cheapestVariant(product);
+    return variant ? this.stock().get(variant.sku) : undefined;
+  }
+
+  private loadAvailability(): void {
+    const skus = this.products()
+      .map((product) => cheapestVariant(product)?.sku)
+      .filter((sku): sku is string => !!sku);
+
+    if (skus.length === 0) {
+      this.stock.set(new Map());
+      return;
+    }
+
+    this.availability.forSkus(skus).subscribe({
+      // Stock badges are an enhancement; the grid stands without them.
+      next: (map) => this.stock.set(map),
+      error: () => this.stock.set(new Map()),
+    });
+  }
 }

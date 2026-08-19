@@ -122,11 +122,8 @@ export class Profile {
 
   private describeErase(code: string | undefined): string {
     switch (code) {
-      case 'SELLER_PROFILE_EXISTS':
-      case 'CONFLICT':
+      case 'ERASURE_BLOCKED':
         return 'This account has a seller profile, and business records have to be kept for statutory retention. Close the seller account first.';
-      case 'ALREADY_ERASED':
-        return 'Your personal data has already been erased.';
       default:
         return 'Your data could not be erased. Please try again.';
     }
@@ -230,6 +227,10 @@ export class Profile {
       if (field) {
         return `${field}: ${message}`;
       }
+    }
+    if (error?.code === 'PROFILE_ERASED') {
+      // Reachable only from a tab opened before the erasure; the forms are disabled otherwise.
+      return 'This profile has been erased and can no longer be edited. Reload the page.';
     }
     return 'That could not be saved. Please try again.';
   }

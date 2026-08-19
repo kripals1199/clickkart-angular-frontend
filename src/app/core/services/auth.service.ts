@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
+import { finalize, map, shareReplay } from 'rxjs/operators';
 
 import { environment } from '@env/environment';
 import {
@@ -47,6 +48,12 @@ export class AuthService {
   private readonly baseUrl = `${environment.gatewayUrl}/api/v1/auth`;
 
   private readonly accessToken = signal<string | null>(localStorage.getItem(ACCESS_TOKEN_KEY));
+
+  /**
+   * The one refresh currently in flight, shared by every caller that asked while it was running.
+   * Null when none is.
+   */
+  private refreshInFlight: Observable<string> | null = null;
   private readonly user = signal<SessionUser | null>(null);
 
   readonly currentUser = this.user.asReadonly();
@@ -179,6 +186,50 @@ export class AuthService {
     return this.http
       .post<ApiResponse<LoginResponse>>(`${this.baseUrl}/otp/verify`, request)
       .pipe(tap((res) => res.data && this.store(res.data)));
+  }
+
+  /**
+   * Refreshes the access token, at most once at a time.
+   *
+   * <p>The single-flight is not an optimisation. Refresh tokens rotate, and Auth Service treats a
+   * second presentation of an already-rotated token as reuse: it revokes the entire session family
+   * and records REFRESH_TOKEN_REUSE_DETECTED. So if three requests expire together and each fires
+   * its own refresh, the first rotates the token and the other two look exactly like a stolen one
+   * being replayed - the user is hard-signed-out and a security event is logged, which is strictly
+   * worse than never refreshing at all. Everyone waits on the same call instead.
+   */
+  refreshAccessToken(): Observable<string> {
+    if (this.refreshInFlight) {
+      return this.refreshInFlight;
+    }
+
+    this.refreshInFlight = this.refresh().pipe(
+      map((res) => {
+        const token = res.data?.accessToken;
+        if (!token) {
+          throw new Error('Refresh returned no access token');
+        }
+        return token;
+      }),
+      // Cleared on success or failure alike, so the next expiry starts a fresh attempt rather than
+      // replaying a stale result.
+      finalize(() => {
+        this.refreshInFlight = null;
+      }),
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
+
+    return this.refreshInFlight;
+  }
+
+  /** True when a refresh token exists to attempt with - there is no point trying without one. */
+  canRefresh(): boolean {
+    return !!localStorage.getItem(REFRESH_TOKEN_KEY);
+  }
+
+  /** Ends the session locally, without the server round trip. Used when refresh has already failed. */
+  endSession(): void {
+    this.clear();
   }
 
   private store(response: LoginResponse): void {

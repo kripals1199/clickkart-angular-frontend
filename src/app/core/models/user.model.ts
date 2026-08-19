@@ -83,3 +83,40 @@ export interface AddressRequest {
   country: string;
   makeDefault?: boolean;
 }
+
+export type SellerVerificationStatus = 'PENDING' | 'VERIFIED' | 'REJECTED';
+
+/**
+ * A seller's business identity. Separate from the customer profile: this is the trading entity, and
+ * it carries statutory retention obligations, which is why an account holding one cannot erase its
+ * personal data.
+ */
+export interface SellerProfile {
+  userPublicId: string;
+  businessName: string;
+  gstin: string | null;
+  supportEmail: string | null;
+  supportPhone: string | null;
+  pickupAddressId: number | null;
+  /** Decided by an operator. A seller can read this but never set it. */
+  verificationStatus: SellerVerificationStatus;
+  verificationNote: string | null;
+  verificationDecidedAt: string | null;
+  createdDate: string;
+  updatedDate: string;
+}
+
+export interface UpsertSellerProfileRequest {
+  businessName: string;
+  /**
+   * India GSTIN: 15 characters - 2-digit state code, then the PAN's 5 letters, 4 digits and 1
+   * letter, an entity-number character, a literal Z, and a checksum character. Either case is
+   * accepted; the server uppercases before storing.
+   */
+  gstin: string;
+  supportEmail: string;
+  /** Indian 10-digit, first digit 6-9, or empty. */
+  supportPhone: string;
+  /** An address id from this seller's own book, or null to nominate none. */
+  pickupAddressId: number | null;
+}

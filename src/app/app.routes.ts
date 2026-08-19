@@ -104,6 +104,13 @@ export const routes: Routes = [
             // 'new' sits before ':publicId' so it is matched as a literal rather than swallowed as
             // an id - Angular takes the first match, not the most specific.
             {
+                path: 'seller/profile',
+                canActivate: [roleGuard('SELLER')],
+                loadComponent: () =>
+                    import('@features/seller/pages/seller-profile/seller-profile')
+                        .then(m => m.SellerProfile)
+            },
+            {
                 path: 'seller/products',
                 canActivate: [roleGuard('SELLER')],
                 loadComponent: () =>

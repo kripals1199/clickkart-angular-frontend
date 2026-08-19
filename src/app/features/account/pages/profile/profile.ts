@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
@@ -40,6 +40,16 @@ export class Profile {
 
   readonly accountEmail = this.auth.currentUser;
 
+  /**
+   * Once erased, every write to this profile returns 409. The forms are locked rather than left
+   * inviting edits that are guaranteed to fail.
+   */
+  readonly erased = computed(() => !!this.profile()?.erasedAt);
+
+  readonly confirmingErase = signal(false);
+  readonly erasing = signal(false);
+  readonly eraseError = signal<string | null>(null);
+
   readonly profileForm = this.fb.nonNullable.group({
     firstName: ['', [Validators.maxLength(60)]],
     lastName: ['', [Validators.maxLength(60)]],
@@ -76,6 +86,50 @@ export class Profile {
         this.failed.set(true);
       },
     });
+  }
+
+  confirmErase(): void {
+    this.confirmingErase.set(true);
+    this.eraseError.set(null);
+  }
+
+  cancelErase(): void {
+    this.confirmingErase.set(false);
+  }
+
+  eraseMyData(): void {
+    if (this.erasing()) {
+      return;
+    }
+    this.erasing.set(true);
+    this.eraseError.set(null);
+
+    this.users.eraseMyData().subscribe({
+      next: () => {
+        this.erasing.set(false);
+        this.confirmingErase.set(false);
+        this.savedMessage.set('Your personal data has been erased.');
+        // Reload rather than assume: the server decides what survived, and the reload is what
+        // puts the page into its locked, erased state.
+        this.load();
+      },
+      error: (err) => {
+        this.erasing.set(false);
+        this.eraseError.set(this.describeErase(err?.error?.error?.code));
+      },
+    });
+  }
+
+  private describeErase(code: string | undefined): string {
+    switch (code) {
+      case 'SELLER_PROFILE_EXISTS':
+      case 'CONFLICT':
+        return 'This account has a seller profile, and business records have to be kept for statutory retention. Close the seller account first.';
+      case 'ALREADY_ERASED':
+        return 'Your personal data has already been erased.';
+      default:
+        return 'Your data could not be erased. Please try again.';
+    }
   }
 
   saveProfile(): void {
@@ -136,6 +190,12 @@ export class Profile {
 
   private absorb(profile: UserProfile): void {
     this.profile.set(profile);
+
+    if (profile.erasedAt) {
+      // Reads keep working after erasure; writes do not. Disabling says so before the click.
+      this.profileForm.disable();
+      this.preferencesForm.disable();
+    }
     this.profileForm.patchValue({
       firstName: profile.firstName ?? '',
       lastName: profile.lastName ?? '',

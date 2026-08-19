@@ -33,9 +33,11 @@
 
     @if (profile()?.erasedAt; as erasedAt) {
       <!-- Distinguishes an erased profile from one that was simply never filled in - both otherwise
-           look identical, a profile of nulls. -->
+           look identical, a profile of nulls. The forms below are disabled because every write
+           returns 409 once this has happened. -->
       <p class="warn" role="status">
-        The personal data on this profile was erased on {{ erasedAt | date: 'd MMM y' }}.
+        Your personal data was erased on {{ erasedAt | date: 'd MMM y' }}. This profile is read-only
+        now — your account still works, and you can still sign in and order.
       </p>
     }
 
@@ -86,9 +88,11 @@
           }
         </div>
 
-        <button type="submit" class="btn btn--brand" [disabled]="savingProfile()">
-          {{ savingProfile() ? 'Saving…' : 'Save details' }}
-        </button>
+        @if (!erased()) {
+          <button type="submit" class="btn btn--brand" [disabled]="savingProfile()">
+            {{ savingProfile() ? 'Saving…' : 'Save details' }}
+          </button>
+        }
       </form>
 
       <form class="card" [formGroup]="preferencesForm" (ngSubmit)="savePreferences()" novalidate>
@@ -122,12 +126,49 @@
           </div>
         </div>
 
-        <button type="submit" class="btn btn--brand" [disabled]="savingPreferences()">
-          {{ savingPreferences() ? 'Saving…' : 'Save preferences' }}
-        </button>
+        @if (!erased()) {
+          <button type="submit" class="btn btn--brand" [disabled]="savingPreferences()">
+            {{ savingPreferences() ? 'Saving…' : 'Save preferences' }}
+          </button>
+        }
       </form>
 
     </div>
+
+    @if (!erased()) {
+      <section class="card danger">
+        <h2 class="danger__title">Erase your personal data</h2>
+
+        <p class="danger__copy">
+          This clears your name, date of birth and preferences, withdraws marketing consent, and
+          scrubs and deletes every saved address. It cannot be undone.
+        </p>
+        <p class="danger__copy">
+          Your <strong>account is separate</strong> and is not deleted — you can still sign in, and
+          past orders keep working. To stop signing in entirely, contact support.
+        </p>
+
+        @if (eraseError()) {
+          <p class="alert" role="alert">{{ eraseError() }}</p>
+        }
+
+        @if (confirmingErase()) {
+          <p class="warn">
+            Erase your personal data? Everything listed above goes, permanently.
+          </p>
+          <div class="danger__actions">
+            <button type="button" class="btn btn--cta" [disabled]="erasing()" (click)="eraseMyData()">
+              {{ erasing() ? 'Erasing…' : 'Yes, erase it' }}
+            </button>
+            <button type="button" class="btn btn--quiet" (click)="cancelErase()">Cancel</button>
+          </div>
+        } @else {
+          <button type="button" class="btn btn--danger-text" (click)="confirmErase()">
+            Erase my personal data
+          </button>
+        }
+      </section>
+    }
 
   }
 

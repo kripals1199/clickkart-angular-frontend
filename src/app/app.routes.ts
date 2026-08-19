@@ -52,6 +52,14 @@ export const routes: Routes = [
                     import('@features/home/home')
                         .then(m => m.Home)
             },
+            // Browsing the taxonomy. Separate from /products because a branch category
+            // has no products of its own to list - see CategoryBrowse.
+            {
+                path: 'categories/:slug',
+                loadComponent: () =>
+                    import('@features/catalog/pages/category-browse/category-browse')
+                        .then(m => m.CategoryBrowse)
+            },
             {
                 path: 'products',
                 loadComponent: () =>

@@ -54,8 +54,10 @@ export class ProductList {
   });
 
   constructor() {
-    this.catalog.rootCategories().subscribe({
-      next: (res) => this.categories.set(res.data ?? []),
+    // Leaves, not roots. The filter is an exact match on categoryPublicId and a product can
+    // only be assigned to a leaf, so offering a branch here guarantees an empty result set.
+    this.catalog.categoryTree().subscribe({
+      next: (res) => this.categories.set(leavesOf(res.data ?? [])),
       // A filter dropdown that cannot load is a missing convenience, not a broken page - the
       // listing itself still works, so this failure stays quiet.
       error: () => this.categories.set([]),
@@ -168,4 +170,19 @@ export class ProductList {
     }
     return out;
   }
+}
+
+/** Flattens a category tree to its active leaves, sorted by name. */
+function leavesOf(tree: Category[]): Category[] {
+  const out: Category[] = [];
+  const walk = (nodes: Category[]) => {
+    for (const node of nodes) {
+      if (node.leaf && node.active) {
+        out.push(node);
+      }
+      walk(node.children ?? []);
+    }
+  };
+  walk(tree);
+  return out.sort((a, b) => a.name.localeCompare(b.name));
 }

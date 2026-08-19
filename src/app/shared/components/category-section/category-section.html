@@ -10,11 +10,10 @@
 
   <nav class="category-container" aria-label="Shop by category">
     @for (category of categories(); track category.publicId) {
-      <a
-        class="category-card"
-        [routerLink]="['/products']"
-        [queryParams]="{ categoryPublicId: category.publicId }"
-      >
+      <!-- The category page, not the product filter. These are root categories, and product
+           search matches a category exactly while products attach only to leaves - so filtering
+           by a root returns nothing, every time. -->
+      <a class="category-card" [routerLink]="['/categories', category.slug]">
         @if (category.imageUrl) {
           <img class="category-card__image" [src]="category.imageUrl" [alt]="" />
         } @else {

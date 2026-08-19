@@ -1,0 +1,138 @@
+<div class="page">
+
+  @if (loading()) {
+
+    <div class="skeleton browse__heading-skeleton" aria-hidden="true"></div>
+    <div class="browse__grid">
+      @for (placeholder of [1,2,3,4,5,6]; track placeholder) {
+        <div class="skeleton browse__tile-skeleton" aria-hidden="true"></div>
+      }
+    </div>
+
+  } @else if (notFound()) {
+
+    <div class="empty">
+      <p class="empty__title">We couldn't find that category</p>
+      <p class="empty__copy">It may have been renamed, hidden, or the link may be wrong.</p>
+      <a class="btn btn--quiet" routerLink="/products">Browse everything</a>
+    </div>
+
+  } @else if (failed()) {
+
+    <p class="alert" role="alert">The catalog could not be reached. Please try again.</p>
+    <a class="btn btn--quiet" routerLink="/products">Browse everything</a>
+
+  } @else if (category(); as here) {
+
+    <!-- Root-to-here, with the last entry as the heading rather than a link to itself. -->
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a class="crumbs__link" routerLink="/">Home</a>
+      @for (ancestor of ancestors(); track ancestor.publicId) {
+        <span class="crumbs__sep" aria-hidden="true">›</span>
+        <a class="crumbs__link" [routerLink]="['/categories', ancestor.slug]">{{ ancestor.name }}</a>
+      }
+      <span class="crumbs__sep" aria-hidden="true">›</span>
+      <span class="crumbs__here" aria-current="page">{{ here.name }}</span>
+    </nav>
+
+    <h1 class="page__title">{{ here.name }}</h1>
+    @if (here.description) {
+      <p class="page__subtitle">{{ here.description }}</p>
+    }
+
+    @if (isLeaf()) {
+
+      <!-- ---- a leaf: products live here ---------------------------------- -->
+      @if (loadingProducts()) {
+
+        <div class="browse__grid">
+          @for (placeholder of [1,2,3,4,5,6]; track placeholder) {
+            <div class="skeleton browse__tile-skeleton" aria-hidden="true"></div>
+          }
+        </div>
+
+      } @else if (products().length === 0) {
+
+        <div class="empty">
+          <p class="empty__title">Nothing in {{ here.name }} yet</p>
+          <p class="empty__copy">No seller has a listing published in this category.</p>
+          <a class="btn btn--quiet" routerLink="/products">Browse everything</a>
+        </div>
+
+      } @else {
+
+        <p class="browse__count">{{ total() }} product{{ total() === 1 ? '' : 's' }}</p>
+
+        <div class="browse__grid">
+          @for (product of products(); track product.publicId) {
+            <a class="tile" [routerLink]="['/products', product.slug]">
+              <p class="tile__brand">{{ product.brand || 'ClickKart' }}</p>
+              <p class="tile__name">{{ product.name }}</p>
+              @if (fromPrice(product); as price) {
+                <p class="price">₹{{ price }}</p>
+              } @else {
+                <p class="tile__unavailable">Currently unavailable</p>
+              }
+              @if (stockLabel(product); as label) {
+                <p class="tile__stock">{{ label }}</p>
+              }
+            </a>
+          }
+        </div>
+
+        @if (totalPages() > 1) {
+          <nav class="pager" aria-label="Pagination">
+            <button type="button" class="btn btn--quiet" [disabled]="pageIndex() === 0" (click)="goToPage(pageIndex() - 1)">
+              Previous
+            </button>
+            <span class="pager__position">Page {{ pageIndex() + 1 }} of {{ totalPages() }}</span>
+            <button type="button" class="btn btn--quiet" [disabled]="isLast()" (click)="goToPage(pageIndex() + 1)">
+              Next
+            </button>
+          </nav>
+        }
+
+      }
+
+    } @else {
+
+      <!-- ---- a branch: drill down ---------------------------------------- -->
+      <!-- No product grid here on purpose. A product can only be assigned to a leaf, and search
+           matches a category exactly rather than across its subtree, so filtering by a branch
+           returns nothing every time - an empty grid would read as "this shop is empty". -->
+      @if (children().length === 0) {
+
+        <div class="empty">
+          <p class="empty__title">Nothing under {{ here.name }} yet</p>
+          <p class="empty__copy">
+            This category has no subcategories, and products are only listed in the most specific
+            ones.
+          </p>
+          <a class="btn btn--quiet" routerLink="/products">Browse everything</a>
+        </div>
+
+      } @else {
+
+        <p class="browse__count">Choose a subcategory</p>
+
+        <div class="browse__grid">
+          @for (child of children(); track child.publicId) {
+            <a class="child" [routerLink]="['/categories', child.slug]">
+              <span class="child__initial" aria-hidden="true">{{ child.name.charAt(0) }}</span>
+              <span class="child__name">{{ child.name }}</span>
+              @if (child.leaf) {
+                <span class="child__hint">Shop this</span>
+              } @else {
+                <span class="child__hint">More inside</span>
+              }
+            </a>
+          }
+        </div>
+
+      }
+
+    }
+
+  }
+
+</div>

@@ -249,7 +249,6 @@ export class AuthService {
   }
 
   private store(response: LoginResponse): void {
-	alert(JSON.stringify(response))
     this.storeTokens(response.tokens);
     // Persisted because the email is not in the token, so a page reload has no other way to
     // recover it. Nothing secret goes in here - it is the same profile the account can already see.

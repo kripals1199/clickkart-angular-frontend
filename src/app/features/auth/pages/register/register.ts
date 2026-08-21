@@ -79,12 +79,10 @@ export class Register {
     this.auth
       .register({ ...this.form.getRawValue(), captchaChallengeId: challenge.challengeId })
       .subscribe({
-        next: (res) => {``
+        next: (res) => {
           // A 2xx is not the same as a session. AuthService only stores tokens when `data` is
           // present, so navigating on status alone could land someone on the home page signed out,
           // which looks like the sign-up silently failed.
-		  alert(JSON.stringify(res));
-		  alert("ghdfkjshk");
           if (!res.data) {
             this.submitting.set(false);
             this.errorMessage.set('Your account was created, but signing you in failed. Try signing in.');
@@ -95,8 +93,6 @@ export class Register {
           this.router.navigate(['/']);
         },
         error: (err) => {
-			alert(JSON.stringify(err));
-				  alert("ghdfkjshk");
           this.submitting.set(false);
           // Branch on the stable code, never the human-readable message. Undefined here is normal
           // and expected: a network failure has no envelope at all, and a Gateway 503 answers with

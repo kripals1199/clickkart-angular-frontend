@@ -1,42 +1,71 @@
 /**
- * The envelope every ClickKart endpoint returns, success or failure. Mirrors the ApiResponse
- * record each service duplicates (there is no shared library on the backend by design, so this
- * is the one place the shape is written down on the client).
+ * The envelope every ClickKart endpoint returns,
+ * success or failure.
+ *
+ * Mirrors the backend ApiResponse<T>.
  */
-export interface ApiResponse<T> {
+export type ApiResponse<T> =
+  | ApiSuccessResponse<T>
+  | ApiErrorResponse;
+
+/**
+ * Successful API response.
+ */
+export interface ApiSuccessResponse<T> {
   timestamp: string;
   status: number;
-  success: boolean;
-  /** Null on failure. */
-  data: T | null;
+  success: true;
+  data: T;
+  error: null;
   message: string | null;
-  error?: ErrorDetail;
   path: string;
-  /**
-   * Minted by Auth Service at login and carried in the token, so one id follows a request across
-   * every service it touches. Worth surfacing in error toasts - it is the handle support needs to
-   * find the request in the logs.
-   */
   correlationId: string;
 }
 
+/**
+ * Failed API response.
+ */
+export interface ApiErrorResponse {
+  timestamp: string;
+  status: number;
+  success: false;
+  data: null;
+  error: ErrorDetail | null;
+  message: string | null;
+  path: string;
+  correlationId: string;
+}
+
+/**
+ * Structured error returned by the backend.
+ */
 export interface ErrorDetail {
+
   /**
-   * Branch on this, never on the envelope's `message`. The code is a stable contract; the message
-   * is written for a human and may be reworded at any time.
+   * Stable error code.
+   * Branch on this instead of the envelope message.
    */
   code: string;
-  /** Populated only for bean-validation failures, keyed by field name. */
-  fieldErrors?: Record<string, string>;
+
   /**
-   * Present only where an error carries structured detail the client can act on. The one in use
-   * today is `lockedUntil` (an ISO-8601 instant) on ACCOUNT_LOCKED, which is what lets a sign-in
-   * form say when the account frees up instead of just refusing.
+   * Populated only for bean-validation failures,
+   * keyed by field name.
+   */
+  fieldErrors?: Record<string, string>;
+
+  /**
+   * Structured metadata that the client can act upon.
+   *
+   * Example:
+   * lockedUntil -> ISO-8601 instant for ACCOUNT_LOCKED.
    */
   metadata?: Record<string, unknown>;
 }
 
-/** Paged collections come back wrapped in this, inside `data`. */
+/**
+ * Paged collections come back wrapped in this,
+ * inside data.
+ */
 export interface PageResponse<T> {
   content: T[];
   page: number;

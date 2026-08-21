@@ -75,14 +75,30 @@ export class AuthService {
     return this.roles().includes(role.startsWith('ROLE_') ? role : `ROLE_${role}`);
   }
 
-  /**
-   * Registration returns the same payload as login, so a successful sign-up leaves the user signed
-   * in rather than bouncing them to a login form to retype what they just typed.
-   */
-  register(request: RegisterRequest): Observable<ApiResponse<LoginResponse>> {
+  register(
+    request: RegisterRequest
+  ): Observable<ApiResponse<LoginResponse>> {
+
     return this.http
-      .post<ApiResponse<LoginResponse>>(`${this.baseUrl}/register`, request)
-      .pipe(tap((res) => res.data && this.store(res.data)));
+      .post<ApiResponse<LoginResponse>>(
+        `${this.baseUrl}/register`,
+        request
+      )
+      .pipe(
+        tap((res) => {
+
+          if (res.success) {
+            this.store(res.data);
+          } else {
+            console.error(
+              'Registration failed:',
+              res.error?.code,
+              res.message
+            );
+          }
+
+        })
+      );
   }
 
   /**
@@ -233,6 +249,7 @@ export class AuthService {
   }
 
   private store(response: LoginResponse): void {
+	alert(JSON.stringify(response))
     this.storeTokens(response.tokens);
     // Persisted because the email is not in the token, so a page reload has no other way to
     // recover it. Nothing secret goes in here - it is the same profile the account can already see.

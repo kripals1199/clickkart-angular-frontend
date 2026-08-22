@@ -119,14 +119,14 @@
       >
         Orders
       </button>
-
+      <!--  
       <button
         mat-button
         (click)="logout()"
       >
         Logout
       </button>
-
+     -->
     } @else {
 
       <button
@@ -187,6 +187,15 @@
 
       <span class="cart__label">Cart</span>
     </a>
+    
+     @if (isAuthenticated()) {
+      <button
+        mat-button
+        (click)="logout()"
+      >
+        Logout
+      </button>
+    }
 
   </div>
 
@@ -262,15 +271,6 @@
         Admin
       </button>
     }
-
-    <button
-      mat-button
-      routerLink="/cart"
-      (click)="toggleMobileMenu()"
-      [attr.aria-label]="cartCount() > 0 ? 'Cart, ' + cartCount() + ' item' + (cartCount() === 1 ? '' : 's') : 'Cart'"
-    >
-      Cart@if (cartCount() > 0) { <span class="cart__count-inline">{{ cartCount() }}</span> }
-    </button>
 
   </div>
 

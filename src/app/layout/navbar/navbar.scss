@@ -161,15 +161,32 @@
 @media screen and (max-width: 768px) {
 
   .navbar {
+    /* mat-toolbar pins height:56px and white-space:nowrap, which made the flex-wrap below
+       dead code - the search box could never reach a second row however much width it asked
+       for, so it just squeezed in beside the logo at ~220px. */
+    height: auto;
+    min-height: 56px;
+    white-space: normal;
+
     flex-wrap: wrap;
-    gap: 12px;
+    column-gap: 12px;
+    row-gap: 8px;
   }
 
   .mobile-menu-btn {
     display: flex;
   }
 
+  /* Keep the container, hide only its nav items. The cart lives inside it, and a basket
+     badge is a primary action - burying it behind the hamburger costs a tap and hides the
+     item count entirely, which is the one thing a shopper glances at. */
   .desktop-menu {
+    display: flex;
+    margin-left: auto;
+  }
+
+  .desktop-menu button,
+  .desktop-menu .account-email {
     display: none;
   }
 
@@ -179,13 +196,17 @@
 
   .search-container {
     order: 3;
-    width: 100%;
+    /* flex:1 resolves to flex-basis:0, which beats width:100% - asking for a 100% basis is
+       what actually pushes this onto its own row. */
+    flex: 1 0 100%;
     max-width: 100%;
   }
 
   .search-container input {
-    padding: 10px;
-    font-size: 14px;
+    padding: 11px 12px;
+    /* 16px minimum: iOS Safari zooms the entire page when a focused input is smaller, and
+       does not zoom back out. */
+    font-size: 16px;
   }
 
   .mobile-menu {
@@ -323,6 +344,28 @@
 
   .cart {
     padding: 6px 8px;
+  }
+
+}
+
+/* Touch targets. Material icon buttons are 40x40; 44 is the documented minimum for a
+   reliable finger tap, and the difference is very noticeable on the search and menu controls. */
+@media screen and (max-width: 768px) {
+
+  .mobile-menu-btn,
+  .search-container button {
+    width: 44px;
+    height: 44px;
+    --mdc-icon-button-state-layer-size: 44px;
+  }
+
+  .mobile-menu button {
+    min-height: 44px;
+  }
+
+  .cart {
+    padding: 8px 10px;
+    min-height: 44px;
   }
 
 }

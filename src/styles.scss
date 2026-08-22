@@ -30,3 +30,25 @@ body {
   }
 
 }
+/* MOBILE ERGONOMICS
+
+   Two things that are invisible on a desktop monitor and unmissable on a phone. */
+
+@media (max-width: 768px) {
+
+  /* iOS Safari zooms the whole page in when a focused input has a font smaller than 16px, and
+     it does not zoom back out afterwards - the user is left scrolling a page wider than the
+     screen. Applied to the controls themselves rather than the body so nothing else resizes. */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  /* 44px is the documented minimum for a reliable finger tap. Scoped to the app's own .btn
+     rather than every button, so compact controls inside tables and chips are left alone. */
+  .btn {
+    min-height: 44px;
+  }
+
+}

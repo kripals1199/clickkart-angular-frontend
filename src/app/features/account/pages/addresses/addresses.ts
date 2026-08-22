@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -36,6 +36,7 @@ import { MatTabsModule } from '@angular/material/tabs';
   ],
   templateUrl: './addresses.html',
   styleUrl: './addresses.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Addresses {
   private readonly users = inject(UserService);

@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
@@ -39,6 +39,7 @@ import { MatCardModule } from '@angular/material/card';
   ],
   templateUrl: './order-detail.html',
   styleUrl: './order-detail.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrderDetail {
   private readonly orders = inject(OrderService);

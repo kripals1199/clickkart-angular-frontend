@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { CatalogService } from '@core/services/catalog.service';
@@ -20,6 +20,7 @@ import { CatalogService } from '@core/services/catalog.service';
   imports: [RouterLink],
   templateUrl: './brand-section.html',
   styleUrl: './brand-section.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BrandSection {
   private readonly catalog = inject(CatalogService);

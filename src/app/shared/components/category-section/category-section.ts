@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { CatalogService } from '@core/services/catalog.service';
@@ -20,6 +20,7 @@ import { Category } from '@core/models/catalog.model';
   imports: [RouterLink],
   templateUrl: './category-section.html',
   styleUrl: './category-section.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CategorySection {
   private readonly catalog = inject(CatalogService);

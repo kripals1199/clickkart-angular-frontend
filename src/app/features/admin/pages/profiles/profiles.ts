@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -7,7 +7,6 @@ import { AdminService } from '@core/services/admin.service';
 import { UserProfile } from '@core/models/user.model';
 import { PageResponse } from '@core/models/api-response';
 import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -29,7 +28,6 @@ import { MatPaginatorModule } from '@angular/material/paginator';
   standalone: true,
   imports: [RouterLink, DatePipe, FormsModule,
     MatButtonModule,
-    MatInputModule,
     MatCardModule,
     MatTabsModule,
     RouterLinkActive,
@@ -37,6 +35,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
   ],
   templateUrl: './profiles.html',
   styleUrl: './profiles.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Profiles {
   private readonly admin = inject(AdminService);

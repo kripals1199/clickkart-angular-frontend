@@ -9,11 +9,12 @@
 // export class Navbar {}
 
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
   inject,
-  signal
+  signal,
 } from '@angular/core';
 
 import { Router, RouterLink } from '@angular/router';
@@ -26,7 +27,6 @@ import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 
@@ -39,12 +39,12 @@ import { MatDividerModule } from '@angular/material/divider';
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
-    MatInputModule,
     MatMenuModule,
     MatDividerModule
   ],
   templateUrl: './navbar.html',
-  styleUrl: './navbar.scss'
+  styleUrl: './navbar.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Navbar {
 

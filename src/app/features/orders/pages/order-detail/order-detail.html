@@ -141,7 +141,7 @@
             </p>
           }
 
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Payment method</mat-label>
             <mat-select id="method" [ngModel]="method()" (ngModelChange)="method.set($event)">
               @for (option of methods; track option.value) {
@@ -163,7 +163,7 @@
 
         @if (canCancel()) {
           @if (cancelOpen()) {
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
               <mat-label>Reason (optional)</mat-label>
               <input matInput
                 id="reason"

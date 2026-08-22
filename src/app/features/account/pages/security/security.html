@@ -125,7 +125,7 @@
 
       @if (awaiting(); as channel) {
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Code sent to your {{ channel === 'EMAIL' ? 'email' : 'mobile' }}</mat-label>
           <input matInput
             id="code"

@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { DashboardService } from '@core/services/dashboard.service';
@@ -40,6 +40,7 @@ import { MatTabsModule } from '@angular/material/tabs';
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminDashboard {
   private readonly admin = inject(DashboardService);

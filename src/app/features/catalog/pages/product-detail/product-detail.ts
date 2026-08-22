@@ -1,5 +1,5 @@
 import { KeyValuePipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { CatalogService } from '@core/services/catalog.service';
@@ -26,6 +26,7 @@ import { MatButtonModule } from '@angular/material/button';
   ],
   templateUrl: './product-detail.html',
   styleUrl: './product-detail.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductDetail {
   private readonly catalog = inject(CatalogService);

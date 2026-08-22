@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
 import { CartService } from '@core/services/cart.service';
@@ -29,6 +29,7 @@ import { MatCardModule } from '@angular/material/card';
   ],
   templateUrl: './cart-page.html',
   styleUrl: './cart-page.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CartPage {
   private readonly cart = inject(CartService);

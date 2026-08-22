@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -34,6 +34,7 @@ import { MatTabsModule } from '@angular/material/tabs';
   ],
   templateUrl: './security.html',
   styleUrl: './security.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Security {
   private readonly auth = inject(AuthService);

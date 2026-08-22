@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { CatalogService } from '@core/services/catalog.service';
@@ -30,6 +30,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
   ],
   templateUrl: './category-browse.html',
   styleUrl: './category-browse.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CategoryBrowse {
   private readonly catalog = inject(CatalogService);

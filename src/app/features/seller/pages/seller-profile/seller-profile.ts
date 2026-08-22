@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -36,6 +36,7 @@ import { MatTabsModule } from '@angular/material/tabs';
   ],
   templateUrl: './seller-profile.html',
   styleUrl: './seller-profile.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SellerProfile {
   private readonly users = inject(UserService);

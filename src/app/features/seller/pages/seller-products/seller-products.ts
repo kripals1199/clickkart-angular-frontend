@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { SellerService } from '@core/services/seller.service';
@@ -30,6 +30,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
   ],
   templateUrl: './seller-products.html',
   styleUrl: './seller-products.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SellerProducts {
   private readonly seller = inject(SellerService);

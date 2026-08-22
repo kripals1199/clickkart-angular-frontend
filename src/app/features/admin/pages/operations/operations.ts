@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -38,6 +38,7 @@ import { MatTabsModule } from '@angular/material/tabs';
   ],
   templateUrl: './operations.html',
   styleUrl: './operations.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Operations {
   private readonly admin = inject(AdminService);

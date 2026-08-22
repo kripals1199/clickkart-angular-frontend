@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 import { Navbar } from '@layout/navbar/navbar';
@@ -30,5 +30,6 @@ import { Footer } from '@layout/footer/footer';
       min-height: 60vh;
     }
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Shell {}

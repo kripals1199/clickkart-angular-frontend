@@ -49,7 +49,7 @@
       </h2>
 
       <div class="address-form__row">
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Label</mat-label>
           <mat-select id="label" formControlName="label">
             <mat-option value="HOME">Home</mat-option>
@@ -69,7 +69,7 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Contact number</mat-label>
-        <input matInput id="contactNumber" type="tel" formControlName="contactNumber" inputmode="numeric" maxlength="10" placeholder="9876543210" />
+        <input matInput id="contactNumber" type="tel" formControlName="contactNumber" autocomplete="tel" inputmode="numeric" maxlength="10" placeholder="9876543210" />
         @if (form.controls.contactNumber.touched && form.controls.contactNumber.invalid) {
           <mat-error>10 digits, starting with 6, 7, 8 or 9.</mat-error>
         }
@@ -83,22 +83,22 @@
         }
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>Address line 2</mat-label>
         <input matInput id="line2" type="text" formControlName="line2" maxlength="200" autocomplete="address-line2" />
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>Landmark</mat-label>
         <input matInput id="landmark" type="text" formControlName="landmark" maxlength="150" placeholder="Optional" />
       </mat-form-field>
 
       <div class="address-form__row">
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>City</mat-label>
           <input matInput id="city" type="text" formControlName="city" maxlength="100" autocomplete="address-level2" />
         </mat-form-field>
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>State</mat-label>
           <input matInput id="state" type="text" formControlName="state" maxlength="100" autocomplete="address-level1" />
         </mat-form-field>
@@ -112,7 +112,7 @@
             <mat-error>Six digits, not starting with 0.</mat-error>
           }
         </mat-form-field>
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Country</mat-label>
           <input matInput id="country" type="text" formControlName="country" maxlength="60" autocomplete="country-name" />
         </mat-form-field>

@@ -141,7 +141,7 @@
                   <mat-hint>Negative writes stock off.</mat-hint>
                 </mat-form-field>
 
-                <mat-form-field appearance="outline">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
                   <mat-label>Reason</mat-label>
                   <mat-select [id]="'reason-' + item.sku" [ngModel]="reason()" (ngModelChange)="reason.set($event)">
                     @for (option of reasons; track option.value) {
@@ -151,7 +151,7 @@
                 </mat-form-field>
               </div>
 
-              <mat-form-field appearance="outline">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Note</mat-label>
                 <input matInput
                   [id]="'note-' + item.sku"

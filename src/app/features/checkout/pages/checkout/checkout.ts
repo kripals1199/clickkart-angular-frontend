@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
 import { CartService } from '@core/services/cart.service';
@@ -6,7 +6,6 @@ import { UserService } from '@core/services/user.service';
 import { OrderService } from '@core/services/order.service';
 import { Address } from '@core/models/user.model';
 import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 
 /**
@@ -25,11 +24,11 @@ import { MatCardModule } from '@angular/material/card';
   standalone: true,
   imports: [RouterLink,
     MatButtonModule,
-    MatInputModule,
     MatCardModule,
   ],
   templateUrl: './checkout.html',
   styleUrl: './checkout.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Checkout {
   private readonly cart = inject(CartService);

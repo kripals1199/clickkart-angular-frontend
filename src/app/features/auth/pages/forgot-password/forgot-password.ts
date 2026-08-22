@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
@@ -31,6 +31,7 @@ import { MatButtonModule } from '@angular/material/button';
   ],
   templateUrl: './forgot-password.html',
   styleUrl: './forgot-password.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ForgotPassword {
   private readonly fb = inject(FormBuilder);

@@ -6,12 +6,12 @@
         <form [formGroup]="filters" (ngSubmit)="applyFilters()">
           <h2 class="listing__filters-title">Filters</h2>
 
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Search</mat-label>
             <input matInput id="query" type="search" formControlName="query" placeholder="Product or brand" />
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Category</mat-label>
             <mat-select id="category" formControlName="categoryPublicId">
               <mat-option value="">All categories</mat-option>
@@ -21,17 +21,17 @@
             </mat-select>
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Brand</mat-label>
             <input matInput id="brand" type="text" formControlName="brand" placeholder="Any brand" />
           </mat-form-field>
 
           <div class="listing__price-range">
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
               <mat-label>Min ₹</mat-label>
               <input matInput id="minPrice" type="number" inputmode="numeric" min="0" formControlName="minPrice" placeholder="0" />
             </mat-form-field>
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
               <mat-label>Max ₹</mat-label>
               <input matInput id="maxPrice" type="number" inputmode="numeric" min="0" formControlName="maxPrice" placeholder="Any" />
             </mat-form-field>

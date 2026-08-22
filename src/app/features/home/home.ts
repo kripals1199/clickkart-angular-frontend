@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { HeroBanner } from '@shared/components/hero-banner/hero-banner';
@@ -36,7 +36,8 @@ import { cheapestVariant } from '@shared/pricing';
     BrandSection
   ],
   templateUrl: './home.html',
-  styleUrl: './home.scss'
+  styleUrl: './home.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Home {
   private readonly catalog = inject(CatalogService);

@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { OrderService } from '@core/services/order.service';
@@ -30,6 +30,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
   ],
   templateUrl: './order-list.html',
   styleUrl: './order-list.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrderList {
   private readonly orders = inject(OrderService);

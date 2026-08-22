@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
@@ -30,6 +30,7 @@ import { MatIconModule } from '@angular/material/icon';
   ],
   templateUrl: './reset-password.html',
   styleUrl: './reset-password.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResetPassword {
   private readonly fb = inject(FormBuilder);

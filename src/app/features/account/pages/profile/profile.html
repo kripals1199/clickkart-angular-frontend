@@ -77,11 +77,11 @@
         <h2 class="account__section">Personal details</h2>
 
         <div class="account__row">
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>First name</mat-label>
             <input matInput id="firstName" type="text" formControlName="firstName" maxlength="60" autocomplete="given-name" />
           </mat-form-field>
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Last name</mat-label>
             <input matInput id="lastName" type="text" formControlName="lastName" maxlength="60" autocomplete="family-name" />
           </mat-form-field>
@@ -94,11 +94,11 @@
         </mat-form-field>
 
         <div class="account__row">
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Date of birth</mat-label>
             <input matInput id="dateOfBirth" type="date" formControlName="dateOfBirth" />
           </mat-form-field>
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Gender</mat-label>
             <mat-select id="gender" formControlName="gender">
               <mat-option value="">Not specified</mat-option>
@@ -143,7 +143,7 @@
         </label>
 
         <div class="account__row">
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Language</mat-label>
             <mat-select id="preferredLanguage" formControlName="preferredLanguage">
               <mat-option value="en">English</mat-option>
@@ -151,7 +151,7 @@
               <mat-option value="hi">Hindi</mat-option>
             </mat-select>
           </mat-form-field>
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Currency</mat-label>
             <mat-select id="preferredCurrency" formControlName="preferredCurrency">
               <mat-option value="INR">INR — Indian Rupee</mat-option>

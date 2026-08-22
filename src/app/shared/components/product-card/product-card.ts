@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Product } from '@core/models/catalog.model';
@@ -23,6 +23,7 @@ import { cheapestVariant } from '@shared/pricing';
   imports: [RouterLink],
   templateUrl: './product-card.html',
   styleUrl: './product-card.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductCard {
   readonly product = input.required<Product>();

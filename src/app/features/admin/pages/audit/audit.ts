@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { AuditService } from '@core/services/audit.service';
@@ -33,6 +33,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
   ],
   templateUrl: './audit.html',
   styleUrl: './audit.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Audit {
   private readonly audit = inject(AuditService);

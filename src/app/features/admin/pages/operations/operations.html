@@ -204,7 +204,7 @@
                     has to be settled against the payment.
                   </p>
                 }
-                <mat-form-field appearance="outline">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
                   <mat-label>Reason</mat-label>
                   <input matInput
                     [id]="'reason-' + order.orderReference"
@@ -314,7 +314,7 @@
                     </mat-hint>
                   </mat-form-field>
 
-                  <mat-form-field appearance="outline">
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
                     <mat-label>Reason</mat-label>
                     <input matInput
                       [id]="'refund-reason-' + payment.paymentReference"

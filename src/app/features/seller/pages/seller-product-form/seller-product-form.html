@@ -60,7 +60,7 @@
         </mat-form-field>
 
         <div class="form__row">
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Brand</mat-label>
             <input matInput id="brand" type="text" formControlName="brand" maxlength="120" />
           </mat-form-field>
@@ -87,7 +87,7 @@
           }
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Description</mat-label>
           <textarea matInput id="description" formControlName="description" rows="5" maxlength="4000"></textarea>
         </mat-form-field>
@@ -124,19 +124,19 @@
                   }
                 </mat-form-field>
 
-                <mat-form-field appearance="outline">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
                   <mat-label>Variant name</mat-label>
                   <input matInput [id]="'variantName-' + i" type="text" formControlName="variantName" maxlength="150" placeholder="e.g. Blue / M" />
                 </mat-form-field>
               </div>
 
               <div class="form__row">
-                <mat-form-field appearance="outline">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
                   <mat-label>MRP ₹</mat-label>
                   <input matInput [id]="'mrp-' + i" type="number" step="0.01" min="0.01" formControlName="mrp" />
                 </mat-form-field>
 
-                <mat-form-field appearance="outline">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
                   <mat-label>Selling price ₹</mat-label>
                   <input matInput [id]="'sellingPrice-' + i" type="number" step="0.01" min="0.01" formControlName="sellingPrice" />
                 </mat-form-field>

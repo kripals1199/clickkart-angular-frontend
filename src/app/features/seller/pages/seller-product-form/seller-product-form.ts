@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
@@ -36,6 +36,7 @@ import { MatCardModule } from '@angular/material/card';
   ],
   templateUrl: './seller-product-form.html',
   styleUrl: './seller-product-form.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SellerProductForm {
   private readonly seller = inject(SellerService);

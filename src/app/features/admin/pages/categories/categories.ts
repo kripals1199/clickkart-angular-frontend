@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -43,6 +43,7 @@ interface FlatCategory {
   ],
   templateUrl: './categories.html',
   styleUrl: './categories.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Categories {
   private readonly admin = inject(AdminService);

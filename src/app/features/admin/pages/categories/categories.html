@@ -91,7 +91,7 @@
       </div>
 
       <div class="category-form__row">
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Parent</mat-label>
           <mat-select id="parent" formControlName="parentPublicId">
             <mat-option value="">None — this is a root category</mat-option>
@@ -118,7 +118,7 @@
         }
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>Description</mat-label>
         <textarea matInput id="description" formControlName="description" rows="3" maxlength="1000"></textarea>
       </mat-form-field>

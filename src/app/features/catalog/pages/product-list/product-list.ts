@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
@@ -39,6 +39,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
   ],
   templateUrl: './product-list.html',
   styleUrl: './product-list.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductList {
   private readonly catalog = inject(CatalogService);

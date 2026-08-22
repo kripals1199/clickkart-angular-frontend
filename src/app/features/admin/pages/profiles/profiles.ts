@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { AdminService } from '@core/services/admin.service';
 import { UserProfile } from '@core/models/user.model';
@@ -9,6 +9,8 @@ import { PageResponse } from '@core/models/api-response';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 /**
  * Operator lookup across customer profiles, and the one write this surface has: erasure.
@@ -29,6 +31,9 @@ import { MatCardModule } from '@angular/material/card';
     MatButtonModule,
     MatInputModule,
     MatCardModule,
+    MatTabsModule,
+    RouterLinkActive,
+    MatPaginatorModule,
   ],
   templateUrl: './profiles.html',
   styleUrl: './profiles.scss',
@@ -48,6 +53,9 @@ export class Profiles {
 
   readonly profiles = computed(() => this.page()?.content ?? []);
   readonly pageIndex = computed(() => this.page()?.page ?? 0);
+  /** Total rows and server page size, read off the page envelope for mat-paginator. */
+  readonly totalElements = computed(() => this.page()?.totalElements ?? 0);
+  readonly pageSize = computed(() => this.page()?.size ?? 20);
   readonly totalPages = computed(() => this.page()?.totalPages ?? 0);
   readonly isLast = computed(() => this.page()?.last ?? true);
   readonly total = computed(() => this.page()?.totalElements ?? 0);

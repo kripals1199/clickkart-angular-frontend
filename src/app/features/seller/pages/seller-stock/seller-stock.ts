@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { SellerService } from '@core/services/seller.service';
 import { AdjustmentReason, Stock } from '@core/models/seller.model';
@@ -11,6 +11,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 /**
  * Per-SKU stock, and the two ways of changing it.
@@ -32,6 +34,9 @@ import { MatCardModule } from '@angular/material/card';
     MatSelectModule,
     MatInputModule,
     MatCardModule,
+    MatTabsModule,
+    RouterLinkActive,
+    MatPaginatorModule,
   ],
   templateUrl: './seller-stock.html',
   styleUrl: './seller-stock.scss',
@@ -56,6 +61,9 @@ export class SellerStock {
 
   readonly items = computed(() => this.page()?.content ?? []);
   readonly pageIndex = computed(() => this.page()?.page ?? 0);
+  /** Total rows and server page size, read off the page envelope for mat-paginator. */
+  readonly totalElements = computed(() => this.page()?.totalElements ?? 0);
+  readonly pageSize = computed(() => this.page()?.size ?? 20);
   readonly totalPages = computed(() => this.page()?.totalPages ?? 0);
   readonly isLast = computed(() => this.page()?.last ?? true);
 

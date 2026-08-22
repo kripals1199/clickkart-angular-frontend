@@ -3,11 +3,36 @@
   <h1 class="page__title">Your account</h1>
   <p class="page__subtitle">Signed in as {{ accountEmail()?.email || '—' }}</p>
 
-  <nav class="account-nav">
-    <a class="account-nav__link account-nav__link--active" routerLink="/account">Profile</a>
-    <a class="account-nav__link" routerLink="/account/addresses">Addresses</a>
-    <a class="account-nav__link" routerLink="/account/security">Security</a>
-    <a class="account-nav__link" routerLink="/orders">Orders</a>
+  <nav mat-tab-nav-bar class="account-nav">
+    <a
+      mat-tab-link
+      routerLink="/account"
+      routerLinkActive
+      #rla0="routerLinkActive"
+      [routerLinkActiveOptions]="{ exact: true }"
+      [active]="rla0.isActive"
+    >Profile</a>
+    <a
+      mat-tab-link
+      routerLink="/account/addresses"
+      routerLinkActive
+      #rla1="routerLinkActive"
+      [active]="rla1.isActive"
+    >Addresses</a>
+    <a
+      mat-tab-link
+      routerLink="/account/security"
+      routerLinkActive
+      #rla2="routerLinkActive"
+      [active]="rla2.isActive"
+    >Security</a>
+    <a
+      mat-tab-link
+      routerLink="/orders"
+      routerLinkActive
+      #rla3="routerLinkActive"
+      [active]="rla3.isActive"
+    >Orders</a>
   </nav>
 
   @if (loading()) {

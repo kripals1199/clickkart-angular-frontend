@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { DashboardService } from '@core/services/dashboard.service';
 import {
@@ -15,6 +15,7 @@ import {
 } from '@core/models/dashboard.model';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatTabsModule } from '@angular/material/tabs';
 
 /**
  * The operator's landing page: what needs a human, what each service is reporting, and what is
@@ -34,6 +35,8 @@ import { MatCardModule } from '@angular/material/card';
   imports: [RouterLink, DatePipe,
     MatButtonModule,
     MatCardModule,
+    MatTabsModule,
+    RouterLinkActive,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',

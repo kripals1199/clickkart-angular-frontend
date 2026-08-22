@@ -3,14 +3,57 @@
   <h1 class="page__title">Categories</h1>
   <p class="page__subtitle">The catalog taxonomy, including branches hidden from the storefront.</p>
 
-  <nav class="account-nav">
-    <a class="account-nav__link" routerLink="/admin">Dashboard</a>
-    <a class="account-nav__link" routerLink="/admin/moderation">Moderation</a>
-    <a class="account-nav__link" routerLink="/admin/operations">Operations</a>
-    <a class="account-nav__link account-nav__link--active" routerLink="/admin/categories">Categories</a>
-    <a class="account-nav__link" routerLink="/admin/accounts">Accounts</a>
-    <a class="account-nav__link" routerLink="/admin/profiles">Profiles</a>
-    <a class="account-nav__link" routerLink="/admin/audit">Audit</a>
+  <nav mat-tab-nav-bar class="account-nav">
+    <a
+      mat-tab-link
+      routerLink="/admin"
+      routerLinkActive
+      #rla0="routerLinkActive"
+      [routerLinkActiveOptions]="{ exact: true }"
+      [active]="rla0.isActive"
+    >Dashboard</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/moderation"
+      routerLinkActive
+      #rla1="routerLinkActive"
+      [active]="rla1.isActive"
+    >Moderation</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/operations"
+      routerLinkActive
+      #rla2="routerLinkActive"
+      [active]="rla2.isActive"
+    >Operations</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/categories"
+      routerLinkActive
+      #rla3="routerLinkActive"
+      [active]="rla3.isActive"
+    >Categories</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/accounts"
+      routerLinkActive
+      #rla4="routerLinkActive"
+      [active]="rla4.isActive"
+    >Accounts</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/profiles"
+      routerLinkActive
+      #rla5="routerLinkActive"
+      [active]="rla5.isActive"
+    >Profiles</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/audit"
+      routerLinkActive
+      #rla6="routerLinkActive"
+      [active]="rla6.isActive"
+    >Audit</a>
   </nav>
 
   @if (savedMessage()) {

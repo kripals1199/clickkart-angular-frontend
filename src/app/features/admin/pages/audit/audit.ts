@@ -1,12 +1,14 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { AuditService } from '@core/services/audit.service';
 import { AUDIT_SOURCES, AuditEntry, AuditSource, ChainIntegrityReport } from '@core/models/audit.model';
 import { PageResponse } from '@core/models/api-response';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 /**
  * The tamper-evident audit trails.
@@ -25,6 +27,9 @@ import { MatCardModule } from '@angular/material/card';
   imports: [RouterLink, DatePipe,
     MatButtonModule,
     MatCardModule,
+    MatTabsModule,
+    RouterLinkActive,
+    MatPaginatorModule,
   ],
   templateUrl: './audit.html',
   styleUrl: './audit.scss',
@@ -47,6 +52,9 @@ export class Audit {
 
   readonly entries = computed(() => this.page()?.content ?? []);
   readonly pageIndex = computed(() => this.page()?.page ?? 0);
+  /** Total rows and server page size, read off the page envelope for mat-paginator. */
+  readonly totalElements = computed(() => this.page()?.totalElements ?? 0);
+  readonly pageSize = computed(() => this.page()?.size ?? 20);
   readonly totalPages = computed(() => this.page()?.totalPages ?? 0);
   readonly isLast = computed(() => this.page()?.last ?? true);
   readonly totalEntries = computed(() => this.page()?.totalElements ?? 0);

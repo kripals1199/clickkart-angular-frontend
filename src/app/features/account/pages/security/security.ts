@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { AuthService } from '@core/services/auth.service';
 import { OtpChannel } from '@core/models/auth.model';
@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
+import { MatTabsModule } from '@angular/material/tabs';
 
 /**
  * Account security: change the password, and prove control of the email and mobile already on file.
@@ -28,6 +29,8 @@ import { MatCardModule } from '@angular/material/card';
     MatFormFieldModule,
     MatInputModule,
     MatCardModule,
+    MatTabsModule,
+    RouterLinkActive,
   ],
   templateUrl: './security.html',
   styleUrl: './security.scss',

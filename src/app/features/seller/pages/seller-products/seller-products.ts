@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { SellerService } from '@core/services/seller.service';
 import { Product, ProductStatus } from '@core/models/catalog.model';
@@ -8,6 +8,8 @@ import { PageResponse } from '@core/models/api-response';
 import { describeProductStatus, isArchivable, isSubmittable } from '@shared/seller-rules';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 /**
  * A seller's own listings, in every state - not just the ones on sale.
@@ -22,6 +24,9 @@ import { MatCardModule } from '@angular/material/card';
   imports: [RouterLink, DatePipe,
     MatButtonModule,
     MatCardModule,
+    MatTabsModule,
+    RouterLinkActive,
+    MatPaginatorModule,
   ],
   templateUrl: './seller-products.html',
   styleUrl: './seller-products.scss',
@@ -38,6 +43,9 @@ export class SellerProducts {
 
   readonly products = computed(() => this.page()?.content ?? []);
   readonly pageIndex = computed(() => this.page()?.page ?? 0);
+  /** Total rows and server page size, read off the page envelope for mat-paginator. */
+  readonly totalElements = computed(() => this.page()?.totalElements ?? 0);
+  readonly pageSize = computed(() => this.page()?.size ?? 20);
   readonly totalPages = computed(() => this.page()?.totalPages ?? 0);
   readonly isLast = computed(() => this.page()?.last ?? true);
 

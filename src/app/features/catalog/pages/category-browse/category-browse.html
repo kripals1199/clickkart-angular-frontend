@@ -81,15 +81,20 @@
         </div>
 
         @if (totalPages() > 1) {
-          <nav class="pager" aria-label="Pagination">
-            <button type="button" matButton="outlined" [disabled]="pageIndex() === 0" (click)="goToPage(pageIndex() - 1)">
-              Previous
-            </button>
-            <span class="pager__position">Page {{ pageIndex() + 1 }} of {{ totalPages() }}</span>
-            <button type="button" matButton="outlined" [disabled]="isLast()" (click)="goToPage(pageIndex() + 1)">
-              Next
-            </button>
-          </nav>
+          <!-- hidePageSize because the page size is the server's, not the visitor's: every
+               fetch here sends a fixed size, so offering a selector would show a control that
+               does not change the request. First/last are on - with an unknown number of
+               pages, "jump to the end" is the one move Previous/Next cannot do. -->
+          <mat-paginator
+            class="pager"
+            [length]="totalElements()"
+            [pageSize]="pageSize()"
+            [pageIndex]="pageIndex()"
+            [hidePageSize]="true"
+            [showFirstLastButtons]="true"
+            (page)="goToPage($event.pageIndex)"
+            aria-label="Select page"
+          />
         }
 
       }

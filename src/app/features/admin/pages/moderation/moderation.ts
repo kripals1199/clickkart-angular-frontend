@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Observable } from 'rxjs';
 
 import { AdminService } from '@core/services/admin.service';
@@ -12,6 +12,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
+import { MatTabsModule } from '@angular/material/tabs';
 
 /**
  * The two things an operator approves: listings waiting to go on sale, and sellers waiting to be
@@ -30,6 +31,8 @@ import { MatCardModule } from '@angular/material/card';
     MatFormFieldModule,
     MatInputModule,
     MatCardModule,
+    MatTabsModule,
+    RouterLinkActive,
   ],
   templateUrl: './moderation.html',
   styleUrl: './moderation.scss',

@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
 
 import { AdminService } from '@core/services/admin.service';
 import { OrderStatus, OrderSummary } from '@core/models/order.model';
@@ -14,6 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
+import { MatTabsModule } from '@angular/material/tabs';
 
 /**
  * Day-to-day operations: finding orders and payments, and the two queues that mean something is
@@ -32,6 +33,8 @@ import { MatCardModule } from '@angular/material/card';
     MatFormFieldModule,
     MatInputModule,
     MatCardModule,
+    MatTabsModule,
+    RouterLinkActive,
   ],
   templateUrl: './operations.html',
   styleUrl: './operations.scss',

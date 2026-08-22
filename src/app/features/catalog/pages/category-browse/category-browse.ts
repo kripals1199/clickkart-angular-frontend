@@ -8,6 +8,7 @@ import { Availability } from '@core/models/availability.model';
 import { PageResponse } from '@core/models/api-response';
 import { cheapestVariant } from '@shared/pricing';
 import { MatButtonModule } from '@angular/material/button';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 /**
  * Browsing the taxonomy, which until now customers could not do at all: the storefront offered a
@@ -25,6 +26,7 @@ import { MatButtonModule } from '@angular/material/button';
   standalone: true,
   imports: [RouterLink,
     MatButtonModule,
+    MatPaginatorModule,
   ],
   templateUrl: './category-browse.html',
   styleUrl: './category-browse.scss',
@@ -50,6 +52,9 @@ export class CategoryBrowse {
   readonly products = computed(() => this.productPage()?.content ?? []);
   readonly total = computed(() => this.productPage()?.totalElements ?? 0);
   readonly pageIndex = computed(() => this.productPage()?.page ?? 0);
+  /** Total rows and server page size, read off the page envelope for mat-paginator. */
+  readonly totalElements = computed(() => this.productPage()?.totalElements ?? 0);
+  readonly pageSize = computed(() => this.productPage()?.size ?? 20);
   readonly totalPages = computed(() => this.productPage()?.totalPages ?? 0);
   readonly isLast = computed(() => this.productPage()?.last ?? true);
 

@@ -14,6 +14,7 @@ import { PageResponse } from '@core/models/api-response';
 import { cheapestVariant } from '@shared/pricing';
 import { AvailabilityService } from '@core/services/availability.service';
 import { Availability, describeAvailability } from '@core/models/availability.model';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 /**
  * The listing page: search, filters and paging over the public catalog.
@@ -34,6 +35,7 @@ import { Availability, describeAvailability } from '@core/models/availability.mo
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
+    MatPaginatorModule,
   ],
   templateUrl: './product-list.html',
   styleUrl: './product-list.scss',
@@ -56,6 +58,9 @@ export class ProductList {
   readonly products = computed(() => this.page()?.content ?? []);
   readonly total = computed(() => this.page()?.totalElements ?? 0);
   readonly pageIndex = computed(() => this.page()?.page ?? 0);
+  /** Total rows and server page size, read off the page envelope for mat-paginator. */
+  readonly totalElements = computed(() => this.page()?.totalElements ?? 0);
+  readonly pageSize = computed(() => this.page()?.size ?? 20);
   readonly totalPages = computed(() => this.page()?.totalPages ?? 0);
   readonly isLast = computed(() => this.page()?.last ?? true);
 

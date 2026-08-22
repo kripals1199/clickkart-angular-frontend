@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { AdminService } from '@core/services/admin.service';
 import { Category } from '@core/models/catalog.model';
@@ -10,6 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
+import { MatTabsModule } from '@angular/material/tabs';
 
 /** A category plus how deep it sits, so the tree can be rendered from a flat list. */
 interface FlatCategory {
@@ -37,6 +38,8 @@ interface FlatCategory {
     MatInputModule,
     MatSelectModule,
     MatCardModule,
+    MatTabsModule,
+    RouterLinkActive,
   ],
   templateUrl: './categories.html',
   styleUrl: './categories.scss',

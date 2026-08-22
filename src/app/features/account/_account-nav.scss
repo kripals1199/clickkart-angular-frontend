@@ -8,7 +8,31 @@
   margin-bottom: 1.5rem;
   border-bottom: 1px solid $line;
 
+  // The admin console renders seven links here - Dashboard, Moderation, Operations, Categories,
+  // Accounts, Profiles, Audit - which measure 675px at this font. A 375px phone has about 347px
+  // of content width, so the strip ran 328px past the edge and took the whole page with it. That
+  // is why the admin pages looked broken on a phone while the account pages, which render three
+  // links and fit in 263px, looked fine.
+  //
+  // It scrolls rather than wraps. Wrapping seven tabs makes three rows and pushes the actual page
+  // content below the fold on every admin screen; scrolling keeps the strip one row tall, and is
+  // what Material's own tab bar does when its tabs overflow. Harmless at widths where it fits.
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+
+  // Hidden because a scrollbar under a tab strip reads as a rule below the tabs rather than a
+  // control. The partially-cut final tab is the affordance instead.
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+
   &__link {
+    // Flex items may not shrink below their content by default, which is what produced the
+    // overflow; being explicit stops a future `min-width: 0` from silently ellipsing the labels.
+    flex: 0 0 auto;
+    white-space: nowrap;
+    scroll-snap-align: start;
+
     padding: 0.6rem 0.9rem;
     font-size: 0.9rem;
     color: $muted;

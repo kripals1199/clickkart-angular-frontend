@@ -88,14 +88,15 @@
   @if (loading()) {
 
     <div class="card">
-      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+      <div class="skeleton row-skeleton" aria-hidden="true">
+    </div>
       <div class="skeleton row-skeleton" aria-hidden="true"></div>
     </div>
 
   } @else if (failed()) {
 
     <p class="alert" role="alert">That could not be loaded.</p>
-    <button type="button" class="btn btn--quiet" (click)="fetch()">Try again</button>
+    <button type="button" matButton="outlined" (click)="fetch()">Try again</button>
 
   } @else if (showingOrders()) {
 
@@ -134,13 +135,13 @@
             </div>
 
             <div class="item__actions">
-              <a class="btn btn--quiet item__action" [routerLink]="['/orders', order.orderReference]">
+              <a matButton="outlined" class="item__action" [routerLink]="['/orders', order.orderReference]">
                 View
               </a>
               @if (order.status === 'PENDING_PAYMENT' || order.status === 'CONFIRMED') {
                 <button
                   type="button"
-                  class="btn btn--quiet item__action"
+                  matButton="outlined" class="item__action"
                   [disabled]="busyId() === order.orderReference"
                   (click)="openId() === order.orderReference ? close() : openAction(order.orderReference)"
                 >
@@ -157,9 +158,9 @@
                     has to be settled against the payment.
                   </p>
                 }
-                <div class="field">
-                  <label class="field__label" [for]="'reason-' + order.orderReference">Reason</label>
-                  <input
+                <mat-form-field appearance="outline">
+                  <mat-label>Reason</mat-label>
+                  <input matInput
                     [id]="'reason-' + order.orderReference"
                     type="text"
                     maxlength="300"
@@ -167,10 +168,10 @@
                     (ngModelChange)="reason.set($event)"
                     placeholder="Why is this being cancelled?"
                   />
-                </div>
+                </mat-form-field>
                 <button
                   type="button"
-                  class="btn btn--cta"
+                  matButton="filled" class="btn--cta"
                   [disabled]="busyId() === order.orderReference"
                   (click)="cancelOrder(order)"
                 >
@@ -233,7 +234,7 @@
               @if (refundable(payment)) {
                 <button
                   type="button"
-                  class="btn btn--quiet item__action"
+                  matButton="outlined" class="item__action"
                   [disabled]="busyId() === payment.paymentReference"
                   (click)="openId() === payment.paymentReference ? close() : openAction(payment.paymentReference, remaining(payment))"
                 >
@@ -249,9 +250,9 @@
             @if (openId() === payment.paymentReference) {
               <div class="decision">
                 <div class="decision__row">
-                  <div class="field">
-                    <label class="field__label" [for]="'amount-' + payment.paymentReference">Amount ₹</label>
-                    <input
+                  <mat-form-field appearance="outline">
+                    <mat-label>Amount ₹</mat-label>
+                    <input matInput
                       [id]="'amount-' + payment.paymentReference"
                       type="number"
                       step="0.01"
@@ -260,14 +261,14 @@
                       [ngModel]="amount()"
                       (ngModelChange)="amount.set($event)"
                     />
-                    <span class="field__hint field__hint--muted">
+                    <mat-hint>
                       ₹{{ remaining(payment) }} left to refund. Prefilled with the full remainder.
-                    </span>
-                  </div>
+                    </mat-hint>
+                  </mat-form-field>
 
-                  <div class="field">
-                    <label class="field__label" [for]="'refund-reason-' + payment.paymentReference">Reason</label>
-                    <input
+                  <mat-form-field appearance="outline">
+                    <mat-label>Reason</mat-label>
+                    <input matInput
                       [id]="'refund-reason-' + payment.paymentReference"
                       type="text"
                       maxlength="300"
@@ -275,12 +276,12 @@
                       (ngModelChange)="reason.set($event)"
                       placeholder="Why is this being refunded?"
                     />
-                  </div>
+                  </mat-form-field>
                 </div>
 
                 <button
                   type="button"
-                  class="btn btn--cta"
+                  matButton="filled" class="btn--cta"
                   [disabled]="busyId() === payment.paymentReference"
                   (click)="refund(payment)"
                 >

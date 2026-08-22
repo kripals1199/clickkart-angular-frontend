@@ -5,6 +5,8 @@ import { RouterLink } from '@angular/router';
 import { AuditService } from '@core/services/audit.service';
 import { AUDIT_SOURCES, AuditEntry, AuditSource, ChainIntegrityReport } from '@core/models/audit.model';
 import { PageResponse } from '@core/models/api-response';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 
 /**
  * The tamper-evident audit trails.
@@ -20,7 +22,10 @@ import { PageResponse } from '@core/models/api-response';
 @Component({
   selector: 'app-audit',
   standalone: true,
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe,
+    MatButtonModule,
+    MatCardModule,
+  ],
   templateUrl: './audit.html',
   styleUrl: './audit.scss',
 })

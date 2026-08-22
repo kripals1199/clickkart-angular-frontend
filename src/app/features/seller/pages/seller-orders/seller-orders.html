@@ -20,14 +20,15 @@
   @if (loading()) {
 
     <div class="card">
-      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+      <div class="skeleton row-skeleton" aria-hidden="true">
+    </div>
       <div class="skeleton row-skeleton" aria-hidden="true"></div>
     </div>
 
   } @else if (failed()) {
 
     <p class="alert" role="alert">Your orders could not be loaded.</p>
-    <button type="button" class="btn btn--quiet" (click)="fetch(0)">Try again</button>
+    <button type="button" matButton="outlined" (click)="fetch(0)">Try again</button>
 
   } @else if (orders().length === 0) {
 
@@ -84,7 +85,7 @@
                   @if (options(item).length > 0) {
                     <button
                       type="button"
-                      class="btn btn--quiet item__action"
+                      matButton="outlined" class="item__action"
                       [disabled]="busyKey() === key(order, item)"
                       (click)="openKey() === key(order, item) ? close() : open(order, item)"
                     >
@@ -100,22 +101,22 @@
                 @if (openKey() === key(order, item)) {
                   <div class="advance">
                     <div class="advance__row">
-                      <div class="field">
-                        <label class="field__label" [for]="'status-' + item.sku">Mark as</label>
-                        <select
+                      <mat-form-field appearance="outline">
+                        <mat-label>Mark as</mat-label>
+                        <mat-select
                           [id]="'status-' + item.sku"
                           [ngModel]="targetStatus()"
                           (ngModelChange)="targetStatus.set($event)"
                         >
                           @for (option of options(item); track option) {
-                            <option [value]="option">{{ label(option) }}</option>
+                            <mat-option [value]="option">{{ label(option) }}</mat-option>
                           }
-                        </select>
-                      </div>
+                        </mat-select>
+                      </mat-form-field>
 
-                      <div class="field">
-                        <label class="field__label" [for]="'tracking-' + item.sku">Tracking reference</label>
-                        <input
+                      <mat-form-field appearance="outline">
+                        <mat-label>Tracking reference</mat-label>
+                        <input matInput
                           [id]="'tracking-' + item.sku"
                           type="text"
                           maxlength="100"
@@ -123,12 +124,12 @@
                           (ngModelChange)="tracking.set($event)"
                           placeholder="Optional"
                         />
-                      </div>
+                      </mat-form-field>
                     </div>
 
                     <button
                       type="button"
-                      class="btn btn--brand"
+                      matButton="filled"
                       [disabled]="busyKey() === key(order, item)"
                       (click)="advance(order, item)"
                     >
@@ -147,11 +148,11 @@
 
     @if (totalPages() > 1) {
       <nav class="pager" aria-label="Pagination">
-        <button type="button" class="btn btn--quiet" [disabled]="pageIndex() === 0" (click)="fetch(pageIndex() - 1)">
+        <button type="button" matButton="outlined" [disabled]="pageIndex() === 0" (click)="fetch(pageIndex() - 1)">
           Previous
         </button>
         <span class="pager__position">Page {{ pageIndex() + 1 }} of {{ totalPages() }}</span>
-        <button type="button" class="btn btn--quiet" [disabled]="isLast()" (click)="fetch(pageIndex() + 1)">
+        <button type="button" matButton="outlined" [disabled]="isLast()" (click)="fetch(pageIndex() + 1)">
           Next
         </button>
       </nav>

@@ -13,14 +13,15 @@
   @if (loading()) {
 
     <div class="card">
-      <div class="skeleton account__skeleton" aria-hidden="true"></div>
+      <div class="skeleton account__skeleton" aria-hidden="true">
+    </div>
       <div class="skeleton account__skeleton" aria-hidden="true"></div>
     </div>
 
   } @else if (failed()) {
 
     <p class="alert" role="alert">Your profile could not be loaded.</p>
-    <button type="button" class="btn btn--quiet" (click)="load()">Try again</button>
+    <button type="button" matButton="outlined" (click)="load()">Try again</button>
 
   } @else {
 
@@ -43,59 +44,59 @@
 
     <div class="account">
 
-      <form class="card" [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate class="card">
         <h2 class="account__section">Personal details</h2>
 
         <div class="account__row">
-          <div class="field">
-            <label class="field__label" for="firstName">First name</label>
-            <input id="firstName" type="text" formControlName="firstName" maxlength="60" autocomplete="given-name" />
-          </div>
-          <div class="field">
-            <label class="field__label" for="lastName">Last name</label>
-            <input id="lastName" type="text" formControlName="lastName" maxlength="60" autocomplete="family-name" />
-          </div>
+          <mat-form-field appearance="outline">
+            <mat-label>First name</mat-label>
+            <input matInput id="firstName" type="text" formControlName="firstName" maxlength="60" autocomplete="given-name" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Last name</mat-label>
+            <input matInput id="lastName" type="text" formControlName="lastName" maxlength="60" autocomplete="family-name" />
+          </mat-form-field>
         </div>
 
-        <div class="field">
-          <label class="field__label" for="displayName">Display name</label>
-          <input id="displayName" type="text" formControlName="displayName" maxlength="80" />
-          <span class="field__hint field__hint--muted">What we call you around the site.</span>
-        </div>
+        <mat-form-field appearance="outline">
+          <mat-label>Display name</mat-label>
+          <input matInput id="displayName" type="text" formControlName="displayName" maxlength="80" />
+          <mat-hint>What we call you around the site.</mat-hint>
+        </mat-form-field>
 
         <div class="account__row">
-          <div class="field">
-            <label class="field__label" for="dateOfBirth">Date of birth</label>
-            <input id="dateOfBirth" type="date" formControlName="dateOfBirth" />
-          </div>
-          <div class="field">
-            <label class="field__label" for="gender">Gender</label>
-            <select id="gender" formControlName="gender">
-              <option value="">Not specified</option>
-              <option value="MALE">Male</option>
-              <option value="FEMALE">Female</option>
-              <option value="OTHER">Other</option>
-              <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
-            </select>
-          </div>
+          <mat-form-field appearance="outline">
+            <mat-label>Date of birth</mat-label>
+            <input matInput id="dateOfBirth" type="date" formControlName="dateOfBirth" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Gender</mat-label>
+            <mat-select id="gender" formControlName="gender">
+              <mat-option value="">Not specified</mat-option>
+              <mat-option value="MALE">Male</mat-option>
+              <mat-option value="FEMALE">Female</mat-option>
+              <mat-option value="OTHER">Other</mat-option>
+              <mat-option value="PREFER_NOT_TO_SAY">Prefer not to say</mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
 
-        <div class="field" [class.field--invalid]="profileForm.controls.avatarUrl.touched && profileForm.controls.avatarUrl.invalid">
-          <label class="field__label" for="avatarUrl">Avatar URL</label>
-          <input id="avatarUrl" type="url" formControlName="avatarUrl" placeholder="https://…" />
+        <mat-form-field appearance="outline">
+          <mat-label>Avatar URL</mat-label>
+          <input matInput id="avatarUrl" type="url" formControlName="avatarUrl" placeholder="https://…" />
           @if (profileForm.controls.avatarUrl.touched && profileForm.controls.avatarUrl.invalid) {
-            <span class="field__hint">Must be an https:// URL, or left empty.</span>
+            <mat-error>Must be an https:// URL, or left empty.</mat-error>
           }
-        </div>
+        </mat-form-field>
 
         @if (!erased()) {
-          <button type="submit" class="btn btn--brand" [disabled]="savingProfile()">
+          <button type="submit" matButton="filled" [disabled]="savingProfile()">
             {{ savingProfile() ? 'Saving…' : 'Save details' }}
           </button>
         }
       </form>
 
-      <form class="card" [formGroup]="preferencesForm" (ngSubmit)="savePreferences()" novalidate>
+      <form [formGroup]="preferencesForm" (ngSubmit)="savePreferences()" novalidate class="card">
         <h2 class="account__section">Preferences</h2>
 
         <label class="checkbox">
@@ -109,25 +110,25 @@
         </label>
 
         <div class="account__row">
-          <div class="field" [class.field--invalid]="preferencesForm.controls.preferredLanguage.touched && preferencesForm.controls.preferredLanguage.invalid">
-            <label class="field__label" for="preferredLanguage">Language</label>
-            <select id="preferredLanguage" formControlName="preferredLanguage">
-              <option value="en">English</option>
-              <option value="en-IN">English (India)</option>
-              <option value="hi">Hindi</option>
-            </select>
-          </div>
-          <div class="field" [class.field--invalid]="preferencesForm.controls.preferredCurrency.touched && preferencesForm.controls.preferredCurrency.invalid">
-            <label class="field__label" for="preferredCurrency">Currency</label>
-            <select id="preferredCurrency" formControlName="preferredCurrency">
-              <option value="INR">INR — Indian Rupee</option>
-              <option value="USD">USD — US Dollar</option>
-            </select>
-          </div>
+          <mat-form-field appearance="outline">
+            <mat-label>Language</mat-label>
+            <mat-select id="preferredLanguage" formControlName="preferredLanguage">
+              <mat-option value="en">English</mat-option>
+              <mat-option value="en-IN">English (India)</mat-option>
+              <mat-option value="hi">Hindi</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Currency</mat-label>
+            <mat-select id="preferredCurrency" formControlName="preferredCurrency">
+              <mat-option value="INR">INR — Indian Rupee</mat-option>
+              <mat-option value="USD">USD — US Dollar</mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
 
         @if (!erased()) {
-          <button type="submit" class="btn btn--brand" [disabled]="savingPreferences()">
+          <button type="submit" matButton="filled" [disabled]="savingPreferences()">
             {{ savingPreferences() ? 'Saving…' : 'Save preferences' }}
           </button>
         }
@@ -157,13 +158,13 @@
             Erase your personal data? Everything listed above goes, permanently.
           </p>
           <div class="danger__actions">
-            <button type="button" class="btn btn--cta" [disabled]="erasing()" (click)="eraseMyData()">
+            <button type="button" matButton="filled" class="btn--cta" [disabled]="erasing()" (click)="eraseMyData()">
               {{ erasing() ? 'Erasing…' : 'Yes, erase it' }}
             </button>
-            <button type="button" class="btn btn--quiet" (click)="cancelErase()">Cancel</button>
+            <button type="button" matButton="outlined" (click)="cancelErase()">Cancel</button>
           </div>
         } @else {
-          <button type="button" class="btn btn--danger-text" (click)="confirmErase()">
+          <button type="button" matButton class="btn--danger-text" (click)="confirmErase()">
             Erase my personal data
           </button>
         }

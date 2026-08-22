@@ -5,6 +5,11 @@ import { RouterLink } from '@angular/router';
 import { AdminService } from '@core/services/admin.service';
 import { Category } from '@core/models/catalog.model';
 import { CategoryRequest } from '@core/models/admin.model';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCardModule } from '@angular/material/card';
 
 /** A category plus how deep it sits, so the tree can be rendered from a flat list. */
 interface FlatCategory {
@@ -26,7 +31,13 @@ interface FlatCategory {
 @Component({
   selector: 'app-categories',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCardModule,
+  ],
   templateUrl: './categories.html',
   styleUrl: './categories.scss',
 })

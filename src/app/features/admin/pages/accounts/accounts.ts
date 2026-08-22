@@ -7,6 +7,9 @@ import { AdminService } from '@core/services/admin.service';
 import { AuthService } from '@core/services/auth.service';
 import { UserSummary } from '@core/models/auth.model';
 import { PageResponse } from '@core/models/api-response';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatCardModule } from '@angular/material/card';
 
 /**
  * Credential-side account administration: who exists, who is locked, and who has been deleted.
@@ -21,7 +24,11 @@ import { PageResponse } from '@core/models/api-response';
 @Component({
   selector: 'app-accounts',
   standalone: true,
-  imports: [RouterLink, DatePipe, FormsModule],
+  imports: [RouterLink, DatePipe, FormsModule,
+    MatButtonModule,
+    MatInputModule,
+    MatCardModule,
+  ],
   templateUrl: './accounts.html',
   styleUrl: './accounts.scss',
 })

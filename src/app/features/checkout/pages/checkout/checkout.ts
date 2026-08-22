@@ -5,6 +5,9 @@ import { CartService } from '@core/services/cart.service';
 import { UserService } from '@core/services/user.service';
 import { OrderService } from '@core/services/order.service';
 import { Address } from '@core/models/user.model';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatCardModule } from '@angular/material/card';
 
 /**
  * Choose where it goes, check what is in it, place the order.
@@ -20,7 +23,11 @@ import { Address } from '@core/models/user.model';
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink,
+    MatButtonModule,
+    MatInputModule,
+    MatCardModule,
+  ],
   templateUrl: './checkout.html',
   styleUrl: './checkout.scss',
 })

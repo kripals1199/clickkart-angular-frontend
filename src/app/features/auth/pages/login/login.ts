@@ -4,6 +4,10 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '@core/services/auth.service';
 import { OtpChannel } from '@core/models/auth.model';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 /**
  * Sign-in. Deliberately thinner than registration in two ways.
@@ -20,7 +24,12 @@ import { OtpChannel } from '@core/models/auth.model';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+  ],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })

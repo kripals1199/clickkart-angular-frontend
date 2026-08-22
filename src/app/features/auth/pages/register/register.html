@@ -21,9 +21,9 @@
         <p class="alert" role="alert">{{ errorMessage() }}</p>
       }
 
-      <div class="field">
-        <label class="field__label" for="email">Email</label>
-        <input
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput
           id="email"
           type="email"
           formControlName="email"
@@ -32,9 +32,9 @@
           [class.field__input--invalid]="form.controls.email.touched && form.controls.email.invalid"
         />
         @if (form.controls.email.touched && form.controls.email.invalid) {
-          <span class="field__hint">Enter a valid email address.</span>
+          <mat-error>Enter a valid email address.</mat-error>
         }
-      </div>
+      </mat-form-field>
 
       <div class="field">
         <label class="field__label" for="mobile">Mobile number</label>
@@ -56,30 +56,31 @@
         }
       </div>
 
-      <div class="field">
-        <label class="field__label" for="password">Password</label>
-        <div class="field__with-action">
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
           <input
+              matInput
             id="password"
             [type]="showPassword() ? 'text' : 'password'"
             formControlName="password"
             autocomplete="new-password"
             placeholder="At least 8 characters"
-            [class.field__input--invalid]="form.controls.password.touched && form.controls.password.invalid"
           />
-          <button
-            type="button"
-            class="field__action"
-            (click)="togglePassword()"
-            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
-          >
-            {{ showPassword() ? 'Hide' : 'Show' }}
-          </button>
-        </div>
+        <!-- matSuffix puts the reveal control inside the field's own outline, which is what the
+             hand-built .field__with-action wrapper was approximating. -->
+        <button
+          matIconButton
+          matSuffix
+          type="button"
+          (click)="togglePassword()"
+          [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+        >
+          <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
         <span class="field__hint field__hint--muted">
           Needs an uppercase letter, a lowercase letter, a number and a symbol.
         </span>
-      </div>
+      </mat-form-field>
 
       <div class="field">
         <label class="field__label" for="captcha">Type the characters shown</label>

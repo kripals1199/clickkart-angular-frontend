@@ -25,7 +25,7 @@
 //   display: flex;
 //   align-items: center;
 //   background: white;
-//   border-radius: 4px;
+//   border-radius: var(--ck-r-sm);
 //   overflow: hidden;
 //   max-width: 700px;
 // }
@@ -78,10 +78,18 @@
   align-items: center;
   gap: 16px;
 
-  background: #2874f0;
-  color: white;
+  background: var(--ck-brand);
+  color: #fff;
 
   padding: 10px 16px;
+  /* A sticky bar with no shadow does not read as sitting above the page - content slides
+     under a hard edge instead of beneath a raised surface. */
+  box-shadow: var(--ck-shadow-2);
+
+  /* Landscape on a notched phone puts the notch beside the bar, not above it, so the menu
+     button ends up underneath it. Zero on every device without a cutout. */
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
 }
 
 /* LOGO */
@@ -101,10 +109,17 @@
   display: flex;
   align-items: center;
 
-  background: white;
-  border-radius: 6px;
+  background: #fff;
+  border-radius: var(--ck-r-sm);
 
   overflow: hidden;
+  transition: box-shadow var(--ck-fast) var(--ck-ease);
+
+  /* The bar is saturated blue, so a white box on it has no focus affordance at all unless
+     one is drawn. :focus-within catches the input without needing a JS class. */
+  &:focus-within {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+  }
 
   max-width: 700px;
 }
@@ -118,7 +133,7 @@
 }
 
 .search-container button {
-  color: #2874f0;
+  color: var(--ck-brand);
 }
 
 /* DESKTOP MENU */
@@ -141,10 +156,6 @@
 }
 
 /* MOBILE MENU */
-
-.mobile-menu {
-  display: none;
-}
 
 /* TABLET */
 
@@ -209,22 +220,6 @@
     font-size: 16px;
   }
 
-  .mobile-menu {
-    display: flex;
-    flex-direction: column;
-
-    background: white;
-
-    padding: 12px 16px;
-
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  }
-
-  .mobile-menu button {
-    justify-content: flex-start;
-    color: #333;
-  }
-
 }
 
 /* SMALL MOBILE */
@@ -253,7 +248,7 @@
   gap: 8px;
 
   padding: 6px 12px;
-  border-radius: 4px;
+  border-radius: var(--ck-r-sm);
 
   color: white;
   text-decoration: none;
@@ -302,7 +297,7 @@
   padding: 0 5px;
 
   border-radius: 9px;
-  background: #fb641b;
+  background: var(--ck-cta);
 
   color: #fff;
   font-size: 11px;
@@ -312,7 +307,7 @@
 
   /* Rings the bubble in the bar's own blue so it stays legible where it crosses the cart's
      strokes, instead of the two fighting each other. */
-  box-shadow: 0 0 0 2px #2874f0;
+  box-shadow: 0 0 0 2px var(--ck-brand);
 }
 
 /* The mobile menu is white with dark text, so the count rides inline next to the label there
@@ -325,7 +320,7 @@
   padding: 0 5px;
 
   border-radius: 9px;
-  background: #fb641b;
+  background: var(--ck-cta);
 
   color: #fff;
   font-size: 11px;
@@ -357,10 +352,6 @@
     width: 44px;
     height: 44px;
     --mdc-icon-button-state-layer-size: 44px;
-  }
-
-  .mobile-menu button {
-    min-height: 44px;
   }
 
   .cart {

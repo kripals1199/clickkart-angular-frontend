@@ -22,45 +22,45 @@
         <p class="alert" role="alert">{{ passwordError() }}</p>
       }
 
-      <div class="field" [class.field--invalid]="passwordForm.controls.currentPassword.touched && passwordForm.controls.currentPassword.invalid">
-        <label class="field__label" for="currentPassword">Current password</label>
-        <input
+      <mat-form-field appearance="outline">
+        <mat-label>Current password</mat-label>
+        <input matInput
           id="currentPassword"
           [type]="showPasswords() ? 'text' : 'password'"
           formControlName="currentPassword"
           autocomplete="current-password"
         />
-        <span class="field__hint field__hint--muted">
+        <mat-hint>
           Asked for even though you're signed in — a stolen session shouldn't be able to lock you out.
-        </span>
-      </div>
+        </mat-hint>
+      </mat-form-field>
 
-      <div class="field" [class.field--invalid]="passwordForm.controls.newPassword.touched && passwordForm.controls.newPassword.invalid">
-        <label class="field__label" for="newPassword">New password</label>
-        <input
+      <mat-form-field appearance="outline">
+        <mat-label>New password</mat-label>
+        <input matInput
           id="newPassword"
           [type]="showPasswords() ? 'text' : 'password'"
           formControlName="newPassword"
           autocomplete="new-password"
           placeholder="At least 8 characters"
         />
-        <span class="field__hint field__hint--muted">
+        <mat-hint>
           Needs an uppercase letter, a lowercase letter, a number and a symbol.
-        </span>
-      </div>
+        </mat-hint>
+      </mat-form-field>
 
-      <div class="field" [class.field--invalid]="passwordForm.controls.confirmPassword.touched && passwordForm.hasError('passwordsMismatch')">
-        <label class="field__label" for="confirmPassword">Confirm new password</label>
-        <input
+      <mat-form-field appearance="outline">
+        <mat-label>Confirm new password</mat-label>
+        <input matInput
           id="confirmPassword"
           [type]="showPasswords() ? 'text' : 'password'"
           formControlName="confirmPassword"
           autocomplete="new-password"
         />
         @if (passwordForm.controls.confirmPassword.touched && passwordForm.hasError('passwordsMismatch')) {
-          <span class="field__hint">Those two passwords don't match.</span>
+          <mat-error>Those two passwords don't match.</mat-error>
         }
-      </div>
+      </mat-form-field>
 
       @if (passwordForm.hasError('sameAsCurrent')) {
         <p class="field__hint security__inline-error">
@@ -73,7 +73,7 @@
         <span>Show passwords</span>
       </label>
 
-      <button type="submit" class="btn btn--brand" [disabled]="changing()">
+      <button type="submit" matButton="filled" [disabled]="changing()">
         {{ changing() ? 'Changing…' : 'Change password' }}
       </button>
     </form>
@@ -95,11 +95,9 @@
 
       @if (awaiting(); as channel) {
 
-        <div class="field">
-          <label class="field__label" for="code">
-            Code sent to your {{ channel === 'EMAIL' ? 'email' : 'mobile' }}
-          </label>
-          <input
+        <mat-form-field appearance="outline">
+          <mat-label>Code sent to your {{ channel === 'EMAIL' ? 'email' : 'mobile' }}</mat-label>
+          <input matInput
             id="code"
             type="text"
             inputmode="numeric"
@@ -109,13 +107,13 @@
             (input)="code.set($any($event.target).value)"
             placeholder="Enter the code"
           />
-        </div>
+        </mat-form-field>
 
         <div class="security__actions">
-          <button type="button" class="btn btn--brand" [disabled]="confirming() || !code()" (click)="confirmCode()">
+          <button type="button" matButton="filled" [disabled]="confirming() || !code()" (click)="confirmCode()">
             {{ confirming() ? 'Checking…' : 'Confirm code' }}
           </button>
-          <button type="button" class="btn btn--quiet" (click)="cancelVerification()">Cancel</button>
+          <button type="button" matButton="outlined" (click)="cancelVerification()">Cancel</button>
         </div>
 
       } @else {
@@ -128,7 +126,7 @@
             </div>
             <button
               type="button"
-              class="btn btn--quiet"
+              matButton="outlined"
               [disabled]="sending() !== null"
               (click)="sendCode('EMAIL')"
             >
@@ -143,7 +141,7 @@
             </div>
             <button
               type="button"
-              class="btn btn--quiet"
+              matButton="outlined"
               [disabled]="sending() !== null"
               (click)="sendCode('SMS')"
             >

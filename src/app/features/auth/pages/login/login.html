@@ -45,9 +45,9 @@
         <p class="alert" role="alert">{{ errorMessage() }}</p>
       }
 
-      <div class="field">
-        <label class="field__label" for="identifier">Email, mobile number or ID</label>
-        <input
+      <mat-form-field appearance="outline">
+        <mat-label>Email, mobile number or ID</mat-label>
+        <input matInput
           id="identifier"
           type="text"
           formControlName="identifier"
@@ -58,36 +58,37 @@
           [class.field__input--invalid]="form.controls.identifier.touched && form.controls.identifier.invalid"
         />
         @if (form.controls.identifier.touched && form.controls.identifier.invalid) {
-          <span class="field__hint">Enter your email, mobile number or account ID.</span>
+          <mat-error>Enter your email, mobile number or account ID.</mat-error>
         }
-      </div>
+      </mat-form-field>
 
       @if (mode() === 'password') {
 
-        <div class="field">
-          <label class="field__label" for="password">Password</label>
-          <div class="field__with-action">
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
             <input
+              matInput
               id="password"
               [type]="showPassword() ? 'text' : 'password'"
               formControlName="password"
               autocomplete="current-password"
               placeholder="Your password"
-              [class.field__input--invalid]="form.controls.password.touched && form.controls.password.invalid"
             />
-            <button
-              type="button"
-              class="field__action"
-              (click)="togglePassword()"
-              [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
-            >
-              {{ showPassword() ? 'Hide' : 'Show' }}
-            </button>
-          </div>
+          <!-- matSuffix puts the reveal control inside the field's own outline, which is what the
+               hand-built .field__with-action wrapper was approximating. -->
+          <button
+            matIconButton
+            matSuffix
+            type="button"
+            (click)="togglePassword()"
+            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+          >
+            <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
           @if (form.controls.password.touched && form.controls.password.invalid) {
-            <span class="field__hint">Enter your password.</span>
+            <mat-error>Enter your password.</mat-error>
           }
-        </div>
+        </mat-form-field>
 
         <p class="auth__helper">
           <a routerLink="/forgot-password">Forgot password?</a>
@@ -140,9 +141,9 @@
             If there's an account for that, a code is on its way.
           </p>
 
-          <div class="field">
-            <label class="field__label" for="otp">Enter the code</label>
-            <input
+          <mat-form-field appearance="outline">
+            <mat-label>Enter the code</mat-label>
+            <input matInput
               id="otp"
               type="text"
               inputmode="numeric"
@@ -153,7 +154,7 @@
               (input)="otpCode.set($any($event.target).value)"
               placeholder="6-digit code"
             />
-          </div>
+          </mat-form-field>
 
           <button type="submit" class="auth__submit" [disabled]="submitting() || !otpCode()">
             {{ submitting() ? 'Signing in…' : 'Sign in' }}

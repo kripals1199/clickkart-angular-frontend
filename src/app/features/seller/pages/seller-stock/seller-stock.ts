@@ -6,6 +6,11 @@ import { RouterLink } from '@angular/router';
 import { SellerService } from '@core/services/seller.service';
 import { AdjustmentReason, Stock } from '@core/models/seller.model';
 import { PageResponse } from '@core/models/api-response';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+import { MatCardModule } from '@angular/material/card';
 
 /**
  * Per-SKU stock, and the two ways of changing it.
@@ -21,7 +26,13 @@ import { PageResponse } from '@core/models/api-response';
 @Component({
   selector: 'app-seller-stock',
   standalone: true,
-  imports: [RouterLink, DatePipe, FormsModule],
+  imports: [RouterLink, DatePipe, FormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatInputModule,
+    MatCardModule,
+  ],
   templateUrl: './seller-stock.html',
   styleUrl: './seller-stock.scss',
 })

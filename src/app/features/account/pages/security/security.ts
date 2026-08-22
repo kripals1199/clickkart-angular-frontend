@@ -4,6 +4,9 @@ import { RouterLink } from '@angular/router';
 
 import { AuthService } from '@core/services/auth.service';
 import { OtpChannel } from '@core/models/auth.model';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 /**
  * Account security: change the password, and prove control of the email and mobile already on file.
@@ -19,7 +22,11 @@ import { OtpChannel } from '@core/models/auth.model';
 @Component({
   selector: 'app-security',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+  ],
   templateUrl: './security.html',
   styleUrl: './security.scss',
 })

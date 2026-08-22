@@ -5,6 +5,10 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 import { CaptchaService } from '@core/services/captcha.service';
 import { CaptchaChallenge } from '@core/models/captcha.model';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 /**
  * Validators mirror the backend's RegisterRequest exactly. They are a courtesy that saves a round
@@ -15,7 +19,12 @@ import { CaptchaChallenge } from '@core/models/captcha.model';
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+  ],
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })

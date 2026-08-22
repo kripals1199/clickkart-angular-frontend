@@ -3,7 +3,8 @@
   @if (loading()) {
 
     <div class="card">
-      <div class="skeleton detail__skeleton" aria-hidden="true"></div>
+      <div class="skeleton detail__skeleton" aria-hidden="true">
+    </div>
       <div class="skeleton detail__skeleton" aria-hidden="true"></div>
     </div>
 
@@ -12,7 +13,7 @@
     <div class="empty">
       <p class="empty__title">We couldn't find that order</p>
       <p class="empty__copy">It may not exist, or it may belong to another account.</p>
-      <a class="btn btn--quiet" routerLink="/orders">Back to your orders</a>
+      <a matButton="outlined" routerLink="/orders">Back to your orders</a>
     </div>
 
   } @else if (order(); as current) {
@@ -131,16 +132,16 @@
             </p>
           }
 
-          <div class="field">
-            <label class="field__label" for="method">Payment method</label>
-            <select id="method" [ngModel]="method()" (ngModelChange)="method.set($event)">
+          <mat-form-field appearance="outline">
+            <mat-label>Payment method</mat-label>
+            <mat-select id="method" [ngModel]="method()" (ngModelChange)="method.set($event)">
               @for (option of methods; track option.value) {
-                <option [value]="option.value">{{ option.label }}</option>
+                <mat-option [value]="option.value">{{ option.label }}</mat-option>
               }
-            </select>
-          </div>
+            </mat-select>
+          </mat-form-field>
 
-          <button type="button" class="btn btn--cta summary__action" [disabled]="paying()" (click)="pay()">
+          <button type="button" matButton="filled" class="btn--cta summary__action" [disabled]="paying()" (click)="pay()">
             {{ paying() ? 'Paying…' : 'Pay ₹' + current.totalAmount }}
           </button>
 
@@ -153,9 +154,9 @@
 
         @if (canCancel()) {
           @if (cancelOpen()) {
-            <div class="field">
-              <label class="field__label" for="reason">Reason (optional)</label>
-              <input
+            <mat-form-field appearance="outline">
+              <mat-label>Reason (optional)</mat-label>
+              <input matInput
                 id="reason"
                 type="text"
                 maxlength="300"
@@ -163,15 +164,15 @@
                 (ngModelChange)="cancelReason.set($event)"
                 placeholder="Changed my mind"
               />
-            </div>
-            <button type="button" class="btn btn--quiet summary__action" [disabled]="cancelling()" (click)="cancel()">
+            </mat-form-field>
+            <button type="button" matButton="outlined" class="summary__action" [disabled]="cancelling()" (click)="cancel()">
               {{ cancelling() ? 'Cancelling…' : 'Confirm cancellation' }}
             </button>
-            <button type="button" class="btn btn--quiet summary__action" (click)="cancelOpen.set(false)">
+            <button type="button" matButton="outlined" class="summary__action" (click)="cancelOpen.set(false)">
               Keep the order
             </button>
           } @else {
-            <button type="button" class="btn btn--quiet summary__action" (click)="cancelOpen.set(true)">
+            <button type="button" matButton="outlined" class="summary__action" (click)="cancelOpen.set(true)">
               Cancel this order
             </button>
           }

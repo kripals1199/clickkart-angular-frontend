@@ -33,13 +33,14 @@
   <section class="board__section">
     <div class="board__head">
       <h2 class="board__title">Needs attention</h2>
-      <button type="button" class="btn btn--quiet board__refresh" (click)="load()">Refresh</button>
+      <button type="button" matButton="outlined" class="board__refresh" (click)="load()">Refresh</button>
     </div>
 
     @if (loadingWorklist()) {
 
       <div class="card">
-        <div class="skeleton row-skeleton" aria-hidden="true"></div>
+        <div class="skeleton row-skeleton" aria-hidden="true">
+      </div>
       </div>
 
     } @else if (worklistFailed()) {
@@ -82,7 +83,7 @@
 
               @if (linkFor(item); as link) {
                 <a
-                  class="btn btn--quiet work__action"
+                  matButton="outlined" class="work__action"
                   [routerLink]="link.path"
                   [queryParams]="link.query ?? {}"
                 >
@@ -108,13 +109,14 @@
     @if (loadingDashboard()) {
 
       <div class="card">
-        <div class="skeleton row-skeleton" aria-hidden="true"></div>
+        <div class="skeleton row-skeleton" aria-hidden="true">
+      </div>
       </div>
 
     } @else if (dashboardFailed()) {
 
       <p class="alert" role="alert">The dashboard could not be loaded.</p>
-      <button type="button" class="btn btn--quiet" (click)="loadDashboard()">Try again</button>
+      <button type="button" matButton="outlined" (click)="loadDashboard()">Try again</button>
 
     } @else {
 
@@ -163,13 +165,14 @@
     @if (loadingServices()) {
 
       <div class="card">
-        <div class="skeleton row-skeleton" aria-hidden="true"></div>
+        <div class="skeleton row-skeleton" aria-hidden="true">
+      </div>
       </div>
 
     } @else if (servicesFailed()) {
 
       <p class="alert" role="alert">The service registry could not be read.</p>
-      <button type="button" class="btn btn--quiet" (click)="loadServices()">Try again</button>
+      <button type="button" matButton="outlined" (click)="loadServices()">Try again</button>
 
     } @else if (services().length === 0) {
 

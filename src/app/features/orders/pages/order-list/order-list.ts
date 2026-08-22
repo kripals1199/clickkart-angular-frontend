@@ -6,6 +6,8 @@ import { OrderService } from '@core/services/order.service';
 import { OrderSummary } from '@core/models/order.model';
 import { PageResponse } from '@core/models/api-response';
 import { describeOrderStatus } from '@shared/order-status';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 
 /**
  * Order history, newest first.
@@ -17,7 +19,10 @@ import { describeOrderStatus } from '@shared/order-status';
 @Component({
   selector: 'app-order-list',
   standalone: true,
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe,
+    MatButtonModule,
+    MatCardModule,
+  ],
   templateUrl: './order-list.html',
   styleUrl: './order-list.scss',
 })

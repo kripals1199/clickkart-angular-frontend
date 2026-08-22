@@ -8,6 +8,7 @@ import { AuthService } from '@core/services/auth.service';
 import { Product, Variant } from '@core/models/catalog.model';
 import { AvailabilityService } from '@core/services/availability.service';
 import { Availability, describeAvailability } from '@core/models/availability.model';
+import { MatButtonModule } from '@angular/material/button';
 
 /**
  * One listing, and the place a basket actually gets filled.
@@ -20,7 +21,9 @@ import { Availability, describeAvailability } from '@core/models/availability.mo
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [RouterLink, KeyValuePipe],
+  imports: [RouterLink, KeyValuePipe,
+    MatButtonModule,
+  ],
   templateUrl: './product-detail.html',
   styleUrl: './product-detail.scss',
 })

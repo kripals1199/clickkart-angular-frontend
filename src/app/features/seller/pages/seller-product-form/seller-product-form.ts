@@ -7,6 +7,11 @@ import { CatalogService } from '@core/services/catalog.service';
 import { Category, Product } from '@core/models/catalog.model';
 import { ProductRequest, VariantRequest } from '@core/models/seller.model';
 import { describeProductStatus, isEditable } from '@shared/seller-rules';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCardModule } from '@angular/material/card';
 
 /**
  * Create or edit a listing, including its variants.
@@ -22,7 +27,13 @@ import { describeProductStatus, isEditable } from '@shared/seller-rules';
 @Component({
   selector: 'app-seller-product-form',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCardModule,
+  ],
   templateUrl: './seller-product-form.html',
   styleUrl: './seller-product-form.scss',
 })

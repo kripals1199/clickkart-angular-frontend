@@ -3,6 +3,10 @@ import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Va
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { AuthService } from '@core/services/auth.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 /**
  * Step two of a password reset: redeem the token for a new password.
@@ -18,7 +22,12 @@ import { AuthService } from '@core/services/auth.service';
 @Component({
   selector: 'app-reset-password',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+  ],
   templateUrl: './reset-password.html',
   styleUrl: './reset-password.scss',
 })

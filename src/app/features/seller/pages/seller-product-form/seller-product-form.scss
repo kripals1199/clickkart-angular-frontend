@@ -77,7 +77,7 @@
   margin: 0;
   padding: 1rem 1.25rem 0.5rem;
   border: 1px solid $line;
-  border-radius: 4px;
+  border-radius: var(--ck-r-sm);
 
   &__legend {
     padding: 0 0.4rem;

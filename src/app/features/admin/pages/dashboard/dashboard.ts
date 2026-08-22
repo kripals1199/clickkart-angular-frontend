@@ -13,6 +13,8 @@ import {
   routeForEndpoint,
   severityTone,
 } from '@core/models/dashboard.model';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 
 /**
  * The operator's landing page: what needs a human, what each service is reporting, and what is
@@ -29,7 +31,10 @@ import {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe,
+    MatButtonModule,
+    MatCardModule,
+  ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })

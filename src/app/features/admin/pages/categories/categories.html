@@ -27,62 +27,62 @@
       </h2>
 
       <div class="category-form__row">
-        <div class="field" [class.field--invalid]="form.controls.name.touched && form.controls.name.invalid">
-          <label class="field__label" for="name">Name</label>
-          <input id="name" type="text" formControlName="name" maxlength="120" />
+        <mat-form-field appearance="outline">
+          <mat-label>Name</mat-label>
+          <input matInput id="name" type="text" formControlName="name" maxlength="120" />
           @if (form.controls.name.touched && form.controls.name.invalid) {
-            <span class="field__hint">A name is required.</span>
+            <mat-error>A name is required.</mat-error>
           }
-        </div>
+        </mat-form-field>
 
-        <div class="field" [class.field--invalid]="form.controls.slug.touched && form.controls.slug.invalid">
-          <label class="field__label" for="slug">Slug</label>
-          <input id="slug" type="text" formControlName="slug" maxlength="140" placeholder="leave blank to derive" />
+        <mat-form-field appearance="outline">
+          <mat-label>Slug</mat-label>
+          <input matInput id="slug" type="text" formControlName="slug" maxlength="140" placeholder="leave blank to derive" />
           @if (form.controls.slug.touched && form.controls.slug.invalid) {
-            <span class="field__hint">Lowercase letters, digits and single hyphens.</span>
+            <mat-error>Lowercase letters, digits and single hyphens.</mat-error>
           }
-          <span class="field__hint field__hint--muted">This becomes the customer-visible URL segment.</span>
-        </div>
+          <mat-hint>This becomes the customer-visible URL segment.</mat-hint>
+        </mat-form-field>
       </div>
 
       <div class="category-form__row">
-        <div class="field">
-          <label class="field__label" for="parent">Parent</label>
-          <select id="parent" formControlName="parentPublicId">
-            <option value="">None — this is a root category</option>
+        <mat-form-field appearance="outline">
+          <mat-label>Parent</mat-label>
+          <mat-select id="parent" formControlName="parentPublicId">
+            <mat-option value="">None — this is a root category</mat-option>
             @for (row of parentOptions(); track row.category.publicId) {
-              <option [value]="row.category.publicId">
+              <mat-option [value]="row.category.publicId">
                 {{ '— '.repeat(row.depth) }}{{ row.category.name }}
-              </option>
+              </mat-option>
             }
-          </select>
-        </div>
+          </mat-select>
+        </mat-form-field>
 
-        <div class="field">
-          <label class="field__label" for="displayOrder">Display order</label>
-          <input id="displayOrder" type="number" min="0" formControlName="displayOrder" />
-          <span class="field__hint field__hint--muted">Lower sorts first among siblings.</span>
-        </div>
+        <mat-form-field appearance="outline">
+          <mat-label>Display order</mat-label>
+          <input matInput id="displayOrder" type="number" min="0" formControlName="displayOrder" />
+          <mat-hint>Lower sorts first among siblings.</mat-hint>
+        </mat-form-field>
       </div>
 
-      <div class="field" [class.field--invalid]="form.controls.imageUrl.touched && form.controls.imageUrl.invalid">
-        <label class="field__label" for="imageUrl">Image URL</label>
-        <input id="imageUrl" type="url" formControlName="imageUrl" maxlength="500" placeholder="https://…" />
+      <mat-form-field appearance="outline">
+        <mat-label>Image URL</mat-label>
+        <input matInput id="imageUrl" type="url" formControlName="imageUrl" maxlength="500" placeholder="https://…" />
         @if (form.controls.imageUrl.touched && form.controls.imageUrl.invalid) {
-          <span class="field__hint">Must be an https:// URL, or left empty.</span>
+          <mat-error>Must be an https:// URL, or left empty.</mat-error>
         }
-      </div>
+      </mat-form-field>
 
-      <div class="field">
-        <label class="field__label" for="description">Description</label>
-        <textarea id="description" formControlName="description" rows="3" maxlength="1000"></textarea>
-      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>Description</mat-label>
+        <textarea matInput id="description" formControlName="description" rows="3" maxlength="1000"></textarea>
+      </mat-form-field>
 
       <div class="category-form__actions">
-        <button type="submit" class="btn btn--brand" [disabled]="saving()">
+        <button type="submit" matButton="filled" [disabled]="saving()">
           {{ saving() ? 'Saving…' : editingId() === null ? 'Create category' : 'Save changes' }}
         </button>
-        <button type="button" class="btn btn--quiet" (click)="cancel()">Cancel</button>
+        <button type="button" matButton="outlined" (click)="cancel()">Cancel</button>
       </div>
     </form>
   }
@@ -90,19 +90,20 @@
   @if (loading()) {
 
     <div class="card">
-      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+      <div class="skeleton row-skeleton" aria-hidden="true">
+    </div>
       <div class="skeleton row-skeleton" aria-hidden="true"></div>
     </div>
 
   } @else if (failed()) {
 
     <p class="alert" role="alert">The category tree could not be loaded.</p>
-    <button type="button" class="btn btn--quiet" (click)="load()">Try again</button>
+    <button type="button" matButton="outlined" (click)="load()">Try again</button>
 
   } @else {
 
     @if (!formOpen()) {
-      <button type="button" class="btn btn--cta tree__add" (click)="startAdd()">New root category</button>
+      <button type="button" matButton="filled" class="btn--cta tree__add" (click)="startAdd()">New root category</button>
     }
 
     @if (rows().length === 0) {
@@ -133,7 +134,7 @@
             <div class="node__actions">
               <button
                 type="button"
-                class="btn btn--quiet node__action"
+                matButton="outlined" class="node__action"
                 [disabled]="busyId() === row.category.publicId"
                 (click)="startEdit(row.category)"
               >
@@ -141,7 +142,7 @@
               </button>
               <button
                 type="button"
-                class="btn btn--quiet node__action"
+                matButton="outlined" class="node__action"
                 [disabled]="busyId() === row.category.publicId"
                 (click)="startAdd(row.category.publicId)"
               >
@@ -149,7 +150,7 @@
               </button>
               <button
                 type="button"
-                class="btn btn--quiet node__action"
+                matButton="outlined" class="node__action"
                 [disabled]="busyId() === row.category.publicId"
                 (click)="toggleActive(row.category)"
               >
@@ -157,7 +158,7 @@
               </button>
               <button
                 type="button"
-                class="btn btn--danger-text"
+                matButton class="btn--danger-text"
                 [disabled]="busyId() === row.category.publicId"
                 (click)="confirmDelete(row.category.publicId)"
               >
@@ -178,13 +179,13 @@
                 <div class="node__confirm-actions">
                   <button
                     type="button"
-                    class="btn btn--cta"
+                    matButton="filled" class="btn--cta"
                     [disabled]="busyId() === row.category.publicId"
                     (click)="remove(row.category)"
                   >
                     Delete permanently
                   </button>
-                  <button type="button" class="btn btn--quiet" (click)="cancelDelete()">Keep it</button>
+                  <button type="button" matButton="outlined" (click)="cancelDelete()">Keep it</button>
                 </div>
               </div>
             }

@@ -6,21 +6,22 @@
   @if (loading()) {
 
     <div class="card">
-      <div class="skeleton checkout__skeleton" aria-hidden="true"></div>
+      <div class="skeleton checkout__skeleton" aria-hidden="true">
+    </div>
       <div class="skeleton checkout__skeleton" aria-hidden="true"></div>
     </div>
 
   } @else if (failed()) {
 
     <p class="alert" role="alert">Checkout could not be prepared.</p>
-    <button type="button" class="btn btn--quiet" (click)="load()">Try again</button>
+    <button type="button" matButton="outlined" (click)="load()">Try again</button>
 
   } @else if (items().length === 0) {
 
     <div class="empty">
       <p class="empty__title">Your basket is empty</p>
       <p class="empty__copy">There's nothing to check out.</p>
-      <a class="btn btn--cta" routerLink="/products">Browse the catalog</a>
+      <a matButton="filled" class="btn--cta" routerLink="/products">Browse the catalog</a>
     </div>
 
   } @else {
@@ -40,7 +41,7 @@
             <p class="warn">
               You have no saved addresses yet — we need one before this order can be placed.
             </p>
-            <a class="btn btn--brand" routerLink="/account/addresses">Add an address</a>
+            <a matButton="filled" routerLink="/account/addresses">Add an address</a>
           } @else {
             <div class="pick">
               @for (address of addresses(); track address.id) {
@@ -118,12 +119,12 @@
           <p class="warn">
             Some items in your basket aren't available. Remove them before ordering.
           </p>
-          <a class="btn btn--quiet summary__action" routerLink="/cart">Back to basket</a>
+          <a matButton="outlined" class="summary__action" routerLink="/cart">Back to basket</a>
         }
 
         <button
           type="button"
-          class="btn btn--cta summary__action"
+          matButton="filled" class="btn--cta summary__action"
           [disabled]="!canPlace()"
           (click)="place()"
         >

@@ -6,6 +6,9 @@ import { RouterLink } from '@angular/router';
 import { AdminService } from '@core/services/admin.service';
 import { UserProfile } from '@core/models/user.model';
 import { PageResponse } from '@core/models/api-response';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatCardModule } from '@angular/material/card';
 
 /**
  * Operator lookup across customer profiles, and the one write this surface has: erasure.
@@ -22,7 +25,11 @@ import { PageResponse } from '@core/models/api-response';
 @Component({
   selector: 'app-profiles',
   standalone: true,
-  imports: [RouterLink, DatePipe, FormsModule],
+  imports: [RouterLink, DatePipe, FormsModule,
+    MatButtonModule,
+    MatInputModule,
+    MatCardModule,
+  ],
   templateUrl: './profiles.html',
   styleUrl: './profiles.scss',
 })

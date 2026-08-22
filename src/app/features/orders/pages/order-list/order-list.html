@@ -13,21 +13,22 @@
   @if (loading()) {
 
     <div class="card">
-      <div class="skeleton orders__skeleton" aria-hidden="true"></div>
+      <div class="skeleton orders__skeleton" aria-hidden="true">
+    </div>
       <div class="skeleton orders__skeleton" aria-hidden="true"></div>
     </div>
 
   } @else if (failed()) {
 
     <p class="alert" role="alert">Your orders could not be loaded.</p>
-    <button type="button" class="btn btn--quiet" (click)="fetch(0)">Try again</button>
+    <button type="button" matButton="outlined" (click)="fetch(0)">Try again</button>
 
   } @else if (orderList().length === 0) {
 
     <div class="empty">
       <p class="empty__title">No orders yet</p>
       <p class="empty__copy">When you place one, it'll show up here.</p>
-      <a class="btn btn--cta" routerLink="/products">Start shopping</a>
+      <a matButton="filled" class="btn--cta" routerLink="/products">Start shopping</a>
     </div>
 
   } @else {
@@ -67,7 +68,7 @@
       <nav class="pager" aria-label="Pagination">
         <button
           type="button"
-          class="btn btn--quiet"
+          matButton="outlined"
           [disabled]="pageIndex() === 0"
           (click)="fetch(pageIndex() - 1)"
         >
@@ -76,7 +77,7 @@
         <span class="pager__position">Page {{ pageIndex() + 1 }} of {{ totalPages() }}</span>
         <button
           type="button"
-          class="btn btn--quiet"
+          matButton="outlined"
           [disabled]="isLast()"
           (click)="fetch(pageIndex() + 1)"
         >

@@ -1,43 +1,47 @@
 <div class="page listing">
 
   <aside class="listing__filters">
-    <form class="card" [formGroup]="filters" (ngSubmit)="applyFilters()">
-      <h2 class="listing__filters-title">Filters</h2>
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <form [formGroup]="filters" (ngSubmit)="applyFilters()">
+          <h2 class="listing__filters-title">Filters</h2>
 
-      <div class="field">
-        <label class="field__label" for="query">Search</label>
-        <input id="query" type="search" formControlName="query" placeholder="Product or brand" />
-      </div>
+          <mat-form-field appearance="outline">
+            <mat-label>Search</mat-label>
+            <input matInput id="query" type="search" formControlName="query" placeholder="Product or brand" />
+          </mat-form-field>
 
-      <div class="field">
-        <label class="field__label" for="category">Category</label>
-        <select id="category" formControlName="categoryPublicId">
-          <option value="">All categories</option>
-          @for (category of categories(); track category.publicId) {
-            <option [value]="category.publicId">{{ category.name }}</option>
-          }
-        </select>
-      </div>
+          <mat-form-field appearance="outline">
+            <mat-label>Category</mat-label>
+            <mat-select id="category" formControlName="categoryPublicId">
+              <mat-option value="">All categories</mat-option>
+              @for (category of categories(); track category.publicId) {
+                <mat-option [value]="category.publicId">{{ category.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
 
-      <div class="field">
-        <label class="field__label" for="brand">Brand</label>
-        <input id="brand" type="text" formControlName="brand" placeholder="Any brand" />
-      </div>
+          <mat-form-field appearance="outline">
+            <mat-label>Brand</mat-label>
+            <input matInput id="brand" type="text" formControlName="brand" placeholder="Any brand" />
+          </mat-form-field>
 
-      <div class="listing__price-range">
-        <div class="field">
-          <label class="field__label" for="minPrice">Min ₹</label>
-          <input id="minPrice" type="number" inputmode="numeric" min="0" formControlName="minPrice" placeholder="0" />
-        </div>
-        <div class="field">
-          <label class="field__label" for="maxPrice">Max ₹</label>
-          <input id="maxPrice" type="number" inputmode="numeric" min="0" formControlName="maxPrice" placeholder="Any" />
-        </div>
-      </div>
+          <div class="listing__price-range">
+            <mat-form-field appearance="outline">
+              <mat-label>Min ₹</mat-label>
+              <input matInput id="minPrice" type="number" inputmode="numeric" min="0" formControlName="minPrice" placeholder="0" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Max ₹</mat-label>
+              <input matInput id="maxPrice" type="number" inputmode="numeric" min="0" formControlName="maxPrice" placeholder="Any" />
+            </mat-form-field>
+          </div>
 
-      <button type="submit" class="btn btn--brand listing__apply">Apply</button>
-      <button type="button" class="btn btn--quiet listing__clear" (click)="clearFilters()">Clear</button>
-    </form>
+          <button matButton="filled" type="submit" class="listing__apply">Apply</button>
+          <button matButton type="button" class="listing__clear" (click)="clearFilters()">Clear</button>
+        </form>
+      </mat-card-content>
+    </mat-card>
   </aside>
 
   <section class="listing__results">
@@ -55,14 +59,14 @@
       <!-- Deliberately not followed by the empty state. "Nothing matched that" is a statement about
            a search that ran; when the request never landed, saying it would be a lie. -->
       <p class="alert" role="alert">The catalog could not be reached. Please try again.</p>
-      <button type="button" class="btn btn--quiet" (click)="applyFilters()">Retry</button>
+      <button matButton="outlined" type="button" (click)="applyFilters()">Retry</button>
 
     } @else if (products().length === 0) {
 
       <div class="empty">
         <p class="empty__title">Nothing matched that</p>
         <p class="empty__copy">Try a broader search, or clear the filters.</p>
-        <button type="button" class="btn btn--quiet" (click)="clearFilters()">Clear filters</button>
+        <button matButton="outlined" type="button" (click)="clearFilters()">Clear filters</button>
       </div>
 
     } @else {
@@ -71,37 +75,39 @@
 
       <div class="listing__grid">
         @for (product of products(); track product.publicId) {
-          <a class="tile" [routerLink]="['/products', product.slug]">
-            <p class="tile__brand">{{ product.brand || 'ClickKart' }}</p>
-            <p class="tile__name">{{ product.name }}</p>
+          <mat-card appearance="outlined" class="tile">
+            <a class="tile__link" [routerLink]="['/products', product.slug]">
+              <p class="tile__brand">{{ product.brand || 'ClickKart' }}</p>
+              <p class="tile__name">{{ product.name }}</p>
 
-            @if (displayVariant(product); as variant) {
-              <p class="price">
-                ₹{{ variant.sellingPrice }}
-                @if (variant.mrp > variant.sellingPrice) {
-                  <span class="price__mrp">₹{{ variant.mrp }}</span>
-                  <span class="price__off">{{ variant.discountPercentage }}% off</span>
+              @if (displayVariant(product); as variant) {
+                <p class="price">
+                  ₹{{ variant.sellingPrice }}
+                  @if (variant.mrp > variant.sellingPrice) {
+                    <span class="price__mrp">₹{{ variant.mrp }}</span>
+                    <span class="price__off">{{ variant.discountPercentage }}% off</span>
+                  }
+                </p>
+                @if (describeStock(product); as stock) {
+                  <p class="stock" [class]="'stock stock--' + stock.tone">{{ stock.label }}</p>
                 }
-              </p>
-              @if (describeStock(product); as stock) {
-                <p class="stock" [class]="'stock stock--' + stock.tone">{{ stock.label }}</p>
+                @if (product.variants.length > 1) {
+                  <p class="tile__variants">{{ product.variants.length }} options</p>
+                }
+              } @else {
+                <!-- Every variant is inactive, so there is no price that could be honoured. -->
+                <p class="tile__unavailable">Currently unavailable</p>
               }
-              @if (product.variants.length > 1) {
-                <p class="tile__variants">{{ product.variants.length }} options</p>
-              }
-            } @else {
-              <!-- Every variant is inactive, so there is no price that could be honoured. -->
-              <p class="tile__unavailable">Currently unavailable</p>
-            }
-          </a>
+            </a>
+          </mat-card>
         }
       </div>
 
       @if (totalPages() > 1) {
         <nav class="pager" aria-label="Pagination">
           <button
+            matButton="outlined"
             type="button"
-            class="btn btn--quiet"
             [disabled]="pageIndex() === 0"
             (click)="goToPage(pageIndex() - 1)"
           >
@@ -109,8 +115,8 @@
           </button>
           <span class="pager__position">Page {{ pageIndex() + 1 }} of {{ totalPages() }}</span>
           <button
+            matButton="outlined"
             type="button"
-            class="btn btn--quiet"
             [disabled]="isLast()"
             (click)="goToPage(pageIndex() + 1)"
           >

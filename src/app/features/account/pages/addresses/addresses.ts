@@ -4,6 +4,11 @@ import { RouterLink } from '@angular/router';
 
 import { UserService } from '@core/services/user.service';
 import { Address, AddressLabel } from '@core/models/user.model';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCardModule } from '@angular/material/card';
 
 /**
  * The shipping address book: list, add, edit, delete, and choose a default.
@@ -19,7 +24,13 @@ import { Address, AddressLabel } from '@core/models/user.model';
 @Component({
   selector: 'app-addresses',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCardModule,
+  ],
   templateUrl: './addresses.html',
   styleUrl: './addresses.scss',
 })

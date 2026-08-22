@@ -2,6 +2,12 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+
 import { CatalogService } from '@core/services/catalog.service';
 import { Category, Product, ProductSearchParams } from '@core/models/catalog.model';
 import { PageResponse } from '@core/models/api-response';
@@ -20,7 +26,15 @@ import { Availability, describeAvailability } from '@core/models/availability.mo
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+  ],
   templateUrl: './product-list.html',
   styleUrl: './product-list.scss',
 })

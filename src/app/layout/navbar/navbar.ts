@@ -27,7 +27,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-navbar',
@@ -39,7 +40,8 @@ import { MatSidenavModule } from '@angular/material/sidenav';
     MatButtonModule,
     MatIconModule,
     MatInputModule,
-    MatSidenavModule
+    MatMenuModule,
+    MatDividerModule
   ],
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss'
@@ -52,7 +54,6 @@ export class Navbar {
 
   readonly search = signal('');
 
-  readonly mobileMenuOpen = signal(false);
 
   /** Drives which side of the menu shows: sign in / create account, or the account itself. */
   readonly isAuthenticated = this.auth.isAuthenticated;
@@ -79,14 +80,10 @@ export class Navbar {
     });
   }
 
-  toggleMobileMenu(): void {
-    this.mobileMenuOpen.update(value => !value);
-  }
 
   submitSearch(): void {
     const query = this.search().trim();
     this.router.navigate(['/products'], { queryParams: query ? { query } : {} });
-    this.mobileMenuOpen.set(false);
   }
 
   logout(): void {
@@ -98,7 +95,6 @@ export class Navbar {
     });
     // Drop the cached basket too, or the next account to sign in inherits this one's badge.
     this.cart.forget();
-    this.mobileMenuOpen.set(false);
   }
 
 }

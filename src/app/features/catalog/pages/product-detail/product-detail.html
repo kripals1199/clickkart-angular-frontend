@@ -15,7 +15,7 @@
     <div class="empty">
       <p class="empty__title">We couldn't find that product</p>
       <p class="empty__copy">It may have been removed, or the link may be wrong.</p>
-      <a class="btn btn--quiet" routerLink="/products">Browse the catalog</a>
+      <a matButton="outlined" routerLink="/products">Browse the catalog</a>
     </div>
 
   } @else if (product(); as item) {
@@ -112,7 +112,7 @@
 
           <button
             type="button"
-            class="btn btn--cta detail__add"
+            matButton="filled" class="btn--cta detail__add"
             [disabled]="!selected() || adding() || outOfStock()"
             (click)="addToCart()"
           >

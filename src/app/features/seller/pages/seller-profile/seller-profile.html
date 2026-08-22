@@ -13,14 +13,15 @@
   @if (loading()) {
 
     <div class="card">
-      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+      <div class="skeleton row-skeleton" aria-hidden="true">
+    </div>
       <div class="skeleton row-skeleton" aria-hidden="true"></div>
     </div>
 
   } @else if (failed()) {
 
     <p class="alert" role="alert">Your business details could not be loaded.</p>
-    <button type="button" class="btn btn--quiet" (click)="load()">Try again</button>
+    <button type="button" matButton="outlined" (click)="load()">Try again</button>
 
   } @else {
 
@@ -56,60 +57,60 @@
 
     <form class="card seller-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
 
-      <div class="field" [class.field--invalid]="form.controls.businessName.touched && form.controls.businessName.invalid">
-        <label class="field__label" for="businessName">Trading name</label>
-        <input id="businessName" type="text" formControlName="businessName" maxlength="150" />
+      <mat-form-field appearance="outline">
+        <mat-label>Trading name</mat-label>
+        <input matInput id="businessName" type="text" formControlName="businessName" maxlength="150" />
         @if (form.controls.businessName.touched && form.controls.businessName.invalid) {
-          <span class="field__hint">A trading name is required.</span>
+          <mat-error>A trading name is required.</mat-error>
         }
-      </div>
+      </mat-form-field>
 
-      <div class="field" [class.field--invalid]="form.controls.gstin.touched && form.controls.gstin.invalid">
-        <label class="field__label" for="gstin">GSTIN</label>
-        <input id="gstin" type="text" formControlName="gstin" maxlength="15" autocapitalize="characters" spellcheck="false" />
+      <mat-form-field appearance="outline">
+        <mat-label>GSTIN</mat-label>
+        <input matInput id="gstin" type="text" formControlName="gstin" maxlength="15" autocapitalize="characters" spellcheck="false" />
         @if (form.controls.gstin.touched && form.controls.gstin.invalid) {
-          <span class="field__hint">Must be a valid 15-character GSTIN.</span>
+          <mat-error>Must be a valid 15-character GSTIN.</mat-error>
         }
-        <span class="field__hint field__hint--muted">
+        <mat-hint>
           Checked for shape here, and against the register by an operator during verification.
-        </span>
-      </div>
+        </mat-hint>
+      </mat-form-field>
 
       <div class="seller-form__row">
-        <div class="field" [class.field--invalid]="form.controls.supportEmail.touched && form.controls.supportEmail.invalid">
-          <label class="field__label" for="supportEmail">Support email</label>
-          <input id="supportEmail" type="email" formControlName="supportEmail" maxlength="254" />
+        <mat-form-field appearance="outline">
+          <mat-label>Support email</mat-label>
+          <input matInput id="supportEmail" type="email" formControlName="supportEmail" maxlength="254" />
           @if (form.controls.supportEmail.touched && form.controls.supportEmail.invalid) {
-            <span class="field__hint">Enter a valid email address.</span>
+            <mat-error>Enter a valid email address.</mat-error>
           }
-        </div>
+        </mat-form-field>
 
-        <div class="field" [class.field--invalid]="form.controls.supportPhone.touched && form.controls.supportPhone.invalid">
-          <label class="field__label" for="supportPhone">Support phone</label>
-          <input id="supportPhone" type="tel" formControlName="supportPhone" inputmode="numeric" maxlength="10" />
+        <mat-form-field appearance="outline">
+          <mat-label>Support phone</mat-label>
+          <input matInput id="supportPhone" type="tel" formControlName="supportPhone" inputmode="numeric" maxlength="10" />
           @if (form.controls.supportPhone.touched && form.controls.supportPhone.invalid) {
-            <span class="field__hint">10 digits, starting with 6, 7, 8 or 9.</span>
+            <mat-error>10 digits, starting with 6, 7, 8 or 9.</mat-error>
           }
-        </div>
+        </mat-form-field>
       </div>
 
-      <div class="field">
-        <label class="field__label" for="pickupAddressId">Pickup address</label>
-        <select id="pickupAddressId" formControlName="pickupAddressId">
-          <option value="">None nominated</option>
+      <mat-form-field appearance="outline">
+        <mat-label>Pickup address</mat-label>
+        <mat-select id="pickupAddressId" formControlName="pickupAddressId">
+          <mat-option value="">None nominated</mat-option>
           @for (address of addresses(); track address.id) {
-            <option [value]="address.id">
+            <mat-option [value]="address.id">
               {{ address.label }} — {{ address.line1 }}, {{ address.city }} {{ address.postalCode }}
-            </option>
+            </mat-option>
           }
-        </select>
-        <span class="field__hint field__hint--muted">
+        </mat-select>
+        <mat-hint>
           Comes from your own address book, on
           <a routerLink="/account/addresses">Addresses</a>. Couriers collect from here.
-        </span>
-      </div>
+        </mat-hint>
+      </mat-form-field>
 
-      <button type="submit" class="btn btn--brand" [disabled]="saving()">
+      <button type="submit" matButton="filled" [disabled]="saving()">
         {{ saving() ? 'Saving…' : isNew() ? 'Save and request verification' : 'Save changes' }}
       </button>
 

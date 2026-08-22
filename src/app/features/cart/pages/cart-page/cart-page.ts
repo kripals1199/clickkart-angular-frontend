@@ -3,6 +3,8 @@ import { Router, RouterLink } from '@angular/router';
 
 import { CartService } from '@core/services/cart.service';
 import { CartItem } from '@core/models/cart.model';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 
 /**
  * The basket.
@@ -21,7 +23,10 @@ import { CartItem } from '@core/models/cart.model';
 @Component({
   selector: 'app-cart-page',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink,
+    MatButtonModule,
+    MatCardModule,
+  ],
   templateUrl: './cart-page.html',
   styleUrl: './cart-page.scss',
 })

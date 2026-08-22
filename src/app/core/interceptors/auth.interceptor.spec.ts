@@ -21,6 +21,7 @@ function tokenPair(accessToken: string) {
     timestamp: '2026-08-19T10:00:00Z',
     status: 200,
     success: true,
+    error: null,
     data: { accessToken, refreshToken: 'rotated-refresh', tokenType: 'Bearer', expiresInSeconds: 900 },
     message: null,
     path: '/api/v1/auth/refresh',

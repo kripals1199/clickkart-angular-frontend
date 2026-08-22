@@ -6,6 +6,11 @@ import { RouterLink } from '@angular/router';
 import { UserService } from '@core/services/user.service';
 import { AuthService } from '@core/services/auth.service';
 import { UserProfile } from '@core/models/user.model';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCardModule } from '@angular/material/card';
 
 /**
  * The customer's own profile and marketing preferences.
@@ -20,7 +25,13 @@ import { UserProfile } from '@core/models/user.model';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, DatePipe],
+  imports: [ReactiveFormsModule, RouterLink, DatePipe,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCardModule,
+  ],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })

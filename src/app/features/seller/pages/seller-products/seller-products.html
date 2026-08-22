@@ -28,27 +28,28 @@
       }
     </div>
 
-    <a class="btn btn--cta" routerLink="/seller/products/new">New listing</a>
+    <a matButton="filled" class="btn--cta" routerLink="/seller/products/new">New listing</a>
   </div>
 
   @if (loading()) {
 
     <div class="card">
-      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+      <div class="skeleton row-skeleton" aria-hidden="true">
+    </div>
       <div class="skeleton row-skeleton" aria-hidden="true"></div>
     </div>
 
   } @else if (failed()) {
 
     <p class="alert" role="alert">Your listings could not be loaded.</p>
-    <button type="button" class="btn btn--quiet" (click)="fetch(0)">Try again</button>
+    <button type="button" matButton="outlined" (click)="fetch(0)">Try again</button>
 
   } @else if (products().length === 0) {
 
     <div class="empty">
       <p class="empty__title">Nothing here yet</p>
       <p class="empty__copy">Create a listing and submit it for review to start selling.</p>
-      <a class="btn btn--cta" routerLink="/seller/products/new">New listing</a>
+      <a matButton="filled" class="btn--cta" routerLink="/seller/products/new">New listing</a>
     </div>
 
   } @else {
@@ -83,14 +84,14 @@
           </div>
 
           <div class="listing__actions">
-            <a class="btn btn--quiet listing__action" [routerLink]="['/seller/products', product.publicId]">
+            <a matButton="outlined" class="listing__action" [routerLink]="['/seller/products', product.publicId]">
               {{ product.status === 'DRAFT' ? 'Edit' : 'View' }}
             </a>
 
             @if (canSubmit(product)) {
               <button
                 type="button"
-                class="btn btn--brand listing__action"
+                matButton="filled" class="listing__action"
                 [disabled]="busyId() === product.publicId"
                 (click)="submit(product)"
               >
@@ -101,7 +102,7 @@
             @if (canArchive(product)) {
               <button
                 type="button"
-                class="btn btn--danger-text"
+                matButton class="btn--danger-text"
                 [disabled]="busyId() === product.publicId"
                 (click)="archive(product)"
               >
@@ -116,11 +117,11 @@
 
     @if (totalPages() > 1) {
       <nav class="pager" aria-label="Pagination">
-        <button type="button" class="btn btn--quiet" [disabled]="pageIndex() === 0" (click)="fetch(pageIndex() - 1)">
+        <button type="button" matButton="outlined" [disabled]="pageIndex() === 0" (click)="fetch(pageIndex() - 1)">
           Previous
         </button>
         <span class="pager__position">Page {{ pageIndex() + 1 }} of {{ totalPages() }}</span>
-        <button type="button" class="btn btn--quiet" [disabled]="isLast()" (click)="fetch(pageIndex() + 1)">
+        <button type="button" matButton="outlined" [disabled]="isLast()" (click)="fetch(pageIndex() + 1)">
           Next
         </button>
       </nav>

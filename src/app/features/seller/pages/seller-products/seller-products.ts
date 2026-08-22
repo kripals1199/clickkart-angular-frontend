@@ -6,6 +6,8 @@ import { SellerService } from '@core/services/seller.service';
 import { Product, ProductStatus } from '@core/models/catalog.model';
 import { PageResponse } from '@core/models/api-response';
 import { describeProductStatus, isArchivable, isSubmittable } from '@shared/seller-rules';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 
 /**
  * A seller's own listings, in every state - not just the ones on sale.
@@ -17,7 +19,10 @@ import { describeProductStatus, isArchivable, isSubmittable } from '@shared/sell
 @Component({
   selector: 'app-seller-products',
   standalone: true,
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe,
+    MatButtonModule,
+    MatCardModule,
+  ],
   templateUrl: './seller-products.html',
   styleUrl: './seller-products.scss',
 })

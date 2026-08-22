@@ -37,20 +37,21 @@
       placeholder="Search by name or public id"
       aria-label="Search by name or public id"
     />
-    <button type="button" class="btn btn--quiet" (click)="search()">Search</button>
+    <button type="button" matButton="outlined" (click)="search()">Search</button>
   </div>
 
   @if (loading()) {
 
     <div class="card">
-      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+      <div class="skeleton row-skeleton" aria-hidden="true">
+    </div>
       <div class="skeleton row-skeleton" aria-hidden="true"></div>
     </div>
 
   } @else if (failed()) {
 
     <p class="alert" role="alert">Profiles could not be loaded.</p>
-    <button type="button" class="btn btn--quiet" (click)="fetch(0)">Try again</button>
+    <button type="button" matButton="outlined" (click)="fetch(0)">Try again</button>
 
   } @else if (profiles().length === 0) {
 
@@ -109,7 +110,7 @@
             } @else {
               <button
                 type="button"
-                class="btn btn--danger-text"
+                matButton class="btn--danger-text"
                 [disabled]="busyId() === profile.userPublicId"
                 (click)="confirmErase(profile.userPublicId)"
               >
@@ -130,13 +131,13 @@
               <div class="decision__actions">
                 <button
                   type="button"
-                  class="btn btn--cta"
+                  matButton="filled" class="btn--cta"
                   [disabled]="busyId() === profile.userPublicId"
                   (click)="erase(profile)"
                 >
                   Erase personal data
                 </button>
-                <button type="button" class="btn btn--quiet" (click)="cancelErase()">Cancel</button>
+                <button type="button" matButton="outlined" (click)="cancelErase()">Cancel</button>
               </div>
             </div>
           }
@@ -147,11 +148,11 @@
 
     @if (totalPages() > 1) {
       <nav class="pager" aria-label="Pagination">
-        <button type="button" class="btn btn--quiet" [disabled]="pageIndex() === 0" (click)="fetch(pageIndex() - 1)">
+        <button type="button" matButton="outlined" [disabled]="pageIndex() === 0" (click)="fetch(pageIndex() - 1)">
           Previous
         </button>
         <span class="pager__position">Page {{ pageIndex() + 1 }} of {{ totalPages() }}</span>
-        <button type="button" class="btn btn--quiet" [disabled]="isLast()" (click)="fetch(pageIndex() + 1)">
+        <button type="button" matButton="outlined" [disabled]="isLast()" (click)="fetch(pageIndex() + 1)">
           Next
         </button>
       </nav>

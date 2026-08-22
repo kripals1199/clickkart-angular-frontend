@@ -9,6 +9,11 @@ import { FulfilmentStatus, OrderItem } from '@core/models/order.model';
 import { PageResponse } from '@core/models/api-response';
 import { describeFulfilment } from '@shared/order-status';
 import { nextFulfilmentOptions } from '@shared/seller-rules';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCardModule } from '@angular/material/card';
 
 /**
  * Orders containing this seller's items, and the place they get marked packed, shipped and
@@ -24,7 +29,13 @@ import { nextFulfilmentOptions } from '@shared/seller-rules';
 @Component({
   selector: 'app-seller-orders',
   standalone: true,
-  imports: [RouterLink, DatePipe, FormsModule],
+  imports: [RouterLink, DatePipe, FormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCardModule,
+  ],
   templateUrl: './seller-orders.html',
   styleUrl: './seller-orders.scss',
 })

@@ -8,6 +8,10 @@ import { AdminService } from '@core/services/admin.service';
 import { Product } from '@core/models/catalog.model';
 import { SellerProfile, SellerVerificationStatus } from '@core/models/admin.model';
 import { ApiResponse, PageResponse } from '@core/models/api-response';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatCardModule } from '@angular/material/card';
 
 /**
  * The two things an operator approves: listings waiting to go on sale, and sellers waiting to be
@@ -21,7 +25,12 @@ import { ApiResponse, PageResponse } from '@core/models/api-response';
 @Component({
   selector: 'app-moderation',
   standalone: true,
-  imports: [RouterLink, DatePipe, FormsModule],
+  imports: [RouterLink, DatePipe, FormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCardModule,
+  ],
   templateUrl: './moderation.html',
   styleUrl: './moderation.scss',
 })

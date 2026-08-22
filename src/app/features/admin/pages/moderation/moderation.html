@@ -49,14 +49,15 @@
   @if (loading()) {
 
     <div class="card">
-      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+      <div class="skeleton row-skeleton" aria-hidden="true">
+    </div>
       <div class="skeleton row-skeleton" aria-hidden="true"></div>
     </div>
 
   } @else if (failed()) {
 
     <p class="alert" role="alert">The moderation queue could not be loaded.</p>
-    <button type="button" class="btn btn--quiet" (click)="fetch()">Try again</button>
+    <button type="button" matButton="outlined" (click)="fetch()">Try again</button>
 
   } @else if (tab() === 'listings') {
 
@@ -99,7 +100,7 @@
             <div class="item__actions">
               <button
                 type="button"
-                class="btn btn--brand item__action"
+                matButton="filled" class="item__action"
                 [disabled]="busyId() === product.publicId"
                 (click)="approveListing(product)"
               >
@@ -107,7 +108,7 @@
               </button>
               <button
                 type="button"
-                class="btn btn--quiet item__action"
+                matButton="outlined" class="item__action"
                 [disabled]="busyId() === product.publicId"
                 (click)="openId() === product.publicId ? close() : openRejection(product.publicId)"
               >
@@ -117,9 +118,9 @@
 
             @if (openId() === product.publicId) {
               <div class="decision">
-                <div class="field">
-                  <label class="field__label" [for]="'reason-' + product.publicId">Why is this rejected?</label>
-                  <input
+                <mat-form-field appearance="outline">
+                  <mat-label>Why is this rejected?</mat-label>
+                  <input matInput
                     [id]="'reason-' + product.publicId"
                     type="text"
                     maxlength="500"
@@ -127,13 +128,13 @@
                     (ngModelChange)="reason.set($event)"
                     placeholder="e.g. Photos do not match the described product"
                   />
-                  <span class="field__hint field__hint--muted">
+                  <mat-hint>
                     The seller sees exactly this, and nothing else.
-                  </span>
-                </div>
+                  </mat-hint>
+                </mat-form-field>
                 <button
                   type="button"
-                  class="btn btn--cta"
+                  matButton="filled" class="btn--cta"
                   [disabled]="busyId() === product.publicId"
                   (click)="rejectListing(product)"
                 >
@@ -191,7 +192,7 @@
               @if (seller.verificationStatus !== 'VERIFIED') {
                 <button
                   type="button"
-                  class="btn btn--brand item__action"
+                  matButton="filled" class="item__action"
                   [disabled]="busyId() === seller.userPublicId"
                   (click)="verifySeller(seller)"
                 >
@@ -201,7 +202,7 @@
               @if (seller.verificationStatus !== 'REJECTED') {
                 <button
                   type="button"
-                  class="btn btn--quiet item__action"
+                  matButton="outlined" class="item__action"
                   [disabled]="busyId() === seller.userPublicId"
                   (click)="openId() === seller.userPublicId ? close() : openRejection(seller.userPublicId)"
                 >
@@ -212,9 +213,9 @@
 
             @if (openId() === seller.userPublicId) {
               <div class="decision">
-                <div class="field">
-                  <label class="field__label" [for]="'note-' + seller.userPublicId">Why is verification refused?</label>
-                  <input
+                <mat-form-field appearance="outline">
+                  <mat-label>Why is verification refused?</mat-label>
+                  <input matInput
                     [id]="'note-' + seller.userPublicId"
                     type="text"
                     maxlength="500"
@@ -222,11 +223,11 @@
                     (ngModelChange)="reason.set($event)"
                     placeholder="e.g. GSTIN does not match the business name"
                   />
-                  <span class="field__hint field__hint--muted">The seller sees this note.</span>
-                </div>
+                  <mat-hint>The seller sees this note.</mat-hint>
+                </mat-form-field>
                 <button
                   type="button"
-                  class="btn btn--cta"
+                  matButton="filled" class="btn--cta"
                   [disabled]="busyId() === seller.userPublicId"
                   (click)="rejectSeller(seller)"
                 >

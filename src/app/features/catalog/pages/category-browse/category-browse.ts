@@ -7,6 +7,7 @@ import { Category, Product } from '@core/models/catalog.model';
 import { Availability } from '@core/models/availability.model';
 import { PageResponse } from '@core/models/api-response';
 import { cheapestVariant } from '@shared/pricing';
+import { MatButtonModule } from '@angular/material/button';
 
 /**
  * Browsing the taxonomy, which until now customers could not do at all: the storefront offered a
@@ -22,7 +23,9 @@ import { cheapestVariant } from '@shared/pricing';
 @Component({
   selector: 'app-category-browse',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink,
+    MatButtonModule,
+  ],
   templateUrl: './category-browse.html',
   styleUrl: './category-browse.scss',
 })

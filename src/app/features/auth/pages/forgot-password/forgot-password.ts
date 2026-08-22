@@ -5,6 +5,8 @@ import { RouterLink } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 import { CaptchaService } from '@core/services/captcha.service';
 import { CaptchaChallenge } from '@core/models/captcha.model';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 /**
  * Step one of a password reset: ask for the token to be emailed.
@@ -21,7 +23,10 @@ import { CaptchaChallenge } from '@core/models/captcha.model';
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink,
+    MatFormFieldModule,
+    MatInputModule,
+  ],
   templateUrl: './forgot-password.html',
   styleUrl: './forgot-password.scss',
 })

@@ -5,6 +5,11 @@ import { RouterLink } from '@angular/router';
 
 import { UserService } from '@core/services/user.service';
 import { Address, SellerProfile as SellerProfileModel } from '@core/models/user.model';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCardModule } from '@angular/material/card';
 
 /**
  * The seller's own business identity: trading name, GSTIN, support contacts, pickup address.
@@ -19,7 +24,13 @@ import { Address, SellerProfile as SellerProfileModel } from '@core/models/user.
 @Component({
   selector: 'app-seller-profile',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, DatePipe],
+  imports: [ReactiveFormsModule, RouterLink, DatePipe,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCardModule,
+  ],
   templateUrl: './seller-profile.html',
   styleUrl: './seller-profile.scss',
 })

@@ -31,14 +31,15 @@
   @if (loading()) {
 
     <div class="card">
-      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+      <div class="skeleton row-skeleton" aria-hidden="true">
+    </div>
       <div class="skeleton row-skeleton" aria-hidden="true"></div>
     </div>
 
   } @else if (failed()) {
 
     <p class="alert" role="alert">Your stock could not be loaded.</p>
-    <button type="button" class="btn btn--quiet" (click)="fetch(0)">Try again</button>
+    <button type="button" matButton="outlined" (click)="fetch(0)">Try again</button>
 
   } @else if (items().length === 0) {
 
@@ -81,7 +82,7 @@
           <div class="row__actions">
             <button
               type="button"
-              class="btn btn--quiet row__action"
+              matButton="outlined" class="row__action"
               [disabled]="busySku() === item.sku"
               (click)="openSku() === item.sku ? close() : openAdjustment(item.sku)"
             >
@@ -89,7 +90,7 @@
             </button>
             <button
               type="button"
-              class="btn btn--quiet row__action"
+              matButton="outlined" class="row__action"
               [disabled]="busySku() === item.sku"
               (click)="toggleTracking(item)"
             >
@@ -100,9 +101,9 @@
           @if (openSku() === item.sku) {
             <div class="adjust">
               <div class="adjust__row">
-                <div class="field">
-                  <label class="field__label" [for]="'delta-' + item.sku">Change by</label>
-                  <input
+                <mat-form-field appearance="outline">
+                  <mat-label>Change by</mat-label>
+                  <input matInput
                     [id]="'delta-' + item.sku"
                     type="number"
                     step="1"
@@ -110,22 +111,22 @@
                     (ngModelChange)="delta.set($event)"
                     placeholder="e.g. 25 or -3"
                   />
-                  <span class="field__hint field__hint--muted">Negative writes stock off.</span>
-                </div>
+                  <mat-hint>Negative writes stock off.</mat-hint>
+                </mat-form-field>
 
-                <div class="field">
-                  <label class="field__label" [for]="'reason-' + item.sku">Reason</label>
-                  <select [id]="'reason-' + item.sku" [ngModel]="reason()" (ngModelChange)="reason.set($event)">
+                <mat-form-field appearance="outline">
+                  <mat-label>Reason</mat-label>
+                  <mat-select [id]="'reason-' + item.sku" [ngModel]="reason()" (ngModelChange)="reason.set($event)">
                     @for (option of reasons; track option.value) {
-                      <option [value]="option.value">{{ option.label }}</option>
+                      <mat-option [value]="option.value">{{ option.label }}</mat-option>
                     }
-                  </select>
-                </div>
+                  </mat-select>
+                </mat-form-field>
               </div>
 
-              <div class="field">
-                <label class="field__label" [for]="'note-' + item.sku">Note</label>
-                <input
+              <mat-form-field appearance="outline">
+                <mat-label>Note</mat-label>
+                <input matInput
                   [id]="'note-' + item.sku"
                   type="text"
                   maxlength="300"
@@ -133,11 +134,11 @@
                   (ngModelChange)="note.set($event)"
                   placeholder="Optional — what happened"
                 />
-              </div>
+              </mat-form-field>
 
               <button
                 type="button"
-                class="btn btn--brand"
+                matButton="filled"
                 [disabled]="busySku() === item.sku"
                 (click)="adjust(item)"
               >
@@ -152,11 +153,11 @@
 
     @if (totalPages() > 1) {
       <nav class="pager" aria-label="Pagination">
-        <button type="button" class="btn btn--quiet" [disabled]="pageIndex() === 0" (click)="fetch(pageIndex() - 1)">
+        <button type="button" matButton="outlined" [disabled]="pageIndex() === 0" (click)="fetch(pageIndex() - 1)">
           Previous
         </button>
         <span class="pager__position">Page {{ pageIndex() + 1 }} of {{ totalPages() }}</span>
-        <button type="button" class="btn btn--quiet" [disabled]="isLast()" (click)="fetch(pageIndex() + 1)">
+        <button type="button" matButton="outlined" [disabled]="isLast()" (click)="fetch(pageIndex() + 1)">
           Next
         </button>
       </nav>

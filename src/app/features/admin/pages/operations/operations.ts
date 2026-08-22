@@ -10,6 +10,10 @@ import { PageResponse } from '@core/models/api-response';
 import { describeOrderStatus } from '@shared/order-status';
 
 type View = 'orders' | 'refunds' | 'payments' | 'unreported';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatCardModule } from '@angular/material/card';
 
 /**
  * Day-to-day operations: finding orders and payments, and the two queues that mean something is
@@ -23,7 +27,12 @@ type View = 'orders' | 'refunds' | 'payments' | 'unreported';
 @Component({
   selector: 'app-operations',
   standalone: true,
-  imports: [RouterLink, DatePipe, FormsModule],
+  imports: [RouterLink, DatePipe, FormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCardModule,
+  ],
   templateUrl: './operations.html',
   styleUrl: './operations.scss',
 })

@@ -1,0 +1,6 @@
+// Seller-console specifics. The tab strip, toolbar, pager and row placeholder now live in the
+// shared console partial, since the admin console needs exactly the same furniture.
+@forward '../console';
+@use '../console' as *;
+@use '../orders/badge' as *;
+@use '../account/account-nav' as *;

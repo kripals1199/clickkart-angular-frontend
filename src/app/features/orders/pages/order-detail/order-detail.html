@@ -2,17 +2,20 @@
 
   @if (loading()) {
 
-    <div class="card">
-      <div class="skeleton detail__skeleton" aria-hidden="true"></div>
-      <div class="skeleton detail__skeleton" aria-hidden="true"></div>
+    <mat-card appearance="outlined">
+      <mat-card-content>
+      <div class="skeleton detail__skeleton" aria-hidden="true">
     </div>
+      <div class="skeleton detail__skeleton" aria-hidden="true"></div>
+          </mat-card-content>
+    </mat-card>
 
   } @else if (notFound() || !order()) {
 
     <div class="empty">
       <p class="empty__title">We couldn't find that order</p>
       <p class="empty__copy">It may not exist, or it may belong to another account.</p>
-      <a class="btn btn--quiet" routerLink="/orders">Back to your orders</a>
+      <a matButton="outlined" routerLink="/orders">Back to your orders</a>
     </div>
 
   } @else if (order(); as current) {
@@ -56,7 +59,8 @@
 
       <div class="detail__main">
 
-        <section class="card detail__section">
+        <mat-card appearance="outlined" class="detail__section">
+          <mat-card-content>
           <h2 class="detail__heading">Items</h2>
 
           @for (item of current.items; track item.sku) {
@@ -76,10 +80,12 @@
               <p class="line__total">₹{{ item.lineTotal }}</p>
             </div>
           }
-        </section>
+                  </mat-card-content>
+        </mat-card>
 
         @if (current.deliveryAddress; as address) {
-          <section class="card detail__section">
+          <mat-card appearance="outlined" class="detail__section">
+            <mat-card-content>
             <h2 class="detail__heading">Delivering to</h2>
             <p class="address">
               <strong>{{ address.recipientName }}</strong><br />
@@ -89,11 +95,13 @@
               {{ address.country }}<br />
               {{ address.contactNumber }}
             </p>
-          </section>
+                      </mat-card-content>
+          </mat-card>
         }
 
         @if (payment(); as captured) {
-          <section class="card detail__section">
+          <mat-card appearance="outlined" class="detail__section">
+            <mat-card-content>
             <h2 class="detail__heading">Payment</h2>
             <div class="detail__row"><span>Reference</span><span>{{ captured.paymentReference }}</span></div>
             <div class="detail__row"><span>Method</span><span>{{ captured.method }}</span></div>
@@ -109,12 +117,14 @@
                 This capture was simulated — no real payment was taken.
               </p>
             }
-          </section>
+                      </mat-card-content>
+          </mat-card>
         }
 
       </div>
 
-      <aside class="card summary">
+      <mat-card appearance="outlined" class="summary">
+        <mat-card-content>
         <h2 class="detail__heading">Total</h2>
 
         <div class="summary__row"><span>Items</span><span>₹{{ current.itemsSubtotal }}</span></div>
@@ -131,16 +141,16 @@
             </p>
           }
 
-          <div class="field">
-            <label class="field__label" for="method">Payment method</label>
-            <select id="method" [ngModel]="method()" (ngModelChange)="method.set($event)">
+          <mat-form-field appearance="outline">
+            <mat-label>Payment method</mat-label>
+            <mat-select id="method" [ngModel]="method()" (ngModelChange)="method.set($event)">
               @for (option of methods; track option.value) {
-                <option [value]="option.value">{{ option.label }}</option>
+                <mat-option [value]="option.value">{{ option.label }}</mat-option>
               }
-            </select>
-          </div>
+            </mat-select>
+          </mat-form-field>
 
-          <button type="button" class="btn btn--cta summary__action" [disabled]="paying()" (click)="pay()">
+          <button type="button" matButton="filled" class="btn--cta summary__action" [disabled]="paying()" (click)="pay()">
             {{ paying() ? 'Paying…' : 'Pay ₹' + current.totalAmount }}
           </button>
 
@@ -153,9 +163,9 @@
 
         @if (canCancel()) {
           @if (cancelOpen()) {
-            <div class="field">
-              <label class="field__label" for="reason">Reason (optional)</label>
-              <input
+            <mat-form-field appearance="outline">
+              <mat-label>Reason (optional)</mat-label>
+              <input matInput
                 id="reason"
                 type="text"
                 maxlength="300"
@@ -163,21 +173,22 @@
                 (ngModelChange)="cancelReason.set($event)"
                 placeholder="Changed my mind"
               />
-            </div>
-            <button type="button" class="btn btn--quiet summary__action" [disabled]="cancelling()" (click)="cancel()">
+            </mat-form-field>
+            <button type="button" matButton="outlined" class="summary__action" [disabled]="cancelling()" (click)="cancel()">
               {{ cancelling() ? 'Cancelling…' : 'Confirm cancellation' }}
             </button>
-            <button type="button" class="btn btn--quiet summary__action" (click)="cancelOpen.set(false)">
+            <button type="button" matButton="outlined" class="summary__action" (click)="cancelOpen.set(false)">
               Keep the order
             </button>
           } @else {
-            <button type="button" class="btn btn--quiet summary__action" (click)="cancelOpen.set(true)">
+            <button type="button" matButton="outlined" class="summary__action" (click)="cancelOpen.set(true)">
               Cancel this order
             </button>
           }
         }
 
-      </aside>
+              </mat-card-content>
+      </mat-card>
 
     </div>
 

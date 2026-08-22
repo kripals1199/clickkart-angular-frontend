@@ -1,52 +1,36 @@
-<mat-card class="fashion-card">
+<a class="tile" [routerLink]="['/products', product().slug]">
 
-  <div class="image-container">
+  <!-- An initial, not an <img>: there is no image service on this platform and Product Service
+       carries no image field, so a real <img> would be a guaranteed broken icon. -->
+  <div class="tile__media" aria-hidden="true">
+    <span class="tile__initial">{{ initial() }}</span>
 
-    <img
-      [src]="product().image"
-      [alt]="product().name"
-    />
-
-    <button class="wishlist-btn">
-
-      <mat-icon>
-        favorite_border
-      </mat-icon>
-
-    </button>
-
-    <div class="discount-badge">
-      {{ product().discount }}
-    </div>
-
+    @if (variant(); as v) {
+      @if (v.mrp > v.sellingPrice) {
+        <span class="tile__discount">{{ v.discountPercentage }}% off</span>
+      }
+    }
   </div>
 
-  <div class="fashion-content">
+  <div class="tile__body">
+    <p class="tile__brand">{{ product().brand || 'ClickKart' }}</p>
+    <h3 class="tile__name">{{ product().name }}</h3>
 
-    <p class="brand">
-      {{ product().brand }}
-    </p>
+    @if (variant(); as v) {
+      <p class="tile__price">
+        @if (hasChoice()) { <span class="tile__from">from</span> }
+        ₹{{ v.sellingPrice }}
+        @if (v.mrp > v.sellingPrice) {
+          <span class="tile__mrp">₹{{ v.mrp }}</span>
+        }
+      </p>
+    } @else {
+      <p class="tile__unavailable">Currently unavailable</p>
+    }
 
-    <h3>
-      {{ product().name }}
-    </h3>
-
-    <div class="price-section">
-
-      <span class="price">
-        ₹{{ product().price }}
-      </span>
-
-      <span class="original-price">
-        ₹{{ product().originalPrice }}
-      </span>
-
-    </div>
-
-    <button mat-raised-button>
-      Add to Cart
-    </button>
-
+    @if (stock(); as s) {
+      <p class="tile__stock" [class]="'tile__stock tile__stock--' + s.tone">{{ s.label }}</p>
+    }
   </div>
 
-</mat-card>
+</a>

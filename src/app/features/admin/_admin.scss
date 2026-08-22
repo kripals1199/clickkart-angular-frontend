@@ -1,0 +1,130 @@
+// Shared chrome for the admin console: the moderation/operations row and its decision panel.
+// Forwards the console partial (and through it the storefront palette) because `@use ... as *`
+// does not re-export - a page loading only this one would otherwise find $ink undefined.
+@forward '../console';
+@use '../console' as *;
+@use '../orders/badge' as *;
+@use '../account/account-nav' as *;
+
+.queue {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1.5rem;
+  align-items: start;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.3rem;
+  }
+
+  &__name {
+    margin: 0 0 0.25rem;
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: $ink;
+  }
+
+  &__head &__name { margin-bottom: 0; }
+
+  &__meta {
+    margin: 0 0 0.2rem;
+    font-size: 0.8rem;
+    color: $muted;
+  }
+
+  &__seller {
+    margin: 0 0 0.5rem;
+    font-size: 0.75rem;
+    color: $muted;
+    letter-spacing: 0.03em;
+  }
+
+  &__description {
+    margin: 0.5rem 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #414141;
+  }
+
+  &__note {
+    margin: 0.5rem 0 0;
+    font-size: 0.82rem;
+    color: #414141;
+    font-style: italic;
+  }
+
+  &__warn {
+    margin: 0.5rem 0 0;
+    font-size: 0.8rem;
+    color: #7a4a00;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 9rem;
+  }
+
+  &__action {
+    padding: 0.5rem 0.9rem;
+    font-size: 0.82rem;
+  }
+}
+
+.variants {
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.82rem;
+  color: #414141;
+
+  li {
+    padding: 0.25rem 0;
+    border-bottom: 1px dashed $line;
+  }
+
+  li:last-child { border-bottom: 0; }
+
+  &__sku {
+    display: inline-block;
+    min-width: 8rem;
+    font-weight: 600;
+    color: $ink;
+    letter-spacing: 0.02em;
+  }
+
+  &__mrp {
+    margin-left: 0.4rem;
+    color: $muted;
+    text-decoration: line-through;
+  }
+}
+
+// The reason box. Full width under the row, because it is the consequential half of the decision.
+.decision {
+  grid-column: 1 / -1;
+  margin-top: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid $line;
+}
+
+@media (max-width: 50rem) {
+  .item {
+    grid-template-columns: 1fr;
+
+    &__actions {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+  }
+}

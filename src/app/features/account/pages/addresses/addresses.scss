@@ -37,7 +37,7 @@
 
   &__badge {
     padding: 0.15rem 0.45rem;
-    border-radius: 2px;
+    border-radius: var(--ck-r-sm);
     background: $brand;
     color: #fff;
     font-size: 0.65rem;

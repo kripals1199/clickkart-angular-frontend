@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { authGuard } from '@core/guards/auth.guard';
+import { roleGuard } from '@core/guards/role.guard';
 
 /**
  * Two groups. The auth screens are full-bleed and route on their own; everything else routes inside
@@ -51,6 +52,14 @@ export const routes: Routes = [
                     import('@features/home/home')
                         .then(m => m.Home)
             },
+            // Browsing the taxonomy. Separate from /products because a branch category
+            // has no products of its own to list - see CategoryBrowse.
+            {
+                path: 'categories/:slug',
+                loadComponent: () =>
+                    import('@features/catalog/pages/category-browse/category-browse')
+                        .then(m => m.CategoryBrowse)
+            },
             {
                 path: 'products',
                 loadComponent: () =>
@@ -91,12 +100,119 @@ export const routes: Routes = [
                     import('@features/orders/pages/order-detail/order-detail')
                         .then(m => m.OrderDetail)
             },
+            // ---- seller console: ROLE_SELLER only --------------------------
+            // 'new' sits before ':publicId' so it is matched as a literal rather than swallowed as
+            // an id - Angular takes the first match, not the most specific.
+            {
+                path: 'seller/profile',
+                canActivate: [roleGuard('SELLER')],
+                loadComponent: () =>
+                    import('@features/seller/pages/seller-profile/seller-profile')
+                        .then(m => m.SellerProfile)
+            },
+            {
+                path: 'seller/products',
+                canActivate: [roleGuard('SELLER')],
+                loadComponent: () =>
+                    import('@features/seller/pages/seller-products/seller-products')
+                        .then(m => m.SellerProducts)
+            },
+            {
+                path: 'seller/products/new',
+                canActivate: [roleGuard('SELLER')],
+                loadComponent: () =>
+                    import('@features/seller/pages/seller-product-form/seller-product-form')
+                        .then(m => m.SellerProductForm)
+            },
+            {
+                path: 'seller/products/:publicId',
+                canActivate: [roleGuard('SELLER')],
+                loadComponent: () =>
+                    import('@features/seller/pages/seller-product-form/seller-product-form')
+                        .then(m => m.SellerProductForm)
+            },
+            {
+                path: 'seller/stock',
+                canActivate: [roleGuard('SELLER')],
+                loadComponent: () =>
+                    import('@features/seller/pages/seller-stock/seller-stock')
+                        .then(m => m.SellerStock)
+            },
+            {
+                path: 'seller/orders',
+                canActivate: [roleGuard('SELLER')],
+                loadComponent: () =>
+                    import('@features/seller/pages/seller-orders/seller-orders')
+                        .then(m => m.SellerOrders)
+            },
+
+            // ---- admin console: ROLE_ADMIN only ---------------------------
+            // /admin is the dashboard rather than a redirect into one of the work surfaces:
+            // moderation was an arbitrary landing place, and the worklist is what an operator
+            // actually wants to see first.
+            {
+                path: 'admin',
+                canActivate: [roleGuard('ADMIN')],
+                loadComponent: () =>
+                    import('@features/admin/pages/dashboard/dashboard')
+                        .then(m => m.AdminDashboard)
+            },
+            {
+                path: 'admin/moderation',
+                canActivate: [roleGuard('ADMIN')],
+                loadComponent: () =>
+                    import('@features/admin/pages/moderation/moderation')
+                        .then(m => m.Moderation)
+            },
+            {
+                path: 'admin/operations',
+                canActivate: [roleGuard('ADMIN')],
+                loadComponent: () =>
+                    import('@features/admin/pages/operations/operations')
+                        .then(m => m.Operations)
+            },
+            {
+                path: 'admin/accounts',
+                canActivate: [roleGuard('ADMIN')],
+                loadComponent: () =>
+                    import('@features/admin/pages/accounts/accounts')
+                        .then(m => m.Accounts)
+            },
+            {
+                path: 'admin/profiles',
+                canActivate: [roleGuard('ADMIN')],
+                loadComponent: () =>
+                    import('@features/admin/pages/profiles/profiles')
+                        .then(m => m.Profiles)
+            },
+            {
+                path: 'admin/audit',
+                canActivate: [roleGuard('ADMIN')],
+                loadComponent: () =>
+                    import('@features/admin/pages/audit/audit')
+                        .then(m => m.Audit)
+            },
+            {
+                path: 'admin/categories',
+                canActivate: [roleGuard('ADMIN')],
+                loadComponent: () =>
+                    import('@features/admin/pages/categories/categories')
+                        .then(m => m.Categories)
+            },
+
             {
                 path: 'account',
                 canActivate: [authGuard],
                 loadComponent: () =>
                     import('@features/account/pages/profile/profile')
                         .then(m => m.Profile)
+            },
+            {
+                path: 'account/security',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                    import('@features/account/pages/security/security')
+                        .then(m => m.Security)
             },
             {
                 path: 'account/addresses',

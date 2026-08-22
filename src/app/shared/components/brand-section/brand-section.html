@@ -1,21 +1,11 @@
-<div class="brand-section">
+@if (brands().length > 0) {
 
-  <h2>
-    Top Fashion Brands
-  </h2>
-
-  <div class="brand-grid">
-
-    @for(brand of brands(); track brand) {
-
-      <div class="brand-card">
-
+  <nav class="brand-container" aria-label="Shop by brand">
+    @for (brand of brands(); track brand) {
+      <a class="brand-card" [routerLink]="['/products']" [queryParams]="{ brand: brand }">
         {{ brand }}
-
-      </div>
-
+      </a>
     }
+  </nav>
 
-  </div>
-
-</div>
+}

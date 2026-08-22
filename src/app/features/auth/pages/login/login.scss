@@ -1,3 +1,55 @@
 // Sign-in is the shared auth skin with nothing added: same card, same fields, same alert as
 // register, so the two screens read as one flow rather than two designs.
 @use '../../auth-form' as *;
+
+// ---- sign-in mode switch -------------------------------------------------
+.modes {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+
+  &__tab {
+    flex: 1;
+    padding: 0.55rem 0.5rem;
+    border: 0;
+    border-bottom: 2px solid $line;
+    background: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $muted;
+    cursor: pointer;
+
+    &:hover { color: $ink; }
+
+    &--active {
+      color: $brand;
+      border-bottom-color: $brand;
+    }
+  }
+}
+
+// Which way the one-time code travels. Two buttons rather than a select: there are only ever two.
+.channels {
+  display: flex;
+  gap: 0.6rem;
+
+  &__option {
+    flex: 1;
+    padding: 0.6rem 0.9rem;
+    border: 1px solid $line;
+    border-radius: var(--ck-r-sm);
+    background: #fff;
+    font-size: 0.9rem;
+    color: $ink;
+    cursor: pointer;
+
+    &:hover { border-color: $brand; }
+
+    &--selected {
+      border-color: $brand;
+      box-shadow: inset 0 0 0 1px $brand;
+      font-weight: 600;
+      color: $brand;
+    }
+  }
+}

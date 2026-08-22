@@ -12,21 +12,28 @@
 // the CLI's default 4kB. If the duplication ever needs to go, the fix is a shared card component
 // owning these styles once - not a global stylesheet.
 
-// Brand blue, matching the navbar and home page rather than introducing a second palette.
-$brand: #2874f0;
-$brand-dark: #1b5dc4;
-$ink: #212121;
-$muted: #878787;
-$line: #dfe1e5;
-$danger: #c0392b;
+// Resolves to the custom properties in src/styles.scss. This partial deliberately keeps its own
+// scoped copy of the rules (see above), but it should not keep its own copy of the palette - two
+// literal copies of the same hex is exactly how the two screens drift apart.
+$brand: var(--ck-brand);
+$brand-dark: var(--ck-brand-dark);
+$brand-soft: var(--ck-brand-soft);
+$ink: var(--ck-ink);
+$muted: var(--ck-muted);
+$line: var(--ck-line);
+$danger: var(--ck-danger);
 
 .auth {
   display: flex;
   align-items: flex-start;
   justify-content: center;
+  // 100vh on mobile is the viewport with the address bar retracted, so a full-height box
+  // overflows by the height of the chrome and the page scrolls when nothing should. dvh
+  // follows the bar as it hides and shows; the vh line is the fallback for older engines.
   min-height: 100vh;
-  padding: 2.5rem 1rem;
-  background: #f1f3f6; // the storefront's grey, so this reads as the same product
+  min-height: 100dvh;
+  padding: clamp(1.25rem, 0.7rem + 2.4vw, 2.5rem) var(--ck-gutter);
+  background: var(--ck-page); // the storefront's grey, so this reads as the same product
 
   &__card {
     display: grid;
@@ -34,7 +41,7 @@ $danger: #c0392b;
     width: 100%;
     max-width: 52rem;
     background: #fff;
-    border-radius: 4px;
+    border-radius: var(--ck-r-sm);
     box-shadow: 0 2px 12px rgb(0 0 0 / 12%);
     overflow: hidden;
   }
@@ -94,7 +101,7 @@ $danger: #c0392b;
   &__submit {
     padding: 0.9rem 1rem;
     border: 0;
-    border-radius: 2px;
+    border-radius: var(--ck-r-sm);
     background: #fb641b; // the storefront's call-to-action orange, not the brand blue
     color: #fff;
     font-size: 1rem;
@@ -272,13 +279,13 @@ $danger: #c0392b;
   &__image {
     height: 2.75rem;
     border: 1px solid $line;
-    border-radius: 2px;
+    border-radius: var(--ck-r-sm);
     background: #fafafa;
   }
 
   &__refresh {
     border: 1px solid $line;
-    border-radius: 2px;
+    border-radius: var(--ck-r-sm);
     background: #fff;
     color: $brand;
     font-size: 1rem;
@@ -299,7 +306,7 @@ $danger: #c0392b;
   &__skeleton {
     height: 2.75rem;
     width: 8rem;
-    border-radius: 2px;
+    border-radius: var(--ck-r-sm);
     background: linear-gradient(90deg, #f0f0f0 25%, #e4e4e4 37%, #f0f0f0 63%);
     background-size: 400% 100%;
     animation: shimmer 1.3s ease infinite;

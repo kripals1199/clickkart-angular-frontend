@@ -1,0 +1,185 @@
+<div class="page">
+
+  <a class="form__back" routerLink="/seller/products">← Your listings</a>
+
+  @if (loading()) {
+
+    <mat-card appearance="outlined">
+      <mat-card-content>
+      <div class="skeleton row-skeleton" aria-hidden="true">
+    </div>
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+          </mat-card-content>
+    </mat-card>
+
+  } @else if (failed()) {
+
+    <div class="empty">
+      <p class="empty__title">We couldn't load that listing</p>
+      <p class="empty__copy">It may not exist, or it may belong to another seller.</p>
+      <a matButton="outlined" routerLink="/seller/products">Back to your listings</a>
+    </div>
+
+  } @else {
+
+    <h1 class="page__title">{{ isNew() ? 'New listing' : existing()?.name }}</h1>
+
+    @if (statusHint(); as status) {
+      <p class="page__subtitle">
+        <span [class]="'badge badge--' + status.tone">{{ status.label }}</span>
+        <span class="form__status-hint">{{ status.hint }}</span>
+      </p>
+    }
+
+    @if (readOnly()) {
+      <p class="warn">
+        This listing isn't editable in its current state — it's shown here read-only.
+      </p>
+    }
+
+    @if (existing()?.rejectionReason; as reason) {
+      <p class="alert">Moderation rejected this: {{ reason }}</p>
+    }
+
+    @if (errorMessage()) {
+      <p class="alert" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+
+      <mat-card appearance="outlined" class="form__section">
+        <mat-card-content>
+        <h2 class="form__heading">Listing details</h2>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Product name</mat-label>
+          <input matInput id="name" type="text" formControlName="name" maxlength="200" />
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <mat-error>A name is required.</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="form__row">
+          <mat-form-field appearance="outline">
+            <mat-label>Brand</mat-label>
+            <input matInput id="brand" type="text" formControlName="brand" maxlength="120" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Category</mat-label>
+            <mat-select id="category" formControlName="categoryPublicId">
+              <mat-option value="">Choose a category</mat-option>
+              @for (category of categories(); track category.publicId) {
+                <mat-option [value]="category.publicId">{{ category.name }}</mat-option>
+              }
+            </mat-select>
+            <mat-hint>
+              Only the most specific categories can hold products.
+            </mat-hint>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>URL slug</mat-label>
+          <input matInput id="slug" type="text" formControlName="slug" maxlength="220" placeholder="left blank, we'll make one" />
+          @if (form.controls.slug.touched && form.controls.slug.invalid) {
+            <mat-error>Lowercase letters, digits and single hyphens only.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Description</mat-label>
+          <textarea matInput id="description" formControlName="description" rows="5" maxlength="4000"></textarea>
+        </mat-form-field>
+              </mat-card-content>
+      </mat-card>
+
+      <mat-card appearance="outlined" class="form__section">
+        <mat-card-content>
+        <div class="form__section-head">
+          <h2 class="form__heading">Variants</h2>
+          @if (!readOnly()) {
+            <button type="button" matButton="outlined" class="form__add" (click)="addVariant()">
+              Add a variant
+            </button>
+          }
+        </div>
+
+        <p class="form__note">
+          Each variant is what customers actually buy — the SKU travels through stock, baskets and
+          orders, so it can't be changed casually once it's in use.
+        </p>
+
+        <div formArrayName="variants" class="variants">
+          @for (variant of variants.controls; track $index; let i = $index) {
+            <fieldset class="variant" [formGroupName]="i">
+              <legend class="variant__legend">Variant {{ i + 1 }}</legend>
+
+              <div class="form__row">
+                <mat-form-field appearance="outline">
+                  <mat-label>SKU</mat-label>
+                  <input matInput [id]="'sku-' + i" type="text" formControlName="sku" maxlength="64" />
+                  @if (variant.get('sku')?.touched && variant.get('sku')?.invalid) {
+                    <mat-error>3–64 letters, digits, hyphens or underscores.</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Variant name</mat-label>
+                  <input matInput [id]="'variantName-' + i" type="text" formControlName="variantName" maxlength="150" placeholder="e.g. Blue / M" />
+                </mat-form-field>
+              </div>
+
+              <div class="form__row">
+                <mat-form-field appearance="outline">
+                  <mat-label>MRP ₹</mat-label>
+                  <input matInput [id]="'mrp-' + i" type="number" step="0.01" min="0.01" formControlName="mrp" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Selling price ₹</mat-label>
+                  <input matInput [id]="'sellingPrice-' + i" type="number" step="0.01" min="0.01" formControlName="sellingPrice" />
+                </mat-form-field>
+              </div>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Attributes</mat-label>
+                <textarea matInput
+                  [id]="'attributes-' + i"
+                  formControlName="attributes"
+                  rows="3"
+                  placeholder="colour: Blue&#10;size: M"
+                ></textarea>
+                <mat-hint>One per line, as “name: value”. Up to 20.</mat-hint>
+              </mat-form-field>
+
+              @if (!readOnly() && variants.length > 1) {
+                <button type="button" matButton class="btn--danger-text" (click)="removeVariant(i)">
+                  Remove this variant
+                </button>
+              }
+            </fieldset>
+          }
+        </div>
+              </mat-card-content>
+      </mat-card>
+
+      @if (!readOnly()) {
+        <div class="form__actions">
+          <button type="submit" matButton="filled" class="btn--cta" [disabled]="saving()">
+            {{ saving() ? 'Saving…' : isNew() ? 'Create listing' : 'Save changes' }}
+          </button>
+          <a matButton="outlined" routerLink="/seller/products">Cancel</a>
+        </div>
+
+        <p class="form__note">
+          Saving keeps this as a draft. It only reaches customers once you submit it for review from
+          the listings page.
+        </p>
+      }
+
+    </form>
+
+  }
+
+</div>

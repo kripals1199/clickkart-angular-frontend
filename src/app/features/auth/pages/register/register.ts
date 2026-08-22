@@ -5,6 +5,10 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 import { CaptchaService } from '@core/services/captcha.service';
 import { CaptchaChallenge } from '@core/models/captcha.model';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 /**
  * Validators mirror the backend's RegisterRequest exactly. They are a courtesy that saves a round
@@ -15,7 +19,12 @@ import { CaptchaChallenge } from '@core/models/captcha.model';
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+  ],
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
@@ -79,12 +88,25 @@ export class Register {
     this.auth
       .register({ ...this.form.getRawValue(), captchaChallengeId: challenge.challengeId })
       .subscribe({
-        next: () => this.router.navigate(['/']),
+        next: (res) => {
+          // A 2xx is not the same as a session. AuthService only stores tokens when `data` is
+          // present, so navigating on status alone could land someone on the home page signed out,
+          // which looks like the sign-up silently failed.
+          if (!res.data) {
+            this.submitting.set(false);
+            this.errorMessage.set('Your account was created, but signing you in failed. Try signing in.');
+            this.loadChallenge();
+            this.form.controls.captchaAnswer.reset();
+            return;
+          }
+          this.router.navigate(['/']);
+        },
         error: (err) => {
           this.submitting.set(false);
-          // Branch on the stable code, never the human-readable message.
-          const code = err?.error?.error?.code;
-          this.errorMessage.set(this.describe(code));
+          // Branch on the stable code, never the human-readable message. Undefined here is normal
+          // and expected: a network failure has no envelope at all, and a Gateway 503 answers with
+          // `error` as a plain string rather than an object. Both fall through to the default.
+          this.errorMessage.set(this.describe(err?.error?.error));
           // A challenge is single-use: whether the answer was wrong or the email was taken, the
           // one on screen is spent and submitting it again would fail for the wrong reason.
           this.loadChallenge();
@@ -93,8 +115,17 @@ export class Register {
       });
   }
 
-  private describe(code: string | undefined): string {
-    switch (code) {
+  private describe(error: { code?: string; fieldErrors?: Record<string, string> } | undefined): string {
+    // The server names the offending field when it has one. Client validators mirror the server's
+    // rules, so this should be rare - but when the two drift, the server's own words are far more
+    // use than "registration could not be completed".
+    if (error?.code === 'VALIDATION_FAILED') {
+      const first = Object.values(error.fieldErrors ?? {})[0];
+      // A malformed body also answers VALIDATION_FAILED, with no fieldErrors at all.
+      return first ?? 'Some of those details were rejected. Check the form and try again.';
+    }
+
+    switch (error?.code) {
       // The server does not say which of the two collided, and deliberately so - confirming
       // "this email exists" to an unauthenticated caller is an account-enumeration oracle.
       case 'DUPLICATE_ACCOUNT':
@@ -103,6 +134,8 @@ export class Register {
         return 'That captcha answer was not right. Here is a new one.';
       case 'RATE_LIMIT_EXCEEDED':
         return 'Too many attempts from this network. Please wait a little and try again.';
+      case 'SERVICE_UNAVAILABLE':
+        return 'We could not reach the sign-up service. Nothing was created — please try again.';
       default:
         return 'Registration could not be completed. Please try again.';
     }

@@ -1,13 +1,149 @@
+@use "@angular/material" as mat;
+@use "./styles/theme-colors" as brand;
+
+/* ANGULAR MATERIAL THEME
+ *
+ * There was no theme at all before this: angular.json loaded only this file, nothing imported a
+ * Material theme, and so every Material component rendered against fallback tokens. That is why
+ * the toolbar had to be painted by hand - mat-toolbar had no palette to take a colour from.
+ *
+ * The palettes in ./styles/_theme-colors.scss are generated from the colours the app already
+ * uses, so Material adopts ClickKart rather than the other way round: primary from the navbar
+ * blue #2874f0, tertiary from the CTA orange #fb641b, error from the danger red #c0392b.
+ *
+ * Density stays at 0. Negative density is tempting for information-dense admin tables, but it
+ * shrinks hit areas, and the mobile work in this file is all about keeping those at 44px.
+ */
+html {
+  @include mat.theme((
+    color: (
+      primary: brand.$primary-palette,
+      tertiary: brand.$tertiary-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+/* Honours the OS "increase contrast" setting. The generated overrides raise contrast on the
+   Material surfaces specifically; the app's own palette below is already at AA. */
+@media (prefers-contrast: more) {
+  html {
+    @include brand.high-contrast-overrides(light);
+  }
+}
+/* ClickKart design tokens.
+ *
+ * Custom properties rather than Sass variables, deliberately. The component partials are scoped
+ * per component, so a Sass variable has to be redeclared in every partial that wants it - which is
+ * how the storefront and the auth screens ended up with two copies of the same palette that could
+ * silently drift. Custom properties pierce Angular's emulated encapsulation, so one declaration
+ * here reaches every component, and a colour can be corrected in one place.
+ *
+ * The Sass variables still exist in the partials; they now resolve to these. Nothing had to change
+ * at the call sites, because none of them ran Sass colour functions over the palette.
+ */
+:root {
+  /* Brand. The blue is the navbar's, unchanged - it is the one colour users already associate
+     with the site. The tints around it are new, so hover and selected states stop relying on
+     filter: brightness(), which washes out rather than deepening. */
+  --ck-brand: #2874f0;
+  --ck-brand-dark: #1b5dc4;
+  --ck-brand-soft: #eaf1fe;
+
+  --ck-cta: #fb641b;
+  --ck-cta-dark: #e2540d;
+
+  /* Ink and surfaces. */
+  --ck-ink: #1a1d21;
+  --ck-ink-2: #3f4652;
+
+  /* Was #878787, which lands at about 3.5:1 on white and fails WCAG AA for body text - and it was
+     carrying the field labels, hints and every "empty" message, so the failure was widespread
+     rather than incidental. This sits near 4.8:1 and passes. */
+  --ck-muted: #6b7280;
+
+  --ck-line: #e3e6ea;
+  --ck-surface: #ffffff;
+  --ck-page: #f4f6f9;
+
+  /* Status. */
+  --ck-danger: #c0392b;
+  --ck-danger-bg: #fdecea;
+  --ck-danger-ink: #7f231b;
+  --ck-ok: #2e7d46;
+  --ck-ok-bg: #e8f5ec;
+  --ck-ok-ink: #17542c;
+  --ck-warn: #b26a00;
+  --ck-warn-bg: #fff4e5;
+  --ck-warn-ink: #7a4a00;
+
+  /* Radii. The old 2px on buttons and 4px on cards is the main thing that dated the UI - it reads
+     as a 2016 admin theme. These are large enough to feel current without going pill-shaped. */
+  --ck-r-sm: 6px;
+  --ck-r-md: 10px;
+  --ck-r-lg: 14px;
+  --ck-r-pill: 999px;
+
+  /* Elevation. Two stacked low-opacity layers rather than one dark blur: a tight shadow for the
+     contact edge and a wider one for the ambient cast, which is what stops a card looking like it
+     has a grey border drawn under it. */
+  --ck-shadow-1: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+  --ck-shadow-2: 0 2px 4px rgba(16, 24, 40, 0.05), 0 4px 12px rgba(16, 24, 40, 0.08);
+  --ck-shadow-3: 0 8px 28px rgba(16, 24, 40, 0.14);
+
+  /* Motion. Decelerating rather than ease, so movement settles instead of stopping dead. */
+  --ck-ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --ck-fast: 0.16s;
+  --ck-slow: 0.24s;
+
+  /* Fluid type. clamp() interpolates against the viewport, so headings shrink on a phone without
+     needing a breakpoint per size - the previous fixed rem values were tuned for desktop and left
+     titles oversized on a 375px screen. */
+  --ck-fs-title: clamp(1.25rem, 1.06rem + 0.9vw, 1.6rem);
+  --ck-fs-lead: clamp(0.9rem, 0.87rem + 0.15vw, 0.95rem);
+
+  /* Gutter tightens on small screens: 1rem of padding either side of a 375px viewport spends 11%
+     of the width on nothing. */
+  --ck-gutter: clamp(0.85rem, 0.55rem + 1.4vw, 1.5rem);
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
-  background: #f1f3f6;
+  font-family: Roboto, "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--ck-page);
+  color: var(--ck-ink);
+
+  /* Stops iOS inflating text in the orientation it considers too narrow, which silently breaks
+     layouts that were measured at a fixed size. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Removes the grey flash Chrome on Android paints over any tapped element. It fires on scroll
+   momentum too, so controls flicker while the user is only passing over them. */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* A visible focus ring is the only way a keyboard user can tell where they are. Several partials
+   set `outline: none` and communicated focus by changing a border colour instead, which is a 1px
+   hue shift - not perceivable for many users, and invisible against a field that is already
+   invalid. :focus-visible restores it for keyboard and assistive input without putting a ring
+   around everything a mouse clicks. */
+:focus-visible {
+  outline: 2px solid var(--ck-brand);
+  outline-offset: 2px;
+  border-radius: var(--ck-r-sm);
 }
 
 .logo1 {
@@ -15,18 +151,410 @@ body {
   height: auto;
 }
 
-@media (max-width: 768px){
-
-  .logo1{
+@media (max-width: 768px) {
+  .logo1 {
     width: 90px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    width: 70px;
+  }
+}
+
+/* Notched and rounded phones. The safe area is zero everywhere else, so this costs nothing on a
+   device that does not have one - but without it the last row of a page sits under the iOS home
+   indicator, and in landscape the page gutter disappears under the notch. */
+@supports (padding: max(0px)) {
+  .page {
+    padding-left: max(var(--ck-gutter), env(safe-area-inset-left));
+    padding-right: max(var(--ck-gutter), env(safe-area-inset-right));
+    padding-bottom: max(3rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Honour the OS-level "reduce motion" setting. Vestibular disorders make transform and parallax
+   genuinely unpleasant; this keeps state changes instant rather than animated. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   SHARED UI KIT
+
+   .btn, .card, .field, .page, .alert and friends - the vocabulary the templates are written
+   in, used across roughly 22 pages.
+
+   These lived in features/_storefront.scss, which every page @use-d. Component styles are
+   scoped, so that put a private ~4.7kB copy of the whole kit into each page bundle: six pages
+   were over the 7kB anyComponentStyle warning and the admin dashboard was 280 bytes from the
+   8kB error, which would have failed the build outright. Global once is both smaller in total
+   and the only version that can be corrected in one place.
+
+   Emulated encapsulation only scopes a component's own styles, so these still reach elements
+   inside components - and a page that wants to override one still wins, because its scoped
+   rule carries an extra attribute selector and therefore higher specificity.
+   --------------------------------------------------------------------------- */
+
+// ---- page scaffolding ----------------------------------------------------
+.page {
+  max-width: 75rem;
+  margin: 0 auto;
+  // Gutter is fluid: 1rem either side of a 375px phone spends 11% of the width on nothing.
+  padding: clamp(1rem, 0.8rem + 0.9vw, 1.5rem) var(--ck-gutter) 3rem;
+
+  &__title {
+    margin: 0 0 0.35rem;
+    // Was a fixed 1.4rem, tuned on a desktop and oversized on a phone.
+    font-size: var(--ck-fs-title);
+    font-weight: 650;
+    letter-spacing: -0.011em;
+    line-height: 1.25;
+    color: var(--ck-ink);
+  }
+
+  &__subtitle {
+    margin: 0 0 1.5rem;
+    font-size: var(--ck-fs-lead);
+    line-height: 1.5;
+    color: var(--ck-muted);
+  }
+}
+
+.card {
+  background: var(--ck-surface);
+  border: 1px solid var(--ck-line);
+  border-radius: var(--ck-r-lg);
+  padding: clamp(1rem, 0.85rem + 0.7vw, 1.35rem);
+  // A hairline border alone reads flat. The two-layer shadow gives a contact edge and an ambient
+  // cast, which is what separates the card from the page rather than just outlining it.
+  box-shadow: var(--ck-shadow-1);
+}
+
+// ---- buttons -------------------------------------------------------------
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+
+  padding: 0.68rem 1.3rem;
+  border: 0;
+  border-radius: var(--ck-r-sm);
+
+  font-size: 0.925rem;
+  font-weight: 600;
+  font-family: inherit;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+
+  cursor: pointer;
+  // Colour is animated per-variant rather than via filter: brightness(), which lightens toward
+  // white on hover - it washes a saturated CTA out instead of deepening it.
+  transition:
+    background-color var(--ck-fast) var(--ck-ease),
+    box-shadow var(--ck-fast) var(--ck-ease),
+    transform var(--ck-fast) var(--ck-ease);
+
+  // 1px is enough to register as a press without shifting the layout around it.
+  &:active:not(:disabled) { transform: translateY(1px); }
+
+  &:disabled {
+    background: #c9ccd1;
+    color: #fff;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  &--cta {
+    background: var(--ck-cta);
+    color: #fff;
+    box-shadow: var(--ck-shadow-1);
+
+    &:hover:not(:disabled) {
+      background: var(--ck-cta-dark);
+      box-shadow: var(--ck-shadow-2);
+    }
+  }
+
+  &--brand {
+    background: var(--ck-brand);
+    color: #fff;
+    box-shadow: var(--ck-shadow-1);
+
+    &:hover:not(:disabled) {
+      background: var(--ck-brand-dark);
+      box-shadow: var(--ck-shadow-2);
+    }
+  }
+
+  &--quiet {
+    background: var(--ck-surface);
+    color: var(--ck-brand);
+    border: 1px solid var(--ck-line);
+
+    &:hover:not(:disabled) {
+      border-color: var(--ck-brand);
+      background: var(--ck-brand-soft);
+    }
+  }
+
+  &--danger-text {
+    background: none;
+    color: var(--ck-danger);
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+
+    &:hover:not(:disabled) { background: var(--ck-danger-bg); }
+  }
+}
+
+// ---- status panels -------------------------------------------------------
+// Rounded on all four corners with the accent as a left rule, rather than a square block: the
+// square version read as a browser error box rather than part of the page.
+.alert,
+.notice,
+.warn {
+  margin: 0 0 1rem;
+  padding: 0.72rem 0.95rem;
+  border-radius: var(--ck-r-md);
+  border-left: 3px solid;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.alert {
+  border-left-color: var(--ck-danger);
+  background: var(--ck-danger-bg);
+  color: var(--ck-danger-ink);
+}
+
+.notice {
+  border-left-color: var(--ck-ok);
+  background: var(--ck-ok-bg);
+  color: var(--ck-ok-ink);
+}
+
+.warn {
+  border-left-color: var(--ck-warn);
+  background: var(--ck-warn-bg);
+  color: var(--ck-warn-ink);
+}
+
+// Shown in place of content when a list legitimately has nothing in it.
+.empty {
+  padding: clamp(2rem, 1.5rem + 2vw, 3rem) 1rem;
+  text-align: center;
+  color: var(--ck-muted);
+
+  &__title {
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 650;
+    color: var(--ck-ink);
+  }
+
+  &__copy {
+    margin: 0 0 1.5rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+}
+
+// ---- money ---------------------------------------------------------------
+.price {
+  font-weight: 650;
+  color: var(--ck-ink);
+  // Lining figures line up in a column; proportional ones make a price list look ragged.
+  font-variant-numeric: tabular-nums;
+
+  &__mrp {
+    margin-left: 0.45rem;
+    font-weight: 400;
+    font-size: 0.85em;
+    color: var(--ck-muted);
+    text-decoration: line-through;
+  }
+
+  &__off {
+    margin-left: 0.45rem;
+    font-weight: 650;
+    font-size: 0.85em;
+    color: var(--ck-ok);
+  }
+}
+
+// ---- forms ---------------------------------------------------------------
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+
+  &__label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--ck-muted);
+    // Was uppercase with tracking, which is hard to read at 12px and dates the form. Sentence
+    // case at a slightly larger size is easier to scan and no less clearly a label.
+    letter-spacing: 0;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 0.66rem 0.8rem;
+    border: 1px solid var(--ck-line);
+    border-radius: var(--ck-r-sm);
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: var(--ck-ink);
+    background: var(--ck-surface);
+    transition:
+      border-color var(--ck-fast) var(--ck-ease),
+      box-shadow var(--ck-fast) var(--ck-ease);
+
+    &::placeholder { color: #9aa1ab; }
+
+    // The old rule was `outline: none` with a border-colour change - a 1px hue shift, which is not
+    // a perceivable focus indicator, and invisible on a field already bordered red as invalid.
+    // The ring is drawn as a shadow so it does not reflow the field.
+    &:focus {
+      outline: none;
+      border-color: var(--ck-brand);
+      box-shadow: 0 0 0 3px var(--ck-brand-soft);
+    }
+  }
+
+  &__hint {
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: var(--ck-danger);
+
+    &--muted { color: var(--ck-muted); }
+  }
+
+  &--invalid input,
+  &--invalid select,
+  &--invalid textarea {
+    border-color: var(--ck-danger);
+
+    &:focus {
+      border-color: var(--ck-danger);
+      box-shadow: 0 0 0 3px var(--ck-danger-bg);
+    }
+  }
+}
+
+// Holds a row's height while data loads, so the page does not jump when it arrives.
+.skeleton {
+  border-radius: var(--ck-r-sm);
+  background: linear-gradient(90deg, #eef0f3 25%, #e2e5e9 37%, #eef0f3 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.3s ease infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 100% 50%; }
+  to   { background-position: 0 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}
+
+/* MOBILE ERGONOMICS
+
+   Deliberately last in the file, and deliberately more specific than `input`. The UI kit above
+   sets `.field input { font-size: 0.95rem }` at specificity (0,1,1); a bare `input` rule loses
+   to it on both counts, so the 16px below silently did not apply to the fields that make up
+   most of the app's forms - which are exactly the ones a phone user types into. */
+
+@media (max-width: 768px) {
+
+  /* iOS Safari zooms the whole page in when a focused input has a font smaller than 16px, and
+     it does not zoom back out afterwards - the user is left scrolling a page wider than the
+     screen. Applied to the controls themselves rather than the body so nothing else resizes. */
+  input,
+  select,
+  textarea,
+  .field input,
+  .field select,
+  .field textarea {
+    font-size: 16px;
+  }
+
+  /* 44px is the documented minimum for a reliable finger tap. Material ships its buttons at 40,
+     which is fine with a mouse and meaningfully harder with a thumb. .btn is kept alongside for
+     any control not yet converted. */
+  .mat-mdc-button-base,
+  .mat-button-toggle-button,
+  .btn {
+    min-height: 44px;
   }
 
 }
 
-@media (max-width: 480px){
+/* ---------------------------------------------------------------------------
+   MATERIAL FORM DEFAULTS
 
-  .logo{
-    width: 70px;
+   mat-form-field is inline-block at a fixed ~180px by default, which is almost never what a
+   stacked form wants - the filter panel rendered 212px fields inside a 347px card. Every form
+   in this app is a full-width block layout, so this is the sane default here and saves each
+   converted page repeating it.
+   --------------------------------------------------------------------------- */
+
+mat-form-field {
+  width: 100%;
+}
+
+/* Two fields sharing a row (min/max price, first/last name) should still fill their column. */
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 30rem) {
+  /* Two number fields side by side stop being usable below about 480px - the labels truncate
+     before the values do. */
+  .field-row {
+    grid-template-columns: 1fr;
   }
+}
 
+/* ---------------------------------------------------------------------------
+   MATERIAL BUTTON VARIANTS
+
+   Two of the app's four button roles have no Material equivalent, so they are recoloured
+   through Material's own tokens rather than by overriding its painted styles - which keeps the
+   ripple, state layer and disabled treatment intact instead of fighting them.
+   --------------------------------------------------------------------------- */
+
+/* The storefront CTA is orange, not the primary blue: on a product page the "add to cart"
+   control has to out-rank every other blue control around it. */
+.mat-mdc-button-base.btn--cta {
+  --mat-button-filled-container-color: var(--ck-cta);
+  --mat-button-filled-label-text-color: #fff;
+  --mat-button-filled-state-layer-color: #fff;
+  --mat-button-filled-ripple-color: rgba(255, 255, 255, 0.24);
+}
+
+/* Destructive actions - erase, delete, revoke. Text rather than filled on purpose: a red
+   filled button next to a blue one reads as the primary action, which is the opposite of
+   what a destructive control should invite. */
+.mat-mdc-button-base.btn--danger-text {
+  --mat-button-text-label-text-color: var(--ck-danger);
+  --mat-button-text-state-layer-color: var(--ck-danger);
+  --mat-button-text-ripple-color: rgba(192, 57, 43, 0.16);
 }

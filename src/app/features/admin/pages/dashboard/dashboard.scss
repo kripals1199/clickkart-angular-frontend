@@ -1,0 +1,249 @@
+// Takes the storefront base, the badge and the tab strip only. This page renders no tabs,
+// toolbar or pager, so pulling in the console partial for them would ship rules it never draws
+// - which is what put it well over the component style budget. It still lands a little over the
+// 6kB default, which is why anyComponentStyle warns at 7kB: this page is three sections in one
+// and is genuinely the largest in the app. The 8kB error is still the real guardrail.
+@use '../../../storefront' as *;
+@use '../../../orders/badge' as *;
+@use '../../../account/account-nav' as *;
+
+// The one piece of console furniture this page uses.
+.row-skeleton {
+  height: 3.5rem;
+  margin-bottom: 0.75rem;
+  border-radius: var(--ck-r-sm);
+  background: linear-gradient(90deg, #f0f0f0 25%, #e4e4e4 37%, #f0f0f0 63%);
+  background-size: 400% 100%;
+}
+
+.board {
+  &__section { margin-bottom: 2rem; }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  &__title {
+    margin: 0 0 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__refresh {
+    padding: 0.45rem 0.85rem;
+    font-size: 0.8rem;
+  }
+
+  // The honest-caveat line under a panel grid or the registry.
+  &__stamp {
+    margin: 0.9rem 0 0;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: $muted;
+  }
+
+  &__clear {
+    text-align: center;
+    padding: 2rem 1rem;
+  }
+
+  &__clear-title {
+    margin: 0 0 0.4rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: $ok;
+  }
+
+  &__clear-copy {
+    margin: 0;
+    font-size: 0.85rem;
+    color: $muted;
+  }
+}
+
+// ---- worklist --------------------------------------------------------------
+.worklist {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.work {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1.5rem;
+  align-items: center;
+
+  // Money in the wrong place. Loud on purpose.
+  &--critical {
+    border-color: #f0c9c4;
+    background: #fffafa;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.4rem;
+  }
+
+  &__queue {
+    margin: 0;
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: $ink;
+  }
+
+  &__description {
+    margin: 0 0 0.35rem;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #414141;
+  }
+
+  &__owner {
+    margin: 0;
+    font-size: 0.72rem;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 8rem;
+  }
+
+  &__count {
+    margin: 0;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1;
+    color: $ink;
+  }
+
+  // Deliberately not a number, and deliberately not zero.
+  &__unknown {
+    margin: 0;
+    font-size: 0.78rem;
+    line-height: 1.25;
+    text-align: center;
+    color: $danger;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  &__action {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.8rem;
+  }
+
+  &__endpoint {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 0.68rem;
+    color: $muted;
+    text-align: center;
+    word-break: break-all;
+  }
+}
+
+// ---- panels ----------------------------------------------------------------
+.panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 1rem;
+}
+
+.panel {
+  &--down {
+    border-color: #f0c9c4;
+    background: #fffafa;
+  }
+
+  &__service {
+    margin: 0 0 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__counts { margin: 0; }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.28rem 0;
+    font-size: 0.875rem;
+
+    dt { color: $muted; }
+
+    dd {
+      margin: 0;
+      font-weight: 600;
+      color: $ink;
+    }
+  }
+
+  &__down {
+    margin: 0 0 0.35rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $danger;
+  }
+
+  &__reason {
+    margin: 0;
+    font-size: 0.76rem;
+    line-height: 1.45;
+    color: $muted;
+  }
+}
+
+// ---- registry --------------------------------------------------------------
+.registry {
+  padding: 0;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 1.1rem;
+    border-bottom: 1px solid $line;
+
+    &:last-child { border-bottom: 0; }
+  }
+
+  &__name {
+    font-size: 0.9rem;
+    color: $ink;
+  }
+
+  &__instances {
+    font-size: 0.8rem;
+    color: $muted;
+  }
+}
+
+@media (max-width: 50rem) {
+  .work {
+    grid-template-columns: 1fr;
+
+    &__right {
+      flex-direction: row;
+      justify-content: flex-start;
+    }
+  }
+}

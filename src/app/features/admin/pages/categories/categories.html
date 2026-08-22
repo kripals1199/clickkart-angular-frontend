@@ -1,0 +1,251 @@
+<div class="page">
+
+  <h1 class="page__title">Categories</h1>
+  <p class="page__subtitle">The catalog taxonomy, including branches hidden from the storefront.</p>
+
+  <nav mat-tab-nav-bar class="account-nav">
+    <a
+      mat-tab-link
+      routerLink="/admin"
+      routerLinkActive
+      #rla0="routerLinkActive"
+      [routerLinkActiveOptions]="{ exact: true }"
+      [active]="rla0.isActive"
+    >Dashboard</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/moderation"
+      routerLinkActive
+      #rla1="routerLinkActive"
+      [active]="rla1.isActive"
+    >Moderation</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/operations"
+      routerLinkActive
+      #rla2="routerLinkActive"
+      [active]="rla2.isActive"
+    >Operations</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/categories"
+      routerLinkActive
+      #rla3="routerLinkActive"
+      [active]="rla3.isActive"
+    >Categories</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/accounts"
+      routerLinkActive
+      #rla4="routerLinkActive"
+      [active]="rla4.isActive"
+    >Accounts</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/profiles"
+      routerLinkActive
+      #rla5="routerLinkActive"
+      [active]="rla5.isActive"
+    >Profiles</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/audit"
+      routerLinkActive
+      #rla6="routerLinkActive"
+      [active]="rla6.isActive"
+    >Audit</a>
+  </nav>
+
+  @if (savedMessage()) {
+    <p class="notice" role="status">{{ savedMessage() }}</p>
+  }
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (formOpen()) {
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <form class="category-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <h2 class="category-form__title">
+        {{ editingId() === null ? 'New category' : 'Edit category' }}
+      </h2>
+
+      <div class="category-form__row">
+        <mat-form-field appearance="outline">
+          <mat-label>Name</mat-label>
+          <input matInput id="name" type="text" formControlName="name" maxlength="120" />
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <mat-error>A name is required.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Slug</mat-label>
+          <input matInput id="slug" type="text" formControlName="slug" maxlength="140" placeholder="leave blank to derive" />
+          @if (form.controls.slug.touched && form.controls.slug.invalid) {
+            <mat-error>Lowercase letters, digits and single hyphens.</mat-error>
+          }
+          <mat-hint>This becomes the customer-visible URL segment.</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <div class="category-form__row">
+        <mat-form-field appearance="outline">
+          <mat-label>Parent</mat-label>
+          <mat-select id="parent" formControlName="parentPublicId">
+            <mat-option value="">None — this is a root category</mat-option>
+            @for (row of parentOptions(); track row.category.publicId) {
+              <mat-option [value]="row.category.publicId">
+                {{ '— '.repeat(row.depth) }}{{ row.category.name }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Display order</mat-label>
+          <input matInput id="displayOrder" type="number" min="0" formControlName="displayOrder" />
+          <mat-hint>Lower sorts first among siblings.</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Image URL</mat-label>
+        <input matInput id="imageUrl" type="url" formControlName="imageUrl" maxlength="500" placeholder="https://…" />
+        @if (form.controls.imageUrl.touched && form.controls.imageUrl.invalid) {
+          <mat-error>Must be an https:// URL, or left empty.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Description</mat-label>
+        <textarea matInput id="description" formControlName="description" rows="3" maxlength="1000"></textarea>
+      </mat-form-field>
+
+      <div class="category-form__actions">
+        <button type="submit" matButton="filled" [disabled]="saving()">
+          {{ saving() ? 'Saving…' : editingId() === null ? 'Create category' : 'Save changes' }}
+        </button>
+        <button type="button" matButton="outlined" (click)="cancel()">Cancel</button>
+      </div>
+            </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  @if (loading()) {
+
+    <mat-card appearance="outlined">
+      <mat-card-content>
+      <div class="skeleton row-skeleton" aria-hidden="true">
+    </div>
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+          </mat-card-content>
+    </mat-card>
+
+  } @else if (failed()) {
+
+    <p class="alert" role="alert">The category tree could not be loaded.</p>
+    <button type="button" matButton="outlined" (click)="load()">Try again</button>
+
+  } @else {
+
+    @if (!formOpen()) {
+      <button type="button" matButton="filled" class="btn--cta tree__add" (click)="startAdd()">New root category</button>
+    }
+
+    @if (rows().length === 0) {
+      <div class="empty">
+        <p class="empty__title">No categories yet</p>
+        <p class="empty__copy">Create a root category to start the taxonomy.</p>
+      </div>
+    } @else {
+      <mat-card appearance="outlined" class="tree">
+        <mat-card-content>
+        @for (row of rows(); track row.category.publicId) {
+          <div class="node" [style.padding-left.rem]="1 + row.depth * 1.5">
+
+            <div class="node__main">
+              <span class="node__name" [class.node__name--inactive]="!row.category.active">
+                {{ row.category.name }}
+              </span>
+
+              @if (!row.category.active) {
+                <span class="badge badge--neutral">Hidden</span>
+              }
+              @if (row.category.leaf) {
+                <span class="node__leaf">leaf — can hold products</span>
+              }
+
+              <span class="node__slug">/{{ row.category.slug }}</span>
+            </div>
+
+            <div class="node__actions">
+              <button
+                type="button"
+                matButton="outlined" class="node__action"
+                [disabled]="busyId() === row.category.publicId"
+                (click)="startEdit(row.category)"
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                matButton="outlined" class="node__action"
+                [disabled]="busyId() === row.category.publicId"
+                (click)="startAdd(row.category.publicId)"
+              >
+                Add child
+              </button>
+              <button
+                type="button"
+                matButton="outlined" class="node__action"
+                [disabled]="busyId() === row.category.publicId"
+                (click)="toggleActive(row.category)"
+              >
+                {{ row.category.active ? 'Hide' : 'Show' }}
+              </button>
+              <button
+                type="button"
+                matButton class="btn--danger-text"
+                [disabled]="busyId() === row.category.publicId"
+                (click)="confirmDelete(row.category.publicId)"
+              >
+                Delete
+              </button>
+            </div>
+
+            @if (confirmingDelete() === row.category.publicId) {
+              <div class="node__confirm">
+                <!-- Says what the platform actually does. Category deletion does not currently
+                     refuse a category that still has products on it, so promising the server will
+                     catch that would be wrong. Hiding is the reversible option. -->
+                <p class="warn">
+                  Delete <strong>{{ row.category.name }}</strong>? This cannot be undone, and the
+                  platform does not currently stop you deleting a category that still has products
+                  assigned to it. If you only want it off the storefront, hide it instead.
+                </p>
+                <div class="node__confirm-actions">
+                  <button
+                    type="button"
+                    matButton="filled" class="btn--cta"
+                    [disabled]="busyId() === row.category.publicId"
+                    (click)="remove(row.category)"
+                  >
+                    Delete permanently
+                  </button>
+                  <button type="button" matButton="outlined" (click)="cancelDelete()">Keep it</button>
+                </div>
+              </div>
+            }
+
+          </div>
+        }
+              </mat-card-content>
+      </mat-card>
+    }
+
+  }
+
+</div>

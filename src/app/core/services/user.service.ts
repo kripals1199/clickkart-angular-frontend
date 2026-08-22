@@ -10,6 +10,8 @@ import {
   UpdatePreferencesRequest,
   UpdateProfileRequest,
   UserProfile,
+  SellerProfile,
+  UpsertSellerProfileRequest,
 } from '@core/models/user.model';
 
 /**
@@ -36,6 +38,39 @@ export class UserService {
    */
   updatePreferences(request: UpdatePreferencesRequest): Observable<ApiResponse<UserProfile>> {
     return this.http.put<ApiResponse<UserProfile>>(`${this.me}/preferences`, request);
+  }
+
+  /**
+   * Erases the signed-in customer's own personal data. Irreversible: profile fields cleared,
+   * marketing consent withdrawn, every saved address scrubbed and deleted.
+   *
+   * <p>Afterwards reads still work and report `erasedAt`, but every write returns 409 - so a
+   * caller must stop offering edits once it has happened rather than letting them fail.
+   *
+   * <p>Refused with 409 while the account has a seller profile: business records carry statutory
+   * retention obligations. That is a real reason worth relaying, not a generic failure.
+   *
+   * <p>Distinct from the account itself, which lives in Auth Service and can still sign in.
+   */
+  eraseMyData(): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(this.me);
+  }
+
+  /**
+   * The seller's own business profile. Readable by any authenticated account - it returns 404 when
+   * there is no seller profile - while the write additionally requires ROLE_SELLER.
+   */
+  sellerProfile(): Observable<ApiResponse<SellerProfile>> {
+    return this.http.get<ApiResponse<SellerProfile>>(`${this.me}/seller`);
+  }
+
+  /**
+   * Creates on first call, updates thereafter. Note what is not here: verificationStatus. A seller
+   * cannot verify themselves - only an operator decides that - so it is absent from the request
+   * rather than present and ignored.
+   */
+  upsertSellerProfile(request: UpsertSellerProfileRequest): Observable<ApiResponse<SellerProfile>> {
+    return this.http.put<ApiResponse<SellerProfile>>(`${this.me}/seller`, request);
   }
 
   addresses(): Observable<ApiResponse<Address[]>> {

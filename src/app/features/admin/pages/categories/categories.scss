@@ -1,0 +1,113 @@
+// This page draws no tab strip, toolbar or pager, so it imports the pieces it actually renders
+// rather than the whole admin partial - carrying console chrome it never shows is what pushed it
+// past the component style budget.
+@use '../../../storefront' as *;
+@use '../../../orders/badge' as *;
+@use '../../../account/account-nav' as *;
+
+// The one piece of console furniture this page does use.
+.row-skeleton {
+  height: 3.5rem;
+  margin-bottom: 0.75rem;
+}
+
+
+.tree {
+  padding: 0;
+
+  &__add { margin-bottom: 1.25rem; }
+}
+
+.node {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid $line;
+
+  &:last-child { border-bottom: 0; }
+
+  &__main {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+
+  &__name {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: $ink;
+
+    // Hidden branches stay legible but visibly demoted - an operator needs to find them to unhide.
+    &--inactive {
+      color: $muted;
+      font-weight: 400;
+    }
+  }
+
+  &__slug {
+    font-size: 0.75rem;
+    color: $muted;
+    letter-spacing: 0.02em;
+  }
+
+  &__leaf {
+    font-size: 0.7rem;
+    color: $ok;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  &__action {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.76rem;
+  }
+
+  &__confirm {
+    grid-column: 1 / -1;
+    margin-top: 0.6rem;
+  }
+
+  &__confirm-actions {
+    display: flex;
+    gap: 0.6rem;
+  }
+}
+
+.category-form {
+  margin-bottom: 1.5rem;
+
+  &__title {
+    margin: 0 0 1.25rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 50rem) {
+  .node { grid-template-columns: 1fr; }
+  .category-form__row { grid-template-columns: 1fr; }
+}

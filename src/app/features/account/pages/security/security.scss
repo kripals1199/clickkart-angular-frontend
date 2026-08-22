@@ -1,0 +1,87 @@
+@use '../../../storefront' as *;
+@use '../../account-nav' as *;
+
+.security {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+
+  &__section { padding: 1.25rem; }
+
+  &__heading {
+    margin: 0 0 1.25rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__prose {
+    margin: 0 0 1.25rem;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: $muted;
+
+    &--small { font-size: 0.75rem; margin: 1.25rem 0 0; }
+  }
+
+  &__inline-error {
+    margin: -0.5rem 0 1rem;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  &__channels {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+.channel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid $line;
+  border-radius: var(--ck-r-sm);
+
+  &__name {
+    margin: 0 0 0.15rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $ink;
+  }
+
+  &__value {
+    margin: 0;
+    font-size: 0.8rem;
+    color: $muted;
+  }
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: $ink;
+  cursor: pointer;
+
+  input {
+    width: 1rem;
+    height: 1rem;
+    accent-color: $brand;
+  }
+}
+
+@media (max-width: 60rem) {
+  .security { grid-template-columns: 1fr; }
+}

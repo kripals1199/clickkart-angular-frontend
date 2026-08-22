@@ -1,13 +1,27 @@
-<div class="category-container">
+@if (loading()) {
 
-  @for(category of categories(); track category) {
+  <div class="category-container">
+    @for (placeholder of [1,2,3,4,5,6,7,8]; track placeholder) {
+      <div class="category-card category-card--skeleton" aria-hidden="true"></div>
+    }
+  </div>
 
-    <div class="category-card">
+} @else if (categories().length > 0) {
 
-      {{ category }}
+  <nav class="category-container" aria-label="Shop by category">
+    @for (category of categories(); track category.publicId) {
+      <!-- The category page, not the product filter. These are root categories, and product
+           search matches a category exactly while products attach only to leaves - so filtering
+           by a root returns nothing, every time. -->
+      <a class="category-card" [routerLink]="['/categories', category.slug]">
+        @if (category.imageUrl) {
+          <img class="category-card__image" [src]="category.imageUrl" [alt]="" />
+        } @else {
+          <span class="category-card__initial" aria-hidden="true">{{ initial(category) }}</span>
+        }
+        <span class="category-card__name">{{ category.name }}</span>
+      </a>
+    }
+  </nav>
 
-    </div>
-
-  }
-
-</div>
+}

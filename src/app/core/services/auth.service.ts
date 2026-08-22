@@ -1,17 +1,24 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
+import { finalize, map, shareReplay } from 'rxjs/operators';
 
 import { environment } from '@env/environment';
 import {
   AuthTokens,
+  ChangePasswordRequest,
+  ConfirmContactVerificationRequest,
   ForgotPasswordRequest,
   LoginRequest,
   LoginResponse,
+  OtpChannel,
   RegisterRequest,
+  RequestContactVerificationRequest,
+  RequestOtpRequest,
   ResetPasswordRequest,
   SessionUser,
   UserSummary,
+  VerifyOtpRequest,
 } from '@core/models/auth.model';
 import { ApiResponse } from '@core/models/api-response';
 
@@ -41,6 +48,12 @@ export class AuthService {
   private readonly baseUrl = `${environment.gatewayUrl}/api/v1/auth`;
 
   private readonly accessToken = signal<string | null>(localStorage.getItem(ACCESS_TOKEN_KEY));
+
+  /**
+   * The one refresh currently in flight, shared by every caller that asked while it was running.
+   * Null when none is.
+   */
+  private refreshInFlight: Observable<string> | null = null;
   private readonly user = signal<SessionUser | null>(null);
 
   readonly currentUser = this.user.asReadonly();
@@ -62,14 +75,30 @@ export class AuthService {
     return this.roles().includes(role.startsWith('ROLE_') ? role : `ROLE_${role}`);
   }
 
-  /**
-   * Registration returns the same payload as login, so a successful sign-up leaves the user signed
-   * in rather than bouncing them to a login form to retype what they just typed.
-   */
-  register(request: RegisterRequest): Observable<ApiResponse<LoginResponse>> {
+  register(
+    request: RegisterRequest
+  ): Observable<ApiResponse<LoginResponse>> {
+
     return this.http
-      .post<ApiResponse<LoginResponse>>(`${this.baseUrl}/register`, request)
-      .pipe(tap((res) => res.data && this.store(res.data)));
+      .post<ApiResponse<LoginResponse>>(
+        `${this.baseUrl}/register`,
+        request
+      )
+      .pipe(
+        tap((res) => {
+
+          if (res.success) {
+            this.store(res.data);
+          } else {
+            console.error(
+              'Registration failed:',
+              res.error?.code,
+              res.message
+            );
+          }
+
+        })
+      );
   }
 
   /**
@@ -130,6 +159,93 @@ export class AuthService {
    */
   resetPassword(request: ResetPasswordRequest): Observable<ApiResponse<void>> {
     return this.http.post<ApiResponse<void>>(`${this.baseUrl}/reset-password`, request);
+  }
+
+  /**
+   * Changes the password of the signed-in account. The current one is required even though the
+   * session is already authenticated: a stolen token should not be enough to lock the real owner
+   * out. Establishes no new session - the existing token keeps working.
+   */
+  changePassword(request: ChangePasswordRequest): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.baseUrl}/change-password`, request);
+  }
+
+  /**
+   * Sends a code to the address or number already on the account. There is no parameter for a new
+   * contact on purpose - this proves you control what is on file, it does not change it.
+   */
+  requestContactVerification(channel: OtpChannel): Observable<ApiResponse<void>> {
+    const request: RequestContactVerificationRequest = { channel };
+    return this.http.post<ApiResponse<void>>(`${this.baseUrl}/verify-contact/request`, request);
+  }
+
+  confirmContactVerification(channel: OtpChannel, code: string): Observable<ApiResponse<void>> {
+    const request: ConfirmContactVerificationRequest = { channel, code };
+    return this.http.post<ApiResponse<void>>(`${this.baseUrl}/verify-contact/confirm`, request);
+  }
+
+  /**
+   * Step one of passwordless sign-in. Public, and answered identically whether or not the
+   * identifier matches an account - so callers must not report "no such account" from it either.
+   */
+  requestOtp(identifier: string, channel: OtpChannel): Observable<ApiResponse<void>> {
+    const request: RequestOtpRequest = { identifier, channel };
+    return this.http.post<ApiResponse<void>>(`${this.baseUrl}/otp/request`, request);
+  }
+
+  /**
+   * Step two. Returns the same payload as a password login and therefore establishes a session the
+   * same way - which is why it goes through store() rather than being treated as a bare check.
+   */
+  verifyOtp(identifier: string, otp: string): Observable<ApiResponse<LoginResponse>> {
+    const request: VerifyOtpRequest = { identifier, otp };
+    return this.http
+      .post<ApiResponse<LoginResponse>>(`${this.baseUrl}/otp/verify`, request)
+      .pipe(tap((res) => res.data && this.store(res.data)));
+  }
+
+  /**
+   * Refreshes the access token, at most once at a time.
+   *
+   * <p>The single-flight is not an optimisation. Refresh tokens rotate, and Auth Service treats a
+   * second presentation of an already-rotated token as reuse: it revokes the entire session family
+   * and records REFRESH_TOKEN_REUSE_DETECTED. So if three requests expire together and each fires
+   * its own refresh, the first rotates the token and the other two look exactly like a stolen one
+   * being replayed - the user is hard-signed-out and a security event is logged, which is strictly
+   * worse than never refreshing at all. Everyone waits on the same call instead.
+   */
+  refreshAccessToken(): Observable<string> {
+    if (this.refreshInFlight) {
+      return this.refreshInFlight;
+    }
+
+    this.refreshInFlight = this.refresh().pipe(
+      map((res) => {
+        const token = res.data?.accessToken;
+        if (!token) {
+          throw new Error('Refresh returned no access token');
+        }
+        return token;
+      }),
+      // Cleared on success or failure alike, so the next expiry starts a fresh attempt rather than
+      // replaying a stale result.
+      finalize(() => {
+        this.refreshInFlight = null;
+      }),
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
+
+    return this.refreshInFlight;
+  }
+
+  /** True when a refresh token exists to attempt with - there is no point trying without one. */
+  canRefresh(): boolean {
+    return !!localStorage.getItem(REFRESH_TOKEN_KEY);
+  }
+
+  /** Ends the session locally, without the server round trip. Used when refresh has already failed. */
+  endSession(): void {
+    this.clear();
   }
 
   private store(response: LoginResponse): void {

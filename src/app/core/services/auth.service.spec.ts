@@ -31,6 +31,7 @@ describe('AuthService', () => {
       timestamp: '2026-08-17T10:00:00Z',
       status: 200,
       success: true,
+      error: null,
       data: {
         tokens: {
           accessToken: token,
@@ -154,6 +155,7 @@ describe('AuthService', () => {
       timestamp: '2026-08-17T10:00:00Z',
       status: 200,
       success: true,
+      error: null,
       data: null,
       message: null,
       path: '/api/v1/auth/reset-password',

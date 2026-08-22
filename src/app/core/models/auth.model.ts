@@ -87,3 +87,39 @@ export interface SessionUser {
   email: string;
   roles: string[];
 }
+
+/** Which way a one-time code travels. The account's own address or number is used, never a new one. */
+export type OtpChannel = 'EMAIL' | 'SMS';
+
+/**
+ * Changing a password requires proving you know the current one, even though the session is already
+ * authenticated. A stolen session should not be enough to lock the real owner out of their account.
+ */
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+/** Verifying a contact you already have on file - the channel says which one. */
+export interface RequestContactVerificationRequest {
+  channel: OtpChannel;
+}
+
+export interface ConfirmContactVerificationRequest {
+  channel: OtpChannel;
+  code: string;
+}
+
+/**
+ * Passwordless sign-in. `identifier` resolves the same way as password login - email, mobile or
+ * public id - and the request is answered identically whether or not it matches an account.
+ */
+export interface RequestOtpRequest {
+  identifier: string;
+  channel: OtpChannel;
+}
+
+export interface VerifyOtpRequest {
+  identifier: string;
+  otp: string;
+}

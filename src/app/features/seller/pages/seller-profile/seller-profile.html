@@ -1,0 +1,158 @@
+<div class="page">
+
+  <h1 class="page__title">Business details</h1>
+  <p class="page__subtitle">Who you trade as, and how customers and couriers reach you.</p>
+
+  <nav mat-tab-nav-bar class="account-nav">
+    <a
+      mat-tab-link
+      routerLink="/seller/profile"
+      routerLinkActive
+      #rla0="routerLinkActive"
+      [active]="rla0.isActive"
+    >Business</a>
+    <a
+      mat-tab-link
+      routerLink="/seller/products"
+      routerLinkActive
+      #rla1="routerLinkActive"
+      [active]="rla1.isActive"
+    >Listings</a>
+    <a
+      mat-tab-link
+      routerLink="/seller/stock"
+      routerLinkActive
+      #rla2="routerLinkActive"
+      [active]="rla2.isActive"
+    >Stock</a>
+    <a
+      mat-tab-link
+      routerLink="/seller/orders"
+      routerLinkActive
+      #rla3="routerLinkActive"
+      [active]="rla3.isActive"
+    >Orders</a>
+  </nav>
+
+  @if (loading()) {
+
+    <mat-card appearance="outlined">
+      <mat-card-content>
+      <div class="skeleton row-skeleton" aria-hidden="true">
+    </div>
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+          </mat-card-content>
+    </mat-card>
+
+  } @else if (failed()) {
+
+    <p class="alert" role="alert">Your business details could not be loaded.</p>
+    <button type="button" matButton="outlined" (click)="load()">Try again</button>
+
+  } @else {
+
+    @if (savedMessage()) {
+      <p class="notice" role="status">{{ savedMessage() }}</p>
+    }
+    @if (errorMessage()) {
+      <p class="alert" role="alert">{{ errorMessage() }}</p>
+    }
+
+    @if (isNew()) {
+      <p class="warn">
+        You haven't set up your business details yet. Saving them puts your account into the
+        verification queue — an operator checks the registration before your listings can go on sale.
+      </p>
+    } @else if (status(); as s) {
+      <mat-card appearance="outlined" class="status">
+        <mat-card-content>
+        <div class="status__head">
+          <span [class]="'badge badge--' + s.tone">{{ s.label }}</span>
+          <span class="status__hint">{{ s.hint }}</span>
+        </div>
+
+        @if (profile()?.verificationNote) {
+          <p class="status__note">Operator's note: {{ profile()?.verificationNote }}</p>
+        }
+        @if (profile()?.verificationDecidedAt) {
+          <p class="status__when">
+            Decided {{ profile()?.verificationDecidedAt | date: 'd MMM y, HH:mm' }}
+          </p>
+        }
+              </mat-card-content>
+      </mat-card>
+    }
+
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <form class="seller-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Trading name</mat-label>
+        <input matInput id="businessName" type="text" formControlName="businessName" maxlength="150" />
+        @if (form.controls.businessName.touched && form.controls.businessName.invalid) {
+          <mat-error>A trading name is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>GSTIN</mat-label>
+        <input matInput id="gstin" type="text" formControlName="gstin" maxlength="15" autocapitalize="characters" spellcheck="false" />
+        @if (form.controls.gstin.touched && form.controls.gstin.invalid) {
+          <mat-error>Must be a valid 15-character GSTIN.</mat-error>
+        }
+        <mat-hint>
+          Checked for shape here, and against the register by an operator during verification.
+        </mat-hint>
+      </mat-form-field>
+
+      <div class="seller-form__row">
+        <mat-form-field appearance="outline">
+          <mat-label>Support email</mat-label>
+          <input matInput id="supportEmail" type="email" formControlName="supportEmail" maxlength="254" />
+          @if (form.controls.supportEmail.touched && form.controls.supportEmail.invalid) {
+            <mat-error>Enter a valid email address.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Support phone</mat-label>
+          <input matInput id="supportPhone" type="tel" formControlName="supportPhone" inputmode="numeric" maxlength="10" />
+          @if (form.controls.supportPhone.touched && form.controls.supportPhone.invalid) {
+            <mat-error>10 digits, starting with 6, 7, 8 or 9.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Pickup address</mat-label>
+        <mat-select id="pickupAddressId" formControlName="pickupAddressId">
+          <mat-option value="">None nominated</mat-option>
+          @for (address of addresses(); track address.id) {
+            <mat-option [value]="address.id">
+              {{ address.label }} — {{ address.line1 }}, {{ address.city }} {{ address.postalCode }}
+            </mat-option>
+          }
+        </mat-select>
+        <mat-hint>
+          Comes from your own address book, on
+          <a routerLink="/account/addresses">Addresses</a>. Couriers collect from here.
+        </mat-hint>
+      </mat-form-field>
+
+      <button type="submit" matButton="filled" [disabled]="saving()">
+        {{ saving() ? 'Saving…' : isNew() ? 'Save and request verification' : 'Save changes' }}
+      </button>
+
+      <!-- Said plainly because the field is visibly absent from the form above. -->
+      <p class="seller-form__note">
+        Verification is not something you can set — an operator reviews these details and decides.
+      </p>
+
+            </form>
+      </mat-card-content>
+    </mat-card>
+
+  }
+
+</div>

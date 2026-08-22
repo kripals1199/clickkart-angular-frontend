@@ -1,0 +1,255 @@
+<div class="page">
+
+  <h1 class="page__title">Accounts</h1>
+  <p class="page__subtitle">Credentials, roles and lockouts. Profiles and addresses live elsewhere.</p>
+
+  <nav mat-tab-nav-bar class="account-nav">
+    <a
+      mat-tab-link
+      routerLink="/admin"
+      routerLinkActive
+      #rla0="routerLinkActive"
+      [routerLinkActiveOptions]="{ exact: true }"
+      [active]="rla0.isActive"
+    >Dashboard</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/moderation"
+      routerLinkActive
+      #rla1="routerLinkActive"
+      [active]="rla1.isActive"
+    >Moderation</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/operations"
+      routerLinkActive
+      #rla2="routerLinkActive"
+      [active]="rla2.isActive"
+    >Operations</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/categories"
+      routerLinkActive
+      #rla3="routerLinkActive"
+      [active]="rla3.isActive"
+    >Categories</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/accounts"
+      routerLinkActive
+      #rla4="routerLinkActive"
+      [active]="rla4.isActive"
+    >Accounts</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/profiles"
+      routerLinkActive
+      #rla5="routerLinkActive"
+      [active]="rla5.isActive"
+    >Profiles</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/audit"
+      routerLinkActive
+      #rla6="routerLinkActive"
+      [active]="rla6.isActive"
+    >Audit</a>
+  </nav>
+
+  @if (savedMessage()) {
+    <p class="notice" role="status">{{ savedMessage() }}</p>
+  }
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  <div class="toolbar">
+    <div class="tabs">
+      @for (option of roles; track option.label) {
+        <button
+          type="button"
+          class="tabs__tab"
+          [class.tabs__tab--active]="roleFilter() === option.value"
+          (click)="setRole(option.value)"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+
+    <div class="tabs">
+      <button type="button" class="tabs__tab" [class.tabs__tab--active]="lockedFilter() === null" (click)="setLocked(null)">
+        Any state
+      </button>
+      <button type="button" class="tabs__tab" [class.tabs__tab--active]="lockedFilter() === true" (click)="setLocked(true)">
+        Locked
+      </button>
+      <button type="button" class="tabs__tab" [class.tabs__tab--active]="lockedFilter() === false" (click)="setLocked(false)">
+        Unlocked
+      </button>
+    </div>
+  </div>
+
+  <div class="search">
+    <input
+      type="search"
+      [ngModel]="emailQuery()"
+      (ngModelChange)="emailQuery.set($event)"
+      (keyup.enter)="search()"
+      placeholder="Filter by email"
+      aria-label="Filter by email"
+    />
+    <button type="button" matButton="outlined" (click)="search()">Search</button>
+  </div>
+
+  @if (loading()) {
+
+    <mat-card appearance="outlined">
+      <mat-card-content>
+      <div class="skeleton row-skeleton" aria-hidden="true">
+    </div>
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+          </mat-card-content>
+    </mat-card>
+
+  } @else if (failed()) {
+
+    <p class="alert" role="alert">Accounts could not be loaded.</p>
+    <button type="button" matButton="outlined" (click)="fetch(0)">Try again</button>
+
+  } @else if (accounts().length === 0) {
+
+    <div class="empty">
+      <p class="empty__title">No accounts match</p>
+      <p class="empty__copy">Try a different role, state or email.</p>
+    </div>
+
+  } @else {
+
+    <div class="queue">
+      @for (account of accounts(); track account.publicId) {
+        <mat-card appearance="outlined" class="item">
+          <mat-card-content>
+
+          <div class="item__main">
+            <div class="item__head">
+              <p class="item__name">{{ account.email }}</p>
+
+              @if (account.locked) {
+                <span class="badge badge--bad">Locked</span>
+              }
+              @if (!account.enabled) {
+                <span class="badge badge--neutral">Deleted</span>
+              }
+              @if (isSelf(account)) {
+                <span class="badge badge--pending">You</span>
+              }
+            </div>
+
+            <p class="item__seller">{{ account.publicId }}</p>
+
+            <p class="item__meta">
+              {{ account.mobileNumber }} ·
+              {{ account.roles.length ? account.roles.join(', ') : 'no roles' }}
+            </p>
+
+            <p class="item__meta">
+              Joined {{ account.createdDate | date: 'd MMM y' }}
+              @if (account.lastLoginAt) {
+                · last signed in {{ account.lastLoginAt | date: 'd MMM y, HH:mm' }}
+              } @else {
+                · never signed in
+              }
+            </p>
+
+            <p class="item__meta">
+              Email {{ account.emailVerified ? 'verified' : 'unverified' }} ·
+              mobile {{ account.mobileVerified ? 'verified' : 'unverified' }}
+            </p>
+          </div>
+
+          <div class="item__actions">
+            @if (isSelf(account)) {
+              <!-- No self-service lockout. The server may well allow it; letting an operator do it
+                   by accident costs someone else a database edit to undo. -->
+              <span class="item__final">This is your own account</span>
+            } @else {
+              @if (account.locked) {
+                <button
+                  type="button"
+                  matButton="filled" class="item__action"
+                  [disabled]="busyId() === account.publicId"
+                  (click)="unlock(account)"
+                >
+                  Unlock
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  matButton="outlined" class="item__action"
+                  [disabled]="busyId() === account.publicId"
+                  (click)="lock(account)"
+                >
+                  Lock
+                </button>
+              }
+
+              @if (account.enabled) {
+                <button
+                  type="button"
+                  matButton class="btn--danger-text"
+                  [disabled]="busyId() === account.publicId"
+                  (click)="confirmDelete(account.publicId)"
+                >
+                  Delete
+                </button>
+              }
+            }
+          </div>
+
+          @if (confirmingDelete() === account.publicId) {
+            <div class="decision">
+              <p class="warn">
+                Delete <strong>{{ account.email }}</strong>? This is a soft delete — the record stays
+                so past orders and audit entries still resolve to someone, but the account can no
+                longer sign in.
+              </p>
+              <div class="decision__actions">
+                <button
+                  type="button"
+                  matButton="filled" class="btn--cta"
+                  [disabled]="busyId() === account.publicId"
+                  (click)="remove(account)"
+                >
+                  Delete account
+                </button>
+                <button type="button" matButton="outlined" (click)="cancelDelete()">Keep it</button>
+              </div>
+            </div>
+          }
+
+                  </mat-card-content>
+        </mat-card>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <!-- hidePageSize because the page size is the server's, not the visitor's: every
+           fetch here sends a fixed size, so offering a selector would show a control that
+           does not change the request. First/last are on - with an unknown number of
+           pages, "jump to the end" is the one move Previous/Next cannot do. -->
+      <mat-paginator
+        class="pager"
+        [length]="totalElements()"
+        [pageSize]="pageSize()"
+        [pageIndex]="pageIndex()"
+        [hidePageSize]="true"
+        [showFirstLastButtons]="true"
+        (page)="fetch($event.pageIndex)"
+        aria-label="Select page"
+      />
+    }
+
+  }
+
+</div>

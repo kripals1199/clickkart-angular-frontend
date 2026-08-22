@@ -2,10 +2,19 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+
 import { CatalogService } from '@core/services/catalog.service';
 import { Category, Product, ProductSearchParams } from '@core/models/catalog.model';
 import { PageResponse } from '@core/models/api-response';
 import { cheapestVariant } from '@shared/pricing';
+import { AvailabilityService } from '@core/services/availability.service';
+import { Availability, describeAvailability } from '@core/models/availability.model';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 /**
  * The listing page: search, filters and paging over the public catalog.
@@ -18,12 +27,22 @@ import { cheapestVariant } from '@shared/pricing';
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatPaginatorModule,
+  ],
   templateUrl: './product-list.html',
   styleUrl: './product-list.scss',
 })
 export class ProductList {
   private readonly catalog = inject(CatalogService);
+  private readonly availability = inject(AvailabilityService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
@@ -33,9 +52,15 @@ export class ProductList {
   readonly page = signal<PageResponse<Product> | null>(null);
   readonly categories = signal<Category[]>([]);
 
+  /** Availability for the SKUs this page quotes, keyed by SKU. */
+  readonly stock = signal<Map<string, Availability>>(new Map());
+
   readonly products = computed(() => this.page()?.content ?? []);
   readonly total = computed(() => this.page()?.totalElements ?? 0);
   readonly pageIndex = computed(() => this.page()?.page ?? 0);
+  /** Total rows and server page size, read off the page envelope for mat-paginator. */
+  readonly totalElements = computed(() => this.page()?.totalElements ?? 0);
+  readonly pageSize = computed(() => this.page()?.size ?? 20);
   readonly totalPages = computed(() => this.page()?.totalPages ?? 0);
   readonly isLast = computed(() => this.page()?.last ?? true);
 
@@ -48,8 +73,10 @@ export class ProductList {
   });
 
   constructor() {
-    this.catalog.rootCategories().subscribe({
-      next: (res) => this.categories.set(res.data ?? []),
+    // Leaves, not roots. The filter is an exact match on categoryPublicId and a product can
+    // only be assigned to a leaf, so offering a branch here guarantees an empty result set.
+    this.catalog.categoryTree().subscribe({
+      next: (res) => this.categories.set(leavesOf(res.data ?? [])),
       // A filter dropdown that cannot load is a missing convenience, not a broken page - the
       // listing itself still works, so this failure stays quiet.
       error: () => this.categories.set([]),
@@ -97,6 +124,16 @@ export class ProductList {
     return cheapestVariant(product);
   }
 
+  /**
+   * The band for the variant this tile quotes, not for the product as a whole. A listing can have
+   * one size sold out and the rest in stock, and the tile is only ever making a claim about the
+   * option it is showing a price for.
+   */
+  describeStock(product: Product) {
+    const variant = cheapestVariant(product);
+    return variant ? describeAvailability(this.stock().get(variant.sku)) : null;
+  }
+
   private fetch(page: number): void {
     this.loading.set(true);
     this.failed.set(false);
@@ -107,11 +144,33 @@ export class ProductList {
       next: (res) => {
         this.page.set(res.data);
         this.loading.set(false);
+        this.loadAvailability();
       },
       error: () => {
         this.loading.set(false);
         this.failed.set(true);
       },
+    });
+  }
+
+  /**
+   * One bulk lookup per page of results, for the quoted SKUs only - not every variant of every
+   * product, which would be a much larger request to render a single badge per tile.
+   */
+  private loadAvailability(): void {
+    const skus = this.products()
+      .map((product) => cheapestVariant(product)?.sku)
+      .filter((sku): sku is string => !!sku);
+
+    if (skus.length === 0) {
+      this.stock.set(new Map());
+      return;
+    }
+
+    this.availability.forSkus(skus).subscribe({
+      // Badges are an enhancement; the listing is still usable without them.
+      next: (map) => this.stock.set(map),
+      error: () => this.stock.set(new Map()),
     });
   }
 
@@ -130,4 +189,19 @@ export class ProductList {
     }
     return out;
   }
+}
+
+/** Flattens a category tree to its active leaves, sorted by name. */
+function leavesOf(tree: Category[]): Category[] {
+  const out: Category[] = [];
+  const walk = (nodes: Category[]) => {
+    for (const node of nodes) {
+      if (node.leaf && node.active) {
+        out.push(node);
+      }
+      walk(node.children ?? []);
+    }
+  };
+  walk(tree);
+  return out.sort((a, b) => a.name.localeCompare(b.name));
 }

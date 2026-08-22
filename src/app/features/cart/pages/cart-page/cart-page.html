@@ -4,22 +4,25 @@
 
   @if (loading()) {
 
-    <div class="card">
-      <div class="skeleton basket__skeleton" aria-hidden="true"></div>
-      <div class="skeleton basket__skeleton" aria-hidden="true"></div>
+    <mat-card appearance="outlined">
+      <mat-card-content>
+      <div class="skeleton basket__skeleton" aria-hidden="true">
     </div>
+      <div class="skeleton basket__skeleton" aria-hidden="true"></div>
+          </mat-card-content>
+    </mat-card>
 
   } @else if (failed()) {
 
     <p class="alert" role="alert">Your basket could not be loaded.</p>
-    <button type="button" class="btn btn--quiet" (click)="reload()">Try again</button>
+    <button type="button" matButton="outlined" (click)="reload()">Try again</button>
 
   } @else if (isEmpty()) {
 
     <div class="empty">
       <p class="empty__title">Your basket is empty</p>
       <p class="empty__copy">Once you add something, it'll show up here.</p>
-      <a class="btn btn--cta" routerLink="/products">Start shopping</a>
+      <a matButton="filled" class="btn--cta" routerLink="/products">Start shopping</a>
     </div>
 
   } @else if (contents(); as cart) {
@@ -101,7 +104,7 @@
               }
               <button
                 type="button"
-                class="btn btn--danger-text"
+                matButton class="btn--danger-text"
                 [disabled]="busySku() === item.sku"
                 (click)="remove(item.sku)"
               >
@@ -112,12 +115,13 @@
           </article>
         }
 
-        <button type="button" class="btn btn--quiet basket__clear" (click)="clear()">
+        <button type="button" matButton="outlined" class="basket__clear" (click)="clear()">
           Empty basket
         </button>
       </section>
 
-      <aside class="summary card">
+      <mat-card appearance="outlined" class="summary">
+        <mat-card-content>
         <h2 class="summary__title">Summary</h2>
 
         <div class="summary__row">
@@ -146,7 +150,7 @@
              which is exactly the case this flag exists to prevent. -->
         <button
           type="button"
-          class="btn btn--cta summary__checkout"
+          matButton="filled" class="btn--cta summary__checkout"
           [disabled]="!cart.readyForCheckout"
           (click)="goToCheckout()"
         >
@@ -158,7 +162,8 @@
             Checkout opens once every item in the basket is available.
           </p>
         }
-      </aside>
+              </mat-card-content>
+      </mat-card>
 
     </div>
 

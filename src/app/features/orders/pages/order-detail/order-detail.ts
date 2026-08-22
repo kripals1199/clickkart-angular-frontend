@@ -9,6 +9,11 @@ import { CartService } from '@core/services/cart.service';
 import { Order, OrderItem } from '@core/models/order.model';
 import { Payment, PaymentMethod } from '@core/models/payment.model';
 import { describeFulfilment, describeOrderStatus, isCancellable, isPayable } from '@shared/order-status';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+import { MatCardModule } from '@angular/material/card';
 
 /**
  * One order, and the only place a customer pays for one.
@@ -25,7 +30,13 @@ import { describeFulfilment, describeOrderStatus, isCancellable, isPayable } fro
 @Component({
   selector: 'app-order-detail',
   standalone: true,
-  imports: [RouterLink, DatePipe, FormsModule],
+  imports: [RouterLink, DatePipe, FormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatInputModule,
+    MatCardModule,
+  ],
   templateUrl: './order-detail.html',
   styleUrl: './order-detail.scss',
 })

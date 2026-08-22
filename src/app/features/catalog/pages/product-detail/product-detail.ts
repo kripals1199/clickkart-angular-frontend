@@ -6,6 +6,9 @@ import { CatalogService } from '@core/services/catalog.service';
 import { CartService } from '@core/services/cart.service';
 import { AuthService } from '@core/services/auth.service';
 import { Product, Variant } from '@core/models/catalog.model';
+import { AvailabilityService } from '@core/services/availability.service';
+import { Availability, describeAvailability } from '@core/models/availability.model';
+import { MatButtonModule } from '@angular/material/button';
 
 /**
  * One listing, and the place a basket actually gets filled.
@@ -18,13 +21,16 @@ import { Product, Variant } from '@core/models/catalog.model';
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [RouterLink, KeyValuePipe],
+  imports: [RouterLink, KeyValuePipe,
+    MatButtonModule,
+  ],
   templateUrl: './product-detail.html',
   styleUrl: './product-detail.scss',
 })
 export class ProductDetail {
   private readonly catalog = inject(CatalogService);
   private readonly cart = inject(CartService);
+  private readonly availability = inject(AvailabilityService);
   private readonly auth = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -33,6 +39,9 @@ export class ProductDetail {
   readonly notFound = signal(false);
   readonly product = signal<Product | null>(null);
   readonly selectedSku = signal<string | null>(null);
+
+  /** Keyed by SKU. Absent means "not looked up yet", which is not the same as out of stock. */
+  readonly stock = signal<Map<string, Availability>>(new Map());
 
   readonly adding = signal(false);
   readonly added = signal(false);
@@ -49,6 +58,18 @@ export class ProductDetail {
 
   readonly isAuthenticated = this.auth.isAuthenticated;
 
+  readonly selectedStock = computed(() => {
+    const sku = this.selectedSku();
+    return sku ? this.stock().get(sku) : undefined;
+  });
+
+  /**
+   * Blocked only on a definite OUT_OF_STOCK. If availability has not loaded, or the lookup failed,
+   * the button stays enabled and the server decides - refusing to sell because inventory was
+   * briefly unreachable would turn an outage into lost orders.
+   */
+  readonly outOfStock = computed(() => this.selectedStock()?.band === 'OUT_OF_STOCK');
+
   constructor() {
     this.route.paramMap.subscribe((params) => {
       const slug = params.get('slug');
@@ -56,6 +77,10 @@ export class ProductDetail {
         this.fetch(slug);
       }
     });
+  }
+
+  describeStock(sku: string) {
+    return describeAvailability(this.stock().get(sku));
   }
 
   select(sku: string): void {
@@ -66,7 +91,7 @@ export class ProductDetail {
 
   addToCart(): void {
     const variant = this.selected();
-    if (!variant || this.adding()) {
+    if (!variant || this.adding() || this.outOfStock()) {
       return;
     }
 
@@ -109,11 +134,27 @@ export class ProductDetail {
         // deliberate - guessing a size for someone is worse than asking.
         const sellable = this.sellableVariants();
         this.selectedSku.set(sellable.length === 1 ? sellable[0].sku : null);
+        this.loadAvailability(sellable.map((variant) => variant.sku));
       },
       error: (err) => {
         this.loading.set(false);
         this.notFound.set(err?.status === 404);
       },
+    });
+  }
+
+  /**
+   * Availability is a separate service, so a failure here must not take the product page with it -
+   * the page is still useful without stock badges, and the server rechecks stock on add anyway.
+   */
+  private loadAvailability(skus: string[]): void {
+    if (skus.length === 0) {
+      this.stock.set(new Map());
+      return;
+    }
+    this.availability.forSkus(skus).subscribe({
+      next: (map) => this.stock.set(map),
+      error: () => this.stock.set(new Map()),
     });
   }
 

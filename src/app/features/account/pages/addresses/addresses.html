@@ -3,10 +3,36 @@
   <h1 class="page__title">Your addresses</h1>
   <p class="page__subtitle">Where your orders can be delivered.</p>
 
-  <nav class="account-nav">
-    <a class="account-nav__link" routerLink="/account">Profile</a>
-    <a class="account-nav__link account-nav__link--active" routerLink="/account/addresses">Addresses</a>
-    <a class="account-nav__link" routerLink="/orders">Orders</a>
+  <nav mat-tab-nav-bar class="account-nav">
+    <a
+      mat-tab-link
+      routerLink="/account"
+      routerLinkActive
+      #rla0="routerLinkActive"
+      [routerLinkActiveOptions]="{ exact: true }"
+      [active]="rla0.isActive"
+    >Profile</a>
+    <a
+      mat-tab-link
+      routerLink="/account/addresses"
+      routerLinkActive
+      #rla1="routerLinkActive"
+      [active]="rla1.isActive"
+    >Addresses</a>
+    <a
+      mat-tab-link
+      routerLink="/account/security"
+      routerLinkActive
+      #rla2="routerLinkActive"
+      [active]="rla2.isActive"
+    >Security</a>
+    <a
+      mat-tab-link
+      routerLink="/orders"
+      routerLinkActive
+      #rla3="routerLinkActive"
+      [active]="rla3.isActive"
+    >Orders</a>
   </nav>
 
   @if (errorMessage()) {
@@ -15,79 +41,81 @@
 
   @if (formOpen()) {
 
-    <form class="card address-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <form class="address-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
       <h2 class="address-form__title">
         {{ editingId() === null ? 'Add an address' : 'Edit address' }}
       </h2>
 
       <div class="address-form__row">
-        <div class="field">
-          <label class="field__label" for="label">Label</label>
-          <select id="label" formControlName="label">
-            <option value="HOME">Home</option>
-            <option value="WORK">Work</option>
-            <option value="OTHER">Other</option>
-          </select>
-        </div>
+        <mat-form-field appearance="outline">
+          <mat-label>Label</mat-label>
+          <mat-select id="label" formControlName="label">
+            <mat-option value="HOME">Home</mat-option>
+            <mat-option value="WORK">Work</mat-option>
+            <mat-option value="OTHER">Other</mat-option>
+          </mat-select>
+        </mat-form-field>
 
-        <div class="field" [class.field--invalid]="form.controls.recipientName.touched && form.controls.recipientName.invalid">
-          <label class="field__label" for="recipientName">Recipient name</label>
-          <input id="recipientName" type="text" formControlName="recipientName" maxlength="120" autocomplete="name" />
+        <mat-form-field appearance="outline">
+          <mat-label>Recipient name</mat-label>
+          <input matInput id="recipientName" type="text" formControlName="recipientName" maxlength="120" autocomplete="name" />
           @if (form.controls.recipientName.touched && form.controls.recipientName.invalid) {
-            <span class="field__hint">Who should we hand the parcel to?</span>
+            <mat-error>Who should we hand the parcel to?</mat-error>
           }
-        </div>
+        </mat-form-field>
       </div>
 
-      <div class="field" [class.field--invalid]="form.controls.contactNumber.touched && form.controls.contactNumber.invalid">
-        <label class="field__label" for="contactNumber">Contact number</label>
-        <input id="contactNumber" type="tel" formControlName="contactNumber" inputmode="numeric" maxlength="10" placeholder="9876543210" />
+      <mat-form-field appearance="outline">
+        <mat-label>Contact number</mat-label>
+        <input matInput id="contactNumber" type="tel" formControlName="contactNumber" inputmode="numeric" maxlength="10" placeholder="9876543210" />
         @if (form.controls.contactNumber.touched && form.controls.contactNumber.invalid) {
-          <span class="field__hint">10 digits, starting with 6, 7, 8 or 9.</span>
+          <mat-error>10 digits, starting with 6, 7, 8 or 9.</mat-error>
         }
-      </div>
+      </mat-form-field>
 
-      <div class="field" [class.field--invalid]="form.controls.line1.touched && form.controls.line1.invalid">
-        <label class="field__label" for="line1">Address line 1</label>
-        <input id="line1" type="text" formControlName="line1" maxlength="200" autocomplete="address-line1" />
+      <mat-form-field appearance="outline">
+        <mat-label>Address line 1</mat-label>
+        <input matInput id="line1" type="text" formControlName="line1" maxlength="200" autocomplete="address-line1" />
         @if (form.controls.line1.touched && form.controls.line1.invalid) {
-          <span class="field__hint">Enter the street address.</span>
+          <mat-error>Enter the street address.</mat-error>
         }
-      </div>
+      </mat-form-field>
 
-      <div class="field">
-        <label class="field__label" for="line2">Address line 2</label>
-        <input id="line2" type="text" formControlName="line2" maxlength="200" autocomplete="address-line2" />
-      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>Address line 2</mat-label>
+        <input matInput id="line2" type="text" formControlName="line2" maxlength="200" autocomplete="address-line2" />
+      </mat-form-field>
 
-      <div class="field">
-        <label class="field__label" for="landmark">Landmark</label>
-        <input id="landmark" type="text" formControlName="landmark" maxlength="150" placeholder="Optional" />
+      <mat-form-field appearance="outline">
+        <mat-label>Landmark</mat-label>
+        <input matInput id="landmark" type="text" formControlName="landmark" maxlength="150" placeholder="Optional" />
+      </mat-form-field>
+
+      <div class="address-form__row">
+        <mat-form-field appearance="outline">
+          <mat-label>City</mat-label>
+          <input matInput id="city" type="text" formControlName="city" maxlength="100" autocomplete="address-level2" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>State</mat-label>
+          <input matInput id="state" type="text" formControlName="state" maxlength="100" autocomplete="address-level1" />
+        </mat-form-field>
       </div>
 
       <div class="address-form__row">
-        <div class="field" [class.field--invalid]="form.controls.city.touched && form.controls.city.invalid">
-          <label class="field__label" for="city">City</label>
-          <input id="city" type="text" formControlName="city" maxlength="100" autocomplete="address-level2" />
-        </div>
-        <div class="field" [class.field--invalid]="form.controls.state.touched && form.controls.state.invalid">
-          <label class="field__label" for="state">State</label>
-          <input id="state" type="text" formControlName="state" maxlength="100" autocomplete="address-level1" />
-        </div>
-      </div>
-
-      <div class="address-form__row">
-        <div class="field" [class.field--invalid]="form.controls.postalCode.touched && form.controls.postalCode.invalid">
-          <label class="field__label" for="postalCode">PIN code</label>
-          <input id="postalCode" type="text" formControlName="postalCode" inputmode="numeric" maxlength="6" autocomplete="postal-code" />
+        <mat-form-field appearance="outline">
+          <mat-label>PIN code</mat-label>
+          <input matInput id="postalCode" type="text" formControlName="postalCode" inputmode="numeric" maxlength="6" autocomplete="postal-code" />
           @if (form.controls.postalCode.touched && form.controls.postalCode.invalid) {
-            <span class="field__hint">Six digits, not starting with 0.</span>
+            <mat-error>Six digits, not starting with 0.</mat-error>
           }
-        </div>
-        <div class="field" [class.field--invalid]="form.controls.country.touched && form.controls.country.invalid">
-          <label class="field__label" for="country">Country</label>
-          <input id="country" type="text" formControlName="country" maxlength="60" autocomplete="country-name" />
-        </div>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Country</mat-label>
+          <input matInput id="country" type="text" formControlName="country" maxlength="60" autocomplete="country-name" />
+        </mat-form-field>
       </div>
 
       <label class="checkbox">
@@ -96,26 +124,31 @@
       </label>
 
       <div class="address-form__actions">
-        <button type="submit" class="btn btn--brand" [disabled]="saving()">
+        <button type="submit" matButton="filled" [disabled]="saving()">
           {{ saving() ? 'Saving…' : editingId() === null ? 'Save address' : 'Save changes' }}
         </button>
-        <button type="button" class="btn btn--quiet" (click)="cancel()">Cancel</button>
+        <button type="button" matButton="outlined" (click)="cancel()">Cancel</button>
       </div>
-    </form>
+            </form>
+      </mat-card-content>
+    </mat-card>
 
   }
 
   @if (loading()) {
 
-    <div class="card">
-      <div class="skeleton addresses__skeleton" aria-hidden="true"></div>
-      <div class="skeleton addresses__skeleton" aria-hidden="true"></div>
+    <mat-card appearance="outlined">
+      <mat-card-content>
+      <div class="skeleton addresses__skeleton" aria-hidden="true">
     </div>
+      <div class="skeleton addresses__skeleton" aria-hidden="true"></div>
+          </mat-card-content>
+    </mat-card>
 
   } @else if (failed()) {
 
     <p class="alert" role="alert">Your addresses could not be loaded.</p>
-    <button type="button" class="btn btn--quiet" (click)="load()">Try again</button>
+    <button type="button" matButton="outlined" (click)="load()">Try again</button>
 
   } @else if (addresses().length === 0) {
 
@@ -123,21 +156,22 @@
       <div class="empty">
         <p class="empty__title">No addresses saved</p>
         <p class="empty__copy">Add one now and checkout will be a lot quicker.</p>
-        <button type="button" class="btn btn--cta" (click)="startAdd()">Add an address</button>
+        <button type="button" matButton="filled" class="btn--cta" (click)="startAdd()">Add an address</button>
       </div>
     }
 
   } @else {
 
     @if (!formOpen()) {
-      <button type="button" class="btn btn--cta addresses__add" (click)="startAdd()">
+      <button type="button" matButton="filled" class="btn--cta addresses__add" (click)="startAdd()">
         Add an address
       </button>
     }
 
     <div class="addresses">
       @for (address of addresses(); track address.id) {
-        <article class="address card" [class.address--default]="address.defaultAddress">
+        <mat-card appearance="outlined" class="address" [class.address--default]="address.defaultAddress">
+          <mat-card-content>
 
           <div class="address__head">
             <span class="address__label">{{ address.label }}</span>
@@ -158,7 +192,7 @@
           <div class="address__actions">
             <button
               type="button"
-              class="btn btn--quiet address__action"
+              matButton="outlined" class="address__action"
               [disabled]="busyId() === address.id"
               (click)="startEdit(address)"
             >
@@ -168,7 +202,7 @@
             @if (!address.defaultAddress) {
               <button
                 type="button"
-                class="btn btn--quiet address__action"
+                matButton="outlined" class="address__action"
                 [disabled]="busyId() === address.id"
                 (click)="makeDefault(address)"
               >
@@ -178,7 +212,7 @@
 
             <button
               type="button"
-              class="btn btn--danger-text"
+              matButton class="btn--danger-text"
               [disabled]="busyId() === address.id"
               (click)="remove(address)"
             >
@@ -186,7 +220,8 @@
             </button>
           </div>
 
-        </article>
+                  </mat-card-content>
+        </mat-card>
       }
     </div>
 

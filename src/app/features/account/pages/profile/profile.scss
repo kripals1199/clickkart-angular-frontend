@@ -51,3 +51,31 @@
     &__row { grid-template-columns: 1fr; }
   }
 }
+
+// The one destructive action a customer can take on themselves. Set apart from the forms above so
+// it cannot be reached by tabbing through them.
+.danger {
+  margin-top: 1.5rem;
+  border-color: #f0c9c4;
+
+  &__title {
+    margin: 0 0 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: $danger;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__copy {
+    margin: 0 0 0.75rem;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: #414141;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.6rem;
+  }
+}

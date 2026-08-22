@@ -1,0 +1,201 @@
+<div class="page">
+
+  <h1 class="page__title">Stock</h1>
+  <p class="page__subtitle">What you can still sell, and what's already spoken for.</p>
+
+  <nav mat-tab-nav-bar class="account-nav">
+    <a
+      mat-tab-link
+      routerLink="/seller/profile"
+      routerLinkActive
+      #rla0="routerLinkActive"
+      [active]="rla0.isActive"
+    >Business</a>
+    <a
+      mat-tab-link
+      routerLink="/seller/products"
+      routerLinkActive
+      #rla1="routerLinkActive"
+      [active]="rla1.isActive"
+    >Listings</a>
+    <a
+      mat-tab-link
+      routerLink="/seller/stock"
+      routerLinkActive
+      #rla2="routerLinkActive"
+      [active]="rla2.isActive"
+    >Stock</a>
+    <a
+      mat-tab-link
+      routerLink="/seller/orders"
+      routerLinkActive
+      #rla3="routerLinkActive"
+      [active]="rla3.isActive"
+    >Orders</a>
+  </nav>
+
+  @if (savedMessage()) {
+    <p class="notice" role="status">{{ savedMessage() }}</p>
+  }
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  <div class="toolbar">
+    <div class="tabs">
+      <button type="button" class="tabs__tab" [class.tabs__tab--active]="!lowOnly()" (click)="lowOnly() && toggleLowOnly()">
+        All SKUs
+      </button>
+      <button type="button" class="tabs__tab" [class.tabs__tab--active]="lowOnly()" (click)="!lowOnly() && toggleLowOnly()">
+        Low stock only
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+
+    <mat-card appearance="outlined">
+      <mat-card-content>
+      <div class="skeleton row-skeleton" aria-hidden="true">
+    </div>
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+          </mat-card-content>
+    </mat-card>
+
+  } @else if (failed()) {
+
+    <p class="alert" role="alert">Your stock could not be loaded.</p>
+    <button type="button" matButton="outlined" (click)="fetch(0)">Try again</button>
+
+  } @else if (items().length === 0) {
+
+    <div class="empty">
+      <p class="empty__title">{{ lowOnly() ? 'Nothing is running low' : 'No stock records yet' }}</p>
+      <p class="empty__copy">
+        {{ lowOnly()
+          ? 'Every SKU is above its reorder level.'
+          : 'Stock rows appear once your listings have variants.' }}
+      </p>
+    </div>
+
+  } @else {
+
+    <div class="stock">
+      @for (item of items(); track item.sku) {
+        <mat-card appearance="outlined" class="row" [class.row--low]="item.lowStock">
+          <mat-card-content>
+
+          <div class="row__main">
+            <p class="row__sku">{{ item.sku }}</p>
+            <p class="row__updated">Updated {{ item.updatedDate | date: 'd MMM y, h:mm a' }}</p>
+            @if (!item.stockTrackingEnabled) {
+              <p class="row__untracked">Stock tracking is off — this SKU always reads as available.</p>
+            } @else if (item.lowStock) {
+              <p class="row__low">At or below the reorder level of {{ item.reorderLevel }}.</p>
+            }
+          </div>
+
+          <div class="row__numbers">
+            <div class="stat">
+              <span class="stat__value">{{ item.availableQuantity }}</span>
+              <span class="stat__label">Available</span>
+            </div>
+            <div class="stat">
+              <span class="stat__value stat__value--muted">{{ item.reservedQuantity }}</span>
+              <span class="stat__label">Reserved</span>
+            </div>
+          </div>
+
+          <div class="row__actions">
+            <button
+              type="button"
+              matButton="outlined" class="row__action"
+              [disabled]="busySku() === item.sku"
+              (click)="openSku() === item.sku ? close() : openAdjustment(item.sku)"
+            >
+              {{ openSku() === item.sku ? 'Close' : 'Adjust' }}
+            </button>
+            <button
+              type="button"
+              matButton="outlined" class="row__action"
+              [disabled]="busySku() === item.sku"
+              (click)="toggleTracking(item)"
+            >
+              {{ item.stockTrackingEnabled ? 'Stop tracking' : 'Track stock' }}
+            </button>
+          </div>
+
+          @if (openSku() === item.sku) {
+            <div class="adjust">
+              <div class="adjust__row">
+                <mat-form-field appearance="outline">
+                  <mat-label>Change by</mat-label>
+                  <input matInput
+                    [id]="'delta-' + item.sku"
+                    type="number"
+                    step="1"
+                    [ngModel]="delta()"
+                    (ngModelChange)="delta.set($event)"
+                    placeholder="e.g. 25 or -3"
+                  />
+                  <mat-hint>Negative writes stock off.</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Reason</mat-label>
+                  <mat-select [id]="'reason-' + item.sku" [ngModel]="reason()" (ngModelChange)="reason.set($event)">
+                    @for (option of reasons; track option.value) {
+                      <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Note</mat-label>
+                <input matInput
+                  [id]="'note-' + item.sku"
+                  type="text"
+                  maxlength="300"
+                  [ngModel]="note()"
+                  (ngModelChange)="note.set($event)"
+                  placeholder="Optional — what happened"
+                />
+              </mat-form-field>
+
+              <button
+                type="button"
+                matButton="filled"
+                [disabled]="busySku() === item.sku"
+                (click)="adjust(item)"
+              >
+                {{ busySku() === item.sku ? 'Saving…' : 'Record adjustment' }}
+              </button>
+            </div>
+          }
+
+                  </mat-card-content>
+        </mat-card>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <!-- hidePageSize because the page size is the server's, not the visitor's: every
+           fetch here sends a fixed size, so offering a selector would show a control that
+           does not change the request. First/last are on - with an unknown number of
+           pages, "jump to the end" is the one move Previous/Next cannot do. -->
+      <mat-paginator
+        class="pager"
+        [length]="totalElements()"
+        [pageSize]="pageSize()"
+        [pageIndex]="pageIndex()"
+        [hidePageSize]="true"
+        [showFirstLastButtons]="true"
+        (page)="fetch($event.pageIndex)"
+        aria-label="Select page"
+      />
+    }
+
+  }
+
+</div>

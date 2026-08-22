@@ -1,11 +1,17 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { UserService } from '@core/services/user.service';
 import { AuthService } from '@core/services/auth.service';
 import { UserProfile } from '@core/models/user.model';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCardModule } from '@angular/material/card';
+import { MatTabsModule } from '@angular/material/tabs';
 
 /**
  * The customer's own profile and marketing preferences.
@@ -20,7 +26,15 @@ import { UserProfile } from '@core/models/user.model';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, DatePipe],
+  imports: [ReactiveFormsModule, RouterLink, DatePipe,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCardModule,
+    MatTabsModule,
+    RouterLinkActive,
+  ],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
@@ -39,6 +53,16 @@ export class Profile {
   readonly errorMessage = signal<string | null>(null);
 
   readonly accountEmail = this.auth.currentUser;
+
+  /**
+   * Once erased, every write to this profile returns 409. The forms are locked rather than left
+   * inviting edits that are guaranteed to fail.
+   */
+  readonly erased = computed(() => !!this.profile()?.erasedAt);
+
+  readonly confirmingErase = signal(false);
+  readonly erasing = signal(false);
+  readonly eraseError = signal<string | null>(null);
 
   readonly profileForm = this.fb.nonNullable.group({
     firstName: ['', [Validators.maxLength(60)]],
@@ -76,6 +100,47 @@ export class Profile {
         this.failed.set(true);
       },
     });
+  }
+
+  confirmErase(): void {
+    this.confirmingErase.set(true);
+    this.eraseError.set(null);
+  }
+
+  cancelErase(): void {
+    this.confirmingErase.set(false);
+  }
+
+  eraseMyData(): void {
+    if (this.erasing()) {
+      return;
+    }
+    this.erasing.set(true);
+    this.eraseError.set(null);
+
+    this.users.eraseMyData().subscribe({
+      next: () => {
+        this.erasing.set(false);
+        this.confirmingErase.set(false);
+        this.savedMessage.set('Your personal data has been erased.');
+        // Reload rather than assume: the server decides what survived, and the reload is what
+        // puts the page into its locked, erased state.
+        this.load();
+      },
+      error: (err) => {
+        this.erasing.set(false);
+        this.eraseError.set(this.describeErase(err?.error?.error?.code));
+      },
+    });
+  }
+
+  private describeErase(code: string | undefined): string {
+    switch (code) {
+      case 'ERASURE_BLOCKED':
+        return 'This account has a seller profile, and business records have to be kept for statutory retention. Close the seller account first.';
+      default:
+        return 'Your data could not be erased. Please try again.';
+    }
   }
 
   saveProfile(): void {
@@ -136,6 +201,12 @@ export class Profile {
 
   private absorb(profile: UserProfile): void {
     this.profile.set(profile);
+
+    if (profile.erasedAt) {
+      // Reads keep working after erasure; writes do not. Disabling says so before the click.
+      this.profileForm.disable();
+      this.preferencesForm.disable();
+    }
     this.profileForm.patchValue({
       firstName: profile.firstName ?? '',
       lastName: profile.lastName ?? '',
@@ -170,6 +241,10 @@ export class Profile {
       if (field) {
         return `${field}: ${message}`;
       }
+    }
+    if (error?.code === 'PROFILE_ERASED') {
+      // Reachable only from a tab opened before the erasure; the forms are disabled otherwise.
+      return 'This profile has been erased and can no longer be edited. Reload the page.';
     }
     return 'That could not be saved. Please try again.';
   }

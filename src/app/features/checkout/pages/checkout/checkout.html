@@ -5,22 +5,25 @@
 
   @if (loading()) {
 
-    <div class="card">
-      <div class="skeleton checkout__skeleton" aria-hidden="true"></div>
-      <div class="skeleton checkout__skeleton" aria-hidden="true"></div>
+    <mat-card appearance="outlined">
+      <mat-card-content>
+      <div class="skeleton checkout__skeleton" aria-hidden="true">
     </div>
+      <div class="skeleton checkout__skeleton" aria-hidden="true"></div>
+          </mat-card-content>
+    </mat-card>
 
   } @else if (failed()) {
 
     <p class="alert" role="alert">Checkout could not be prepared.</p>
-    <button type="button" class="btn btn--quiet" (click)="load()">Try again</button>
+    <button type="button" matButton="outlined" (click)="load()">Try again</button>
 
   } @else if (items().length === 0) {
 
     <div class="empty">
       <p class="empty__title">Your basket is empty</p>
       <p class="empty__copy">There's nothing to check out.</p>
-      <a class="btn btn--cta" routerLink="/products">Browse the catalog</a>
+      <a matButton="filled" class="btn--cta" routerLink="/products">Browse the catalog</a>
     </div>
 
   } @else {
@@ -33,14 +36,15 @@
 
       <div class="checkout__main">
 
-        <section class="card checkout__section">
+        <mat-card appearance="outlined" class="checkout__section">
+          <mat-card-content>
           <h2 class="checkout__heading">Deliver to</h2>
 
           @if (!hasAddress()) {
             <p class="warn">
               You have no saved addresses yet — we need one before this order can be placed.
             </p>
-            <a class="btn btn--brand" routerLink="/account/addresses">Add an address</a>
+            <a matButton="filled" routerLink="/account/addresses">Add an address</a>
           } @else {
             <div class="pick">
               @for (address of addresses(); track address.id) {
@@ -69,9 +73,11 @@
             </div>
             <a class="checkout__manage" routerLink="/account/addresses">Manage addresses</a>
           }
-        </section>
+                  </mat-card-content>
+        </mat-card>
 
-        <section class="card checkout__section">
+        <mat-card appearance="outlined" class="checkout__section">
+          <mat-card-content>
           <h2 class="checkout__heading">Order summary</h2>
 
           @for (item of items(); track item.sku) {
@@ -93,11 +99,13 @@
               </p>
             </div>
           }
-        </section>
+                  </mat-card-content>
+        </mat-card>
 
       </div>
 
-      <aside class="card summary">
+      <mat-card appearance="outlined" class="summary">
+        <mat-card-content>
         <h2 class="checkout__heading">Total</h2>
 
         <div class="summary__row">
@@ -118,12 +126,12 @@
           <p class="warn">
             Some items in your basket aren't available. Remove them before ordering.
           </p>
-          <a class="btn btn--quiet summary__action" routerLink="/cart">Back to basket</a>
+          <a matButton="outlined" class="summary__action" routerLink="/cart">Back to basket</a>
         }
 
         <button
           type="button"
-          class="btn btn--cta summary__action"
+          matButton="filled" class="btn--cta summary__action"
           [disabled]="!canPlace()"
           (click)="place()"
         >
@@ -135,7 +143,8 @@
         <p class="summary__note summary__note--tight">
           Placing the order holds your items. You'll pay on the next screen.
         </p>
-      </aside>
+              </mat-card-content>
+      </mat-card>
 
     </div>
 

@@ -25,7 +25,7 @@
 //   display: flex;
 //   align-items: center;
 //   background: white;
-//   border-radius: 4px;
+//   border-radius: var(--ck-r-sm);
 //   overflow: hidden;
 //   max-width: 700px;
 // }
@@ -78,10 +78,18 @@
   align-items: center;
   gap: 16px;
 
-  background: #2874f0;
-  color: white;
+  background: var(--ck-brand);
+  color: #fff;
 
   padding: 10px 16px;
+  /* A sticky bar with no shadow does not read as sitting above the page - content slides
+     under a hard edge instead of beneath a raised surface. */
+  box-shadow: var(--ck-shadow-2);
+
+  /* Landscape on a notched phone puts the notch beside the bar, not above it, so the menu
+     button ends up underneath it. Zero on every device without a cutout. */
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
 }
 
 /* LOGO */
@@ -101,10 +109,17 @@
   display: flex;
   align-items: center;
 
-  background: white;
-  border-radius: 6px;
+  background: #fff;
+  border-radius: var(--ck-r-sm);
 
   overflow: hidden;
+  transition: box-shadow var(--ck-fast) var(--ck-ease);
+
+  /* The bar is saturated blue, so a white box on it has no focus affordance at all unless
+     one is drawn. :focus-within catches the input without needing a JS class. */
+  &:focus-within {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+  }
 
   max-width: 700px;
 }
@@ -118,7 +133,7 @@
 }
 
 .search-container button {
-  color: #2874f0;
+  color: var(--ck-brand);
 }
 
 /* DESKTOP MENU */
@@ -142,10 +157,6 @@
 
 /* MOBILE MENU */
 
-.mobile-menu {
-  display: none;
-}
-
 /* TABLET */
 
 @media screen and (max-width: 992px) {
@@ -161,15 +172,32 @@
 @media screen and (max-width: 768px) {
 
   .navbar {
+    /* mat-toolbar pins height:56px and white-space:nowrap, which made the flex-wrap below
+       dead code - the search box could never reach a second row however much width it asked
+       for, so it just squeezed in beside the logo at ~220px. */
+    height: auto;
+    min-height: 56px;
+    white-space: normal;
+
     flex-wrap: wrap;
-    gap: 12px;
+    column-gap: 12px;
+    row-gap: 8px;
   }
 
   .mobile-menu-btn {
     display: flex;
   }
 
+  /* Keep the container, hide only its nav items. The cart lives inside it, and a basket
+     badge is a primary action - burying it behind the hamburger costs a tap and hides the
+     item count entirely, which is the one thing a shopper glances at. */
   .desktop-menu {
+    display: flex;
+    margin-left: auto;
+  }
+
+  .desktop-menu button,
+  .desktop-menu .account-email {
     display: none;
   }
 
@@ -179,29 +207,17 @@
 
   .search-container {
     order: 3;
-    width: 100%;
+    /* flex:1 resolves to flex-basis:0, which beats width:100% - asking for a 100% basis is
+       what actually pushes this onto its own row. */
+    flex: 1 0 100%;
     max-width: 100%;
   }
 
   .search-container input {
-    padding: 10px;
-    font-size: 14px;
-  }
-
-  .mobile-menu {
-    display: flex;
-    flex-direction: column;
-
-    background: white;
-
-    padding: 12px 16px;
-
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  }
-
-  .mobile-menu button {
-    justify-content: flex-start;
-    color: #333;
+    padding: 11px 12px;
+    /* 16px minimum: iOS Safari zooms the entire page when a focused input is smaller, and
+       does not zoom back out. */
+    font-size: 16px;
   }
 
 }
@@ -216,6 +232,131 @@
 
   .logo {
     font-size: 20px;
+  }
+
+}
+/* CART
+   ClickKart's own control rather than a Material icon button. The rest of this bar is white text
+   on the brand blue, so a lone glyph with Material's detached warn-red badge read as a borrowed
+   widget sitting in someone else's navbar. Icon plus label matches the neighbours; the count uses
+   the storefront's CTA orange, which is the accent already carrying "act on this" everywhere else
+   on the site. */
+
+.cart {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 6px 12px;
+  border-radius: var(--ck-r-sm);
+
+  color: white;
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  transition: background 0.15s ease;
+}
+
+.cart:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.cart:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.cart__icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Stroked rather than filled, so it sits at the same visual weight as the text beside it - a
+   solid glyph next to 500-weight type reads as heavier than everything else in the bar. */
+.cart__icon svg {
+  width: 24px;
+  height: 24px;
+
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cart__count {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+
+  border-radius: 9px;
+  background: var(--ck-cta);
+
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+
+  /* Rings the bubble in the bar's own blue so it stays legible where it crosses the cart's
+     strokes, instead of the two fighting each other. */
+  box-shadow: 0 0 0 2px var(--ck-brand);
+}
+
+/* The mobile menu is white with dark text, so the count rides inline next to the label there
+   rather than floating over an icon that menu does not show. */
+.cart__count-inline {
+  display: inline-block;
+
+  min-width: 18px;
+  margin-left: 6px;
+  padding: 0 5px;
+
+  border-radius: 9px;
+  background: var(--ck-cta);
+
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+/* Tight desktop widths: drop the word before the search box starts losing room. The icon and its
+   count still say everything the label did. */
+@media screen and (max-width: 900px) {
+
+  .cart__label {
+    display: none;
+  }
+
+  .cart {
+    padding: 6px 8px;
+  }
+
+}
+
+/* Touch targets. Material icon buttons are 40x40; 44 is the documented minimum for a
+   reliable finger tap, and the difference is very noticeable on the search and menu controls. */
+@media screen and (max-width: 768px) {
+
+  .mobile-menu-btn,
+  .search-container button {
+    width: 44px;
+    height: 44px;
+    --mdc-icon-button-state-layer-size: 44px;
+  }
+
+  .cart {
+    padding: 8px 10px;
+    min-height: 44px;
   }
 
 }

@@ -29,7 +29,7 @@
   margin-bottom: 20px;
 }
 
-.overlay button {
+.overlay .hero-cta {
   width: 180px;
   padding: 14px;
   border: none;
@@ -58,4 +58,9 @@
     font-size: 16px;
   }
 
+}
+// It is a link now, not a button - it navigates, so it should be one.
+.overlay .hero-cta {
+  display: inline-block;
+  text-decoration: none;
 }

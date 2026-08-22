@@ -1,0 +1,266 @@
+<div class="page">
+
+  <h1 class="page__title">Dashboard</h1>
+  <p class="page__subtitle">
+    What needs a human, and what each service is currently reporting.
+  </p>
+
+  <nav mat-tab-nav-bar class="account-nav">
+    <a
+      mat-tab-link
+      routerLink="/admin"
+      routerLinkActive
+      #rla0="routerLinkActive"
+      [routerLinkActiveOptions]="{ exact: true }"
+      [active]="rla0.isActive"
+    >Dashboard</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/moderation"
+      routerLinkActive
+      #rla1="routerLinkActive"
+      [active]="rla1.isActive"
+    >Moderation</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/operations"
+      routerLinkActive
+      #rla2="routerLinkActive"
+      [active]="rla2.isActive"
+    >Operations</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/categories"
+      routerLinkActive
+      #rla3="routerLinkActive"
+      [active]="rla3.isActive"
+    >Categories</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/accounts"
+      routerLinkActive
+      #rla4="routerLinkActive"
+      [active]="rla4.isActive"
+    >Accounts</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/profiles"
+      routerLinkActive
+      #rla5="routerLinkActive"
+      [active]="rla5.isActive"
+    >Profiles</a>
+    <a
+      mat-tab-link
+      routerLink="/admin/audit"
+      routerLinkActive
+      #rla6="routerLinkActive"
+      [active]="rla6.isActive"
+    >Audit</a>
+  </nav>
+
+  <!-- Prominent by design. The difference between a quiet platform and an unreachable one is the
+       entire reason this flag exists. -->
+  @if (degraded()) {
+    <p class="alert" role="alert">
+      <strong>Partial view.</strong>
+      {{ dashboard()?.panelsAvailable }} of {{ dashboard()?.panelsTotal }} services answered. The
+      panels below are missing
+      @for (panel of unavailablePanels(); track panel.service) {
+        <strong>{{ serviceLabel(panel.service) }}</strong>@if (!$last) {, }
+      }
+      — those figures are unknown, not zero.
+    </p>
+  }
+
+  <!-- ---- worklist ------------------------------------------------------ -->
+  <section class="board__section">
+    <div class="board__head">
+      <h2 class="board__title">Needs attention</h2>
+      <button type="button" matButton="outlined" class="board__refresh" (click)="load()">Refresh</button>
+    </div>
+
+    @if (loadingWorklist()) {
+
+      <mat-card appearance="outlined">
+        <mat-card-content>
+        <div class="skeleton row-skeleton" aria-hidden="true">
+      </div>
+              </mat-card-content>
+      </mat-card>
+
+    } @else if (worklistFailed()) {
+
+      <p class="alert" role="alert">
+        The worklist could not be read. That says nothing about whether these queues are empty.
+      </p>
+
+    } @else if (worklist().length === 0) {
+
+      <mat-card appearance="outlined" class="board__clear">
+        <mat-card-content>
+        <p class="board__clear-title">Nothing waiting</p>
+        <p class="board__clear-copy">
+          No stuck payments, no refunds owed, nothing queued for moderation.
+        </p>
+              </mat-card-content>
+      </mat-card>
+
+    } @else {
+
+      <div class="worklist">
+        @for (item of worklist(); track item.queue) {
+          <mat-card appearance="outlined" class="work" [class.work--critical]="item.severity === 'CRITICAL'">
+            <mat-card-content>
+
+            <div class="work__main">
+              <div class="work__head">
+                <span [class]="'badge badge--' + tone(item)">{{ item.severity }}</span>
+                <p class="work__queue">{{ label(item) }}</p>
+              </div>
+              <p class="work__description">{{ item.description }}</p>
+              <p class="work__owner">Owned by {{ item.owningService }}</p>
+            </div>
+
+            <div class="work__right">
+              @if (unreadable(item)) {
+                <!-- -1 from the server. Rendering it as a number, or as zero, would both be lies. -->
+                <p class="work__unknown">count<br />unknown</p>
+              } @else {
+                <p class="work__count">{{ item.count }}</p>
+              }
+
+              @if (linkFor(item); as link) {
+                <a
+                  matButton="outlined" class="work__action"
+                  [routerLink]="link.path"
+                  [queryParams]="link.query ?? {}"
+                >
+                  Work this
+                </a>
+              } @else {
+                <!-- No page owns this queue yet; naming the endpoint is still more use than nothing. -->
+                <code class="work__endpoint">{{ item.endpoint }}</code>
+              }
+            </div>
+
+                      </mat-card-content>
+          </mat-card>
+        }
+      </div>
+
+    }
+  </section>
+
+  <!-- ---- panels -------------------------------------------------------- -->
+  <section class="board__section">
+    <h2 class="board__title">By service</h2>
+
+    @if (loadingDashboard()) {
+
+      <mat-card appearance="outlined">
+        <mat-card-content>
+        <div class="skeleton row-skeleton" aria-hidden="true">
+      </div>
+              </mat-card-content>
+      </mat-card>
+
+    } @else if (dashboardFailed()) {
+
+      <p class="alert" role="alert">The dashboard could not be loaded.</p>
+      <button type="button" matButton="outlined" (click)="loadDashboard()">Try again</button>
+
+    } @else {
+
+      <div class="panels">
+        @for (panel of panels(); track panel.service) {
+          <mat-card appearance="outlined" class="panel" [class.panel--down]="!panel.available">
+            <mat-card-content>
+
+            <p class="panel__service">{{ serviceLabel(panel.service) }}</p>
+
+            @if (panel.available) {
+              <dl class="panel__counts">
+                @for (entry of entries(panel); track entry.key) {
+                  <div class="panel__row">
+                    <dt>{{ entry.key }}</dt>
+                    <dd>{{ entry.value }}</dd>
+                  </div>
+                }
+              </dl>
+            } @else {
+              <!-- Never zeros. A panel that could not be asked says so. -->
+              <p class="panel__down">Didn't answer</p>
+              @if (panel.unavailableReason) {
+                <p class="panel__reason">{{ panel.unavailableReason }}</p>
+              }
+            }
+
+                      </mat-card-content>
+          </mat-card>
+        }
+      </div>
+
+      @if (dashboard(); as snapshot) {
+        <p class="board__stamp">
+          Snapshot taken {{ snapshot.generatedAt | date: 'd MMM y, HH:mm:ss' }} — assembled from
+          several services over a second or two, so two panels can legitimately disagree about
+          something that changed while it was being built.
+        </p>
+      }
+
+    }
+  </section>
+
+  <!-- ---- registry ------------------------------------------------------ -->
+  <section class="board__section">
+    <h2 class="board__title">Registered services</h2>
+
+    @if (loadingServices()) {
+
+      <mat-card appearance="outlined">
+        <mat-card-content>
+        <div class="skeleton row-skeleton" aria-hidden="true">
+      </div>
+              </mat-card-content>
+      </mat-card>
+
+    } @else if (servicesFailed()) {
+
+      <p class="alert" role="alert">The service registry could not be read.</p>
+      <button type="button" matButton="outlined" (click)="loadServices()">Try again</button>
+
+    } @else if (services().length === 0) {
+
+      <mat-card appearance="outlined" class="board__clear">
+        <mat-card-content>
+        <p class="board__clear-title">Nothing registered</p>
+        <p class="board__clear-copy">Discovery returned no instances at all.</p>
+              </mat-card-content>
+      </mat-card>
+
+    } @else {
+
+      <mat-card appearance="outlined" class="registry">
+        <mat-card-content>
+        @for (service of services(); track service.service) {
+          <div class="registry__row">
+            <span class="registry__name">{{ serviceLabel(service.service) }}</span>
+            <span class="registry__instances">
+              {{ service.instances }} instance{{ service.instances === 1 ? '' : 's' }}
+            </span>
+          </div>
+        }
+              </mat-card-content>
+      </mat-card>
+
+      <!-- Worth stating: this is Eureka's opinion, not a health check. -->
+      <p class="board__stamp">
+        This is what discovery has registered, not whether each service is healthy — a service can
+        be registered and sick. The panels above are the better signal, because they come from
+        having just asked each service something real.
+      </p>
+
+    }
+  </section>
+
+</div>

@@ -1,0 +1,46 @@
+@use '../../admin' as *;
+
+.profiles__count {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  color: $muted;
+}
+
+.search {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+  max-width: 30rem;
+
+  input {
+    flex: 1;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid $line;
+    border-radius: var(--ck-r-sm);
+    font-size: 0.9rem;
+    color: $ink;
+
+    &:focus {
+      outline: none;
+      border-color: $brand;
+    }
+  }
+}
+
+// Softened, not hidden - an erased profile is still a row an operator may need to find.
+.item--erased {
+  background: #fafbfc;
+
+  .item__name { color: $muted; }
+}
+
+.item__final {
+  font-size: 0.76rem;
+  color: $muted;
+  text-align: right;
+}
+
+.decision__actions {
+  display: flex;
+  gap: 0.6rem;
+}

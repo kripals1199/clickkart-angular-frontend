@@ -1,26 +1,21 @@
-// The tab strip shared by the account pages. Its own partial because both pages render it and
-// neither owns it.
-@use '../storefront' as *;
+// The tab strip shared by the account and admin pages. Its own partial because several pages
+// render it and none of them owns it.
+//
+// It is a mat-tab-nav-bar now, so Material supplies the links, the ink bar under the active one,
+// the ripples and - the reason this file used to be much longer - the overflow handling.
+//
+// The admin console renders seven links here, which measure 675px; a 375px phone has about 347px
+// of content width, so the strip used to run 328px past the edge and drag the page with it. That
+// was fixed here with overflow-x: auto, and that rule is now gone: Material's tab bar scrolls its
+// own header and puts chevron buttons at each end when the tabs do not fit. Keeping both would
+// mean two nested scrollers competing for the same gesture, and Material's version is the better
+// one anyway - a bare scroller gives no hint that there is anything past the edge, whereas the
+// chevrons say so.
+//
+// No [tabPanel] is bound on the nav, deliberately. These links navigate to separate routes rather
+// than switching panels within one view, so they are navigation and not a tablist; without the
+// panel Material leaves the roles alone instead of announcing seven tabs that are really pages.
 
 .account-nav {
-  display: flex;
-  gap: 0.5rem;
   margin-bottom: 1.5rem;
-  border-bottom: 1px solid $line;
-
-  &__link {
-    padding: 0.6rem 0.9rem;
-    font-size: 0.9rem;
-    color: $muted;
-    text-decoration: none;
-    border-bottom: 2px solid transparent;
-
-    &:hover { color: $ink; }
-
-    &--active {
-      color: $brand;
-      font-weight: 600;
-      border-bottom-color: $brand;
-    }
-  }
 }

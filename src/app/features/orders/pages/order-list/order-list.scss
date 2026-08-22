@@ -62,14 +62,12 @@
 }
 
 .pager {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
+  // A mat-paginator now. It lays out its own range label and buttons in an internal flex
+  // row, so the flex container that used to be here fought it; and __position is gone with
+  // the hand-built "Page 1 of 4" span, replaced by the paginator's own range label.
   margin-top: 2rem;
 
-  &__position {
-    font-size: 0.85rem;
-    color: $muted;
-  }
+  // The paginator paints itself on the Material surface colour, which reads as a white bar
+  // dropped onto the page's grey. The list it pages is transparent, so it should be too.
+  background: transparent;
 }

@@ -1,0 +1,158 @@
+<div class="page">
+
+  <h1 class="page__title">Your round</h1>
+  <p class="page__subtitle">Parcels assigned to you, and where they are going.</p>
+
+  @if (savedMessage()) {
+    <p class="notice" role="status">{{ savedMessage() }}</p>
+  }
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  <div class="round__filter">
+    <mat-button-toggle-group
+      [value]="showDelivered()"
+      (change)="toggleDelivered($event.value)"
+      aria-label="Which parcels to show"
+    >
+      <mat-button-toggle [value]="false">Out for delivery</mat-button-toggle>
+      <mat-button-toggle [value]="true">Include delivered</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  @if (loading()) {
+
+    <div class="round__list">
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+      <div class="skeleton row-skeleton" aria-hidden="true"></div>
+    </div>
+
+  } @else if (failed()) {
+
+    <p class="alert" role="alert">Your round could not be loaded.</p>
+    <button matButton="outlined" type="button" (click)="fetch(0)">Try again</button>
+
+  } @else if (lines().length === 0) {
+
+    <div class="empty">
+      <p class="empty__title">
+        {{ showDelivered() ? 'Nothing here yet' : 'Nothing left to deliver' }}
+      </p>
+      <p class="empty__copy">
+        @if (showDelivered()) {
+          No parcels have been assigned to you.
+        } @else {
+          Everything assigned to you has been handed over.
+        }
+      </p>
+    </div>
+
+  } @else {
+
+    <p class="round__count">
+      {{ outstanding() }} to deliver
+      @if (showDelivered() && totalElements() > outstanding()) {
+        · {{ totalElements() }} in total
+      }
+    </p>
+
+    <div class="round__list">
+      @for (line of lines(); track key(line)) {
+        <mat-card appearance="outlined" class="parcel" [class.parcel--done]="line.fulfilmentStatus === 'DELIVERED'">
+          <mat-card-content>
+
+            <div class="parcel__head">
+              <p class="parcel__recipient">{{ line.deliveryAddress.recipientName }}</p>
+              @if (line.fulfilmentStatus === 'DELIVERED') {
+                <span class="badge badge--good">Delivered</span>
+              }
+            </div>
+
+            <!-- The largest thing on the card, because it is what the agent is actually reading
+                 while standing on a doorstep. -->
+            <p class="parcel__address">{{ formatAddress(line.deliveryAddress) }}</p>
+
+            <div class="parcel__actions-row">
+              <!-- tel: and a maps link rather than text to copy: retyping an address or a number
+                   one-handed, outdoors, is the thing this screen exists to avoid. -->
+              <a matButton="outlined" [href]="'tel:' + line.deliveryAddress.contactNumber">
+                <mat-icon>call</mat-icon>
+                Call
+              </a>
+              <a matButton="outlined" [href]="mapsUrlFor(line.deliveryAddress)" target="_blank" rel="noopener">
+                <mat-icon>map</mat-icon>
+                Directions
+              </a>
+            </div>
+
+            <p class="parcel__item">
+              {{ line.quantity }} × {{ line.productName }}@if (line.variantName) { — {{ line.variantName }} }
+            </p>
+
+            <p class="parcel__meta">
+              {{ line.orderReference }} · {{ line.sku }}
+              @if (line.trackingReference) {
+                · tracking {{ line.trackingReference }}
+              }
+            </p>
+
+            <p class="parcel__meta">
+              @if (line.fulfilmentStatus === 'DELIVERED' && line.fulfilmentUpdatedAt) {
+                Handed over {{ line.fulfilmentUpdatedAt | date: 'd MMM y, HH:mm' }}
+              } @else {
+                Ordered {{ line.placedAt | date: 'd MMM y' }}
+              }
+            </p>
+
+            @if (line.fulfilmentStatus !== 'DELIVERED') {
+              @if (confirming() === key(line)) {
+                <div class="parcel__confirm">
+                  <!-- Confirmed because it cannot be undone: the server refuses to move a line out
+                       of DELIVERED, so a mis-tap is permanent from every screen, not just this one. -->
+                  <p class="warn">
+                    Mark this as handed to <strong>{{ line.deliveryAddress.recipientName }}</strong>?
+                    This cannot be undone.
+                  </p>
+                  <div class="parcel__confirm-actions">
+                    <button
+                      matButton="filled"
+                      class="btn--cta"
+                      type="button"
+                      [disabled]="busyKey() === key(line)"
+                      (click)="markDelivered(line)"
+                    >
+                      {{ busyKey() === key(line) ? 'Saving…' : 'Yes, delivered' }}
+                    </button>
+                    <button matButton type="button" (click)="cancel()">Not yet</button>
+                  </div>
+                </div>
+              } @else {
+                <button matButton="filled" type="button" class="parcel__deliver" (click)="confirm(line)">
+                  <mat-icon>check</mat-icon>
+                  Delivered
+                </button>
+              }
+            }
+
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <mat-paginator
+        class="pager"
+        [length]="totalElements()"
+        [pageSize]="pageSize()"
+        [pageIndex]="pageIndex()"
+        [hidePageSize]="true"
+        [showFirstLastButtons]="true"
+        (page)="fetch($event.pageIndex)"
+        aria-label="Select page"
+      />
+    }
+
+  }
+
+</div>

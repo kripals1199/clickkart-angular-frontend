@@ -145,6 +145,16 @@ export const routes: Routes = [
                     import('@features/seller/pages/seller-orders/seller-orders')
                         .then(m => m.SellerOrders)
             },
+            {
+                // The delivery agent has exactly one screen, so there is no console shell here the
+                // way seller and admin have one - a nav strip over a single page is furniture with
+                // nothing to navigate between.
+                path: 'deliveries',
+                canActivate: [roleGuard('DELIVERY_AGENT')],
+                loadComponent: () =>
+                    import('@features/delivery/pages/delivery-round/delivery-round')
+                        .then(m => m.DeliveryRound)
+            },
 
             // ---- admin console: ROLE_ADMIN only ---------------------------
             // /admin is the dashboard rather than a redirect into one of the work surfaces:

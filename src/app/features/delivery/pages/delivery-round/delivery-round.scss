@@ -1,0 +1,101 @@
+// The delivery round. Styled for a phone held in one hand, outdoors, which is the only place this
+// screen is ever used - so the address is the largest thing on a card, the actions are full-width
+// targets rather than inline links, and nothing depends on hover.
+@use '../../../../features/storefront' as *;
+@use '../../../../features/console' as *;
+@use '../../../../features/orders/badge' as *;
+
+.round__filter {
+  margin-bottom: 1rem;
+}
+
+.round__count {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  color: $muted;
+}
+
+.round__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.parcel {
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  &__recipient {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 650;
+    color: $ink;
+  }
+
+  // The one thing being read at the door, so it outranks everything else on the card.
+  &__address {
+    margin: 0.35rem 0 0.85rem;
+    font-size: 1.05rem;
+    line-height: 1.45;
+    color: $ink;
+  }
+
+  &__actions-row {
+    display: grid;
+    // Two equal targets rather than inline links: at arm's length, on the move, a mis-tap between
+    // "call" and "directions" costs more than the space this spends.
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 0.85rem;
+  }
+
+  &__item {
+    margin: 0 0 0.3rem;
+    font-size: 0.9rem;
+    color: $ink;
+  }
+
+  &__meta {
+    margin: 0 0 0.25rem;
+    font-size: 0.8rem;
+    color: $muted;
+  }
+
+  &__deliver {
+    width: 100%;
+    margin-top: 0.75rem;
+  }
+
+  &__confirm {
+    margin-top: 0.85rem;
+  }
+
+  &__confirm-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  // Done parcels stay in the list when "include delivered" is on, but recede - they are reference,
+  // not work.
+  &--done {
+    opacity: 0.72;
+  }
+}
+
+// Above the phone width the two-up action rows stop needing the full line.
+@media (min-width: 30rem) {
+  .parcel__actions-row,
+  .parcel__confirm-actions {
+    grid-template-columns: auto auto;
+    justify-content: start;
+  }
+
+  .parcel__deliver {
+    width: auto;
+  }
+}

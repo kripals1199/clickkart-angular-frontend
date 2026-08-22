@@ -153,7 +153,23 @@
       </button>
     }
 
-    @if (isAdmin()) {
+    @if (isDeliveryAgent()) {
+      <button
+        mat-button
+        routerLink="/deliveries"
+      >
+        Deliveries
+      </button>
+    }
+
+    @if (isDeliveryAgent()) {
+    <button mat-menu-item routerLink="/deliveries">
+      <mat-icon>local_shipping</mat-icon>
+      <span>Deliveries</span>
+    </button>
+  }
+
+  @if (isAdmin()) {
       <button
         mat-button
         routerLink="/admin"

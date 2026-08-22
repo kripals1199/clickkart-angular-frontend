@@ -69,6 +69,9 @@ export class Navbar {
   /** Same reasoning as the seller entry: only operators see the console link. */
   readonly isAdmin = computed(() => this.auth.hasRole('ADMIN'));
 
+  /** Same reasoning as the other two: only agents see the round, because only they can open it. */
+  readonly isDeliveryAgent = computed(() => this.auth.hasRole('DELIVERY_AGENT'));
+
   constructor() {
     // Load the basket once on arrival if there is already a session, so the badge is right on a
     // cold page load rather than only after the cart page has been visited. There are no guest

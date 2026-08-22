@@ -1,0 +1,54 @@
+name: CI
+
+# Runs on every PR into main and on main itself. The second half matters as much as the first:
+# a PR is checked against its own head, so a green PR can still break main if something else
+# landed in between.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Least privilege. This workflow only reads the repository - it publishes nothing, comments on
+# nothing, and has no reason to hold a writable token.
+permissions:
+  contents: read
+
+# Pushing twice in quick succession should not leave the first run burning a runner to report on
+# code nobody is waiting for. Never cancel on main, though: those runs are the record of whether
+# the trunk is green.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  build-and-test:
+    name: build and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Matches the version the project is developed on. Pinned to a major rather than
+          # 'latest' so a new Node release cannot turn the build red overnight.
+          node-version: '20'
+          cache: npm
+
+      # ci, not install: it installs exactly what package-lock.json pins and fails if the
+      # lockfile and package.json disagree, which is the difference between a reproducible
+      # build and one that happens to work today.
+      - name: Install dependencies
+        run: npm ci
+
+      # The production configuration, deliberately - it is the one that enforces the bundle and
+      # component-style budgets. A development build would not have caught the shared UI kit
+      # growing to 280 bytes short of the 8kB per-component error ceiling.
+      - name: Build
+        run: npm run build
+
+      # Vitest under jsdom, so no browser needs installing on the runner.
+      - name: Test
+        run: npm test

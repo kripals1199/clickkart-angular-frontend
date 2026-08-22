@@ -48,7 +48,10 @@ describe('authInterceptor', () => {
       providers: [
         provideHttpClient(withInterceptors([authInterceptor])),
         provideHttpClientTesting(),
-        provideRouter([]),
+        // A real /login route, not provideRouter([]). endSession() navigates there on a dead session,
+        // and against an empty route table that navigation rejects - which Vitest reports as an
+        // unhandled error and fails the run even when every assertion passed.
+        provideRouter([{ path: 'login', children: [] }]),
       ],
     });
 

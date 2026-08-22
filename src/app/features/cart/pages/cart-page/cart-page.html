@@ -4,11 +4,13 @@
 
   @if (loading()) {
 
-    <div class="card">
+    <mat-card appearance="outlined">
+      <mat-card-content>
       <div class="skeleton basket__skeleton" aria-hidden="true">
     </div>
       <div class="skeleton basket__skeleton" aria-hidden="true"></div>
-    </div>
+          </mat-card-content>
+    </mat-card>
 
   } @else if (failed()) {
 
@@ -118,7 +120,8 @@
         </button>
       </section>
 
-      <aside class="summary card">
+      <mat-card appearance="outlined" class="summary">
+        <mat-card-content>
         <h2 class="summary__title">Summary</h2>
 
         <div class="summary__row">
@@ -159,7 +162,8 @@
             Checkout opens once every item in the basket is available.
           </p>
         }
-      </aside>
+              </mat-card-content>
+      </mat-card>
 
     </div>
 

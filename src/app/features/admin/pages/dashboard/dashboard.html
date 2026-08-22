@@ -38,10 +38,12 @@
 
     @if (loadingWorklist()) {
 
-      <div class="card">
+      <mat-card appearance="outlined">
+        <mat-card-content>
         <div class="skeleton row-skeleton" aria-hidden="true">
       </div>
-      </div>
+              </mat-card-content>
+      </mat-card>
 
     } @else if (worklistFailed()) {
 
@@ -51,18 +53,21 @@
 
     } @else if (worklist().length === 0) {
 
-      <div class="card board__clear">
+      <mat-card appearance="outlined" class="board__clear">
+        <mat-card-content>
         <p class="board__clear-title">Nothing waiting</p>
         <p class="board__clear-copy">
           No stuck payments, no refunds owed, nothing queued for moderation.
         </p>
-      </div>
+              </mat-card-content>
+      </mat-card>
 
     } @else {
 
       <div class="worklist">
         @for (item of worklist(); track item.queue) {
-          <article class="work card" [class.work--critical]="item.severity === 'CRITICAL'">
+          <mat-card appearance="outlined" class="work" [class.work--critical]="item.severity === 'CRITICAL'">
+            <mat-card-content>
 
             <div class="work__main">
               <div class="work__head">
@@ -95,7 +100,8 @@
               }
             </div>
 
-          </article>
+                      </mat-card-content>
+          </mat-card>
         }
       </div>
 
@@ -108,10 +114,12 @@
 
     @if (loadingDashboard()) {
 
-      <div class="card">
+      <mat-card appearance="outlined">
+        <mat-card-content>
         <div class="skeleton row-skeleton" aria-hidden="true">
       </div>
-      </div>
+              </mat-card-content>
+      </mat-card>
 
     } @else if (dashboardFailed()) {
 
@@ -122,7 +130,8 @@
 
       <div class="panels">
         @for (panel of panels(); track panel.service) {
-          <article class="panel card" [class.panel--down]="!panel.available">
+          <mat-card appearance="outlined" class="panel" [class.panel--down]="!panel.available">
+            <mat-card-content>
 
             <p class="panel__service">{{ serviceLabel(panel.service) }}</p>
 
@@ -143,7 +152,8 @@
               }
             }
 
-          </article>
+                      </mat-card-content>
+          </mat-card>
         }
       </div>
 
@@ -164,10 +174,12 @@
 
     @if (loadingServices()) {
 
-      <div class="card">
+      <mat-card appearance="outlined">
+        <mat-card-content>
         <div class="skeleton row-skeleton" aria-hidden="true">
       </div>
-      </div>
+              </mat-card-content>
+      </mat-card>
 
     } @else if (servicesFailed()) {
 
@@ -176,14 +188,17 @@
 
     } @else if (services().length === 0) {
 
-      <div class="card board__clear">
+      <mat-card appearance="outlined" class="board__clear">
+        <mat-card-content>
         <p class="board__clear-title">Nothing registered</p>
         <p class="board__clear-copy">Discovery returned no instances at all.</p>
-      </div>
+              </mat-card-content>
+      </mat-card>
 
     } @else {
 
-      <div class="registry card">
+      <mat-card appearance="outlined" class="registry">
+        <mat-card-content>
         @for (service of services(); track service.service) {
           <div class="registry__row">
             <span class="registry__name">{{ serviceLabel(service.service) }}</span>
@@ -192,7 +207,8 @@
             </span>
           </div>
         }
-      </div>
+              </mat-card-content>
+      </mat-card>
 
       <!-- Worth stating: this is Eureka's opinion, not a health check. -->
       <p class="board__stamp">

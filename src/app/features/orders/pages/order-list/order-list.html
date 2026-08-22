@@ -12,11 +12,13 @@
 
   @if (loading()) {
 
-    <div class="card">
+    <mat-card appearance="outlined">
+      <mat-card-content>
       <div class="skeleton orders__skeleton" aria-hidden="true">
     </div>
       <div class="skeleton orders__skeleton" aria-hidden="true"></div>
-    </div>
+          </mat-card-content>
+    </mat-card>
 
   } @else if (failed()) {
 
@@ -35,7 +37,8 @@
 
     <div class="orders">
       @for (order of orderList(); track order.orderReference) {
-        <a class="order card" [routerLink]="['/orders', order.orderReference]">
+        <mat-card appearance="outlined" class="order" [routerLink]="['/orders', order.orderReference]">
+          <mat-card-content>
 
           <div class="order__head">
             <span class="order__reference">{{ order.orderReference }}</span>
@@ -60,7 +63,8 @@
             <p class="order__refund">A refund is owed on this order.</p>
           }
 
-        </a>
+                  </mat-card-content>
+        </mat-card>
       }
     </div>
 

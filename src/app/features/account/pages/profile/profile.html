@@ -12,11 +12,13 @@
 
   @if (loading()) {
 
-    <div class="card">
+    <mat-card appearance="outlined">
+      <mat-card-content>
       <div class="skeleton account__skeleton" aria-hidden="true">
     </div>
       <div class="skeleton account__skeleton" aria-hidden="true"></div>
-    </div>
+          </mat-card-content>
+    </mat-card>
 
   } @else if (failed()) {
 
@@ -44,7 +46,9 @@
 
     <div class="account">
 
-      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate class="card">
+      <mat-card appearance="outlined">
+        <mat-card-content>
+          <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
         <h2 class="account__section">Personal details</h2>
 
         <div class="account__row">
@@ -94,9 +98,13 @@
             {{ savingProfile() ? 'Saving…' : 'Save details' }}
           </button>
         }
-      </form>
+                </form>
+        </mat-card-content>
+      </mat-card>
 
-      <form [formGroup]="preferencesForm" (ngSubmit)="savePreferences()" novalidate class="card">
+      <mat-card appearance="outlined">
+        <mat-card-content>
+          <form [formGroup]="preferencesForm" (ngSubmit)="savePreferences()" novalidate>
         <h2 class="account__section">Preferences</h2>
 
         <label class="checkbox">
@@ -132,12 +140,15 @@
             {{ savingPreferences() ? 'Saving…' : 'Save preferences' }}
           </button>
         }
-      </form>
+                </form>
+        </mat-card-content>
+      </mat-card>
 
     </div>
 
     @if (!erased()) {
-      <section class="card danger">
+      <mat-card appearance="outlined" class="danger">
+        <mat-card-content>
         <h2 class="danger__title">Erase your personal data</h2>
 
         <p class="danger__copy">
@@ -168,7 +179,8 @@
             Erase my personal data
           </button>
         }
-      </section>
+              </mat-card-content>
+      </mat-card>
     }
 
   }

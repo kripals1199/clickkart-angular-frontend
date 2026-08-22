@@ -4,11 +4,13 @@
 
   @if (loading()) {
 
-    <div class="card">
+    <mat-card appearance="outlined">
+      <mat-card-content>
       <div class="skeleton row-skeleton" aria-hidden="true">
     </div>
       <div class="skeleton row-skeleton" aria-hidden="true"></div>
-    </div>
+          </mat-card-content>
+    </mat-card>
 
   } @else if (failed()) {
 
@@ -45,7 +47,8 @@
 
     <form [formGroup]="form" (ngSubmit)="save()" novalidate>
 
-      <section class="card form__section">
+      <mat-card appearance="outlined" class="form__section">
+        <mat-card-content>
         <h2 class="form__heading">Listing details</h2>
 
         <mat-form-field appearance="outline">
@@ -88,9 +91,11 @@
           <mat-label>Description</mat-label>
           <textarea matInput id="description" formControlName="description" rows="5" maxlength="4000"></textarea>
         </mat-form-field>
-      </section>
+              </mat-card-content>
+      </mat-card>
 
-      <section class="card form__section">
+      <mat-card appearance="outlined" class="form__section">
+        <mat-card-content>
         <div class="form__section-head">
           <h2 class="form__heading">Variants</h2>
           @if (!readOnly()) {
@@ -156,7 +161,8 @@
             </fieldset>
           }
         </div>
-      </section>
+              </mat-card-content>
+      </mat-card>
 
       @if (!readOnly()) {
         <div class="form__actions">

@@ -2,11 +2,13 @@
 
   @if (loading()) {
 
-    <div class="card">
+    <mat-card appearance="outlined">
+      <mat-card-content>
       <div class="skeleton detail__skeleton" aria-hidden="true">
     </div>
       <div class="skeleton detail__skeleton" aria-hidden="true"></div>
-    </div>
+          </mat-card-content>
+    </mat-card>
 
   } @else if (notFound() || !order()) {
 
@@ -57,7 +59,8 @@
 
       <div class="detail__main">
 
-        <section class="card detail__section">
+        <mat-card appearance="outlined" class="detail__section">
+          <mat-card-content>
           <h2 class="detail__heading">Items</h2>
 
           @for (item of current.items; track item.sku) {
@@ -77,10 +80,12 @@
               <p class="line__total">₹{{ item.lineTotal }}</p>
             </div>
           }
-        </section>
+                  </mat-card-content>
+        </mat-card>
 
         @if (current.deliveryAddress; as address) {
-          <section class="card detail__section">
+          <mat-card appearance="outlined" class="detail__section">
+            <mat-card-content>
             <h2 class="detail__heading">Delivering to</h2>
             <p class="address">
               <strong>{{ address.recipientName }}</strong><br />
@@ -90,11 +95,13 @@
               {{ address.country }}<br />
               {{ address.contactNumber }}
             </p>
-          </section>
+                      </mat-card-content>
+          </mat-card>
         }
 
         @if (payment(); as captured) {
-          <section class="card detail__section">
+          <mat-card appearance="outlined" class="detail__section">
+            <mat-card-content>
             <h2 class="detail__heading">Payment</h2>
             <div class="detail__row"><span>Reference</span><span>{{ captured.paymentReference }}</span></div>
             <div class="detail__row"><span>Method</span><span>{{ captured.method }}</span></div>
@@ -110,12 +117,14 @@
                 This capture was simulated — no real payment was taken.
               </p>
             }
-          </section>
+                      </mat-card-content>
+          </mat-card>
         }
 
       </div>
 
-      <aside class="card summary">
+      <mat-card appearance="outlined" class="summary">
+        <mat-card-content>
         <h2 class="detail__heading">Total</h2>
 
         <div class="summary__row"><span>Items</span><span>₹{{ current.itemsSubtotal }}</span></div>
@@ -178,7 +187,8 @@
           }
         }
 
-      </aside>
+              </mat-card-content>
+      </mat-card>
 
     </div>
 

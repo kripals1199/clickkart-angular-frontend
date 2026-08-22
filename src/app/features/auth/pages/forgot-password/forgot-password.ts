@@ -7,6 +7,7 @@ import { CaptchaService } from '@core/services/captcha.service';
 import { CaptchaChallenge } from '@core/models/captcha.model';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 /**
  * Step one of a password reset: ask for the token to be emailed.
@@ -26,6 +27,7 @@ import { MatInputModule } from '@angular/material/input';
   imports: [ReactiveFormsModule, RouterLink,
     MatFormFieldModule,
     MatInputModule,
+    MatButtonModule,
   ],
   templateUrl: './forgot-password.html',
   styleUrl: './forgot-password.scss',

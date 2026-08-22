@@ -19,11 +19,13 @@
 
   @if (loading()) {
 
-    <div class="card">
+    <mat-card appearance="outlined">
+      <mat-card-content>
       <div class="skeleton row-skeleton" aria-hidden="true">
     </div>
       <div class="skeleton row-skeleton" aria-hidden="true"></div>
-    </div>
+          </mat-card-content>
+    </mat-card>
 
   } @else if (failed()) {
 
@@ -41,7 +43,8 @@
 
     <div class="orders">
       @for (order of orders(); track order.orderReference) {
-        <article class="order card">
+        <mat-card appearance="outlined" class="order">
+          <mat-card-content>
 
           <div class="order__head">
             <div>
@@ -142,7 +145,8 @@
             }
           </div>
 
-        </article>
+                  </mat-card-content>
+        </mat-card>
       }
     </div>
 

@@ -498,6 +498,7 @@ body {
      which is fine with a mouse and meaningfully harder with a thumb. .btn is kept alongside for
      any control not yet converted. */
   .mat-mdc-button-base,
+  .mat-button-toggle-button,
   .btn {
     min-height: 44px;
   }

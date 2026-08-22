@@ -30,11 +30,13 @@
 
   @if (loading()) {
 
-    <div class="card">
+    <mat-card appearance="outlined">
+      <mat-card-content>
       <div class="skeleton row-skeleton" aria-hidden="true">
     </div>
       <div class="skeleton row-skeleton" aria-hidden="true"></div>
-    </div>
+          </mat-card-content>
+    </mat-card>
 
   } @else if (failed()) {
 
@@ -56,7 +58,8 @@
 
     <div class="stock">
       @for (item of items(); track item.sku) {
-        <article class="row card" [class.row--low]="item.lowStock">
+        <mat-card appearance="outlined" class="row" [class.row--low]="item.lowStock">
+          <mat-card-content>
 
           <div class="row__main">
             <p class="row__sku">{{ item.sku }}</p>
@@ -147,7 +150,8 @@
             </div>
           }
 
-        </article>
+                  </mat-card-content>
+        </mat-card>
       }
     </div>
 

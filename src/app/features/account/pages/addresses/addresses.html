@@ -16,7 +16,9 @@
 
   @if (formOpen()) {
 
-    <form class="card address-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <form class="address-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
       <h2 class="address-form__title">
         {{ editingId() === null ? 'Add an address' : 'Edit address' }}
       </h2>
@@ -102,17 +104,21 @@
         </button>
         <button type="button" matButton="outlined" (click)="cancel()">Cancel</button>
       </div>
-    </form>
+            </form>
+      </mat-card-content>
+    </mat-card>
 
   }
 
   @if (loading()) {
 
-    <div class="card">
+    <mat-card appearance="outlined">
+      <mat-card-content>
       <div class="skeleton addresses__skeleton" aria-hidden="true">
     </div>
       <div class="skeleton addresses__skeleton" aria-hidden="true"></div>
-    </div>
+          </mat-card-content>
+    </mat-card>
 
   } @else if (failed()) {
 
@@ -139,7 +145,8 @@
 
     <div class="addresses">
       @for (address of addresses(); track address.id) {
-        <article class="address card" [class.address--default]="address.defaultAddress">
+        <mat-card appearance="outlined" class="address" [class.address--default]="address.defaultAddress">
+          <mat-card-content>
 
           <div class="address__head">
             <span class="address__label">{{ address.label }}</span>
@@ -188,7 +195,8 @@
             </button>
           </div>
 
-        </article>
+                  </mat-card-content>
+        </mat-card>
       }
     </div>
 

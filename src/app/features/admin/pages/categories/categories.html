@@ -21,7 +21,9 @@
   }
 
   @if (formOpen()) {
-    <form class="card category-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <form class="category-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
       <h2 class="category-form__title">
         {{ editingId() === null ? 'New category' : 'Edit category' }}
       </h2>
@@ -84,16 +86,20 @@
         </button>
         <button type="button" matButton="outlined" (click)="cancel()">Cancel</button>
       </div>
-    </form>
+            </form>
+      </mat-card-content>
+    </mat-card>
   }
 
   @if (loading()) {
 
-    <div class="card">
+    <mat-card appearance="outlined">
+      <mat-card-content>
       <div class="skeleton row-skeleton" aria-hidden="true">
     </div>
       <div class="skeleton row-skeleton" aria-hidden="true"></div>
-    </div>
+          </mat-card-content>
+    </mat-card>
 
   } @else if (failed()) {
 
@@ -112,7 +118,8 @@
         <p class="empty__copy">Create a root category to start the taxonomy.</p>
       </div>
     } @else {
-      <div class="tree card">
+      <mat-card appearance="outlined" class="tree">
+        <mat-card-content>
         @for (row of rows(); track row.category.publicId) {
           <div class="node" [style.padding-left.rem]="1 + row.depth * 1.5">
 
@@ -192,7 +199,8 @@
 
           </div>
         }
-      </div>
+              </mat-card-content>
+      </mat-card>
     }
 
   }

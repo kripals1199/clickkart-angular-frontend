@@ -12,11 +12,13 @@
 
   @if (loading()) {
 
-    <div class="card">
+    <mat-card appearance="outlined">
+      <mat-card-content>
       <div class="skeleton row-skeleton" aria-hidden="true">
     </div>
       <div class="skeleton row-skeleton" aria-hidden="true"></div>
-    </div>
+          </mat-card-content>
+    </mat-card>
 
   } @else if (failed()) {
 
@@ -38,7 +40,8 @@
         verification queue — an operator checks the registration before your listings can go on sale.
       </p>
     } @else if (status(); as s) {
-      <div class="status card">
+      <mat-card appearance="outlined" class="status">
+        <mat-card-content>
         <div class="status__head">
           <span [class]="'badge badge--' + s.tone">{{ s.label }}</span>
           <span class="status__hint">{{ s.hint }}</span>
@@ -52,10 +55,13 @@
             Decided {{ profile()?.verificationDecidedAt | date: 'd MMM y, HH:mm' }}
           </p>
         }
-      </div>
+              </mat-card-content>
+      </mat-card>
     }
 
-    <form class="card seller-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <form class="seller-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
 
       <mat-form-field appearance="outline">
         <mat-label>Trading name</mat-label>
@@ -119,7 +125,9 @@
         Verification is not something you can set — an operator reviews these details and decides.
       </p>
 
-    </form>
+            </form>
+      </mat-card-content>
+    </mat-card>
 
   }
 

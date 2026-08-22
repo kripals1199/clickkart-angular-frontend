@@ -64,11 +64,13 @@
 
   @if (loading()) {
 
-    <div class="card">
+    <mat-card appearance="outlined">
+      <mat-card-content>
       <div class="skeleton row-skeleton" aria-hidden="true">
     </div>
       <div class="skeleton row-skeleton" aria-hidden="true"></div>
-    </div>
+          </mat-card-content>
+    </mat-card>
 
   } @else if (failed()) {
 
@@ -91,7 +93,8 @@
 
     <div class="chain">
       @for (entry of entries(); track entry.id) {
-        <article class="entry card" [class.entry--broken]="isBroken(entry)">
+        <mat-card appearance="outlined" class="entry" [class.entry--broken]="isBroken(entry)">
+          <mat-card-content>
 
           <div class="entry__head">
             <span class="entry__action">{{ entry.action }}</span>
@@ -136,7 +139,8 @@
             </div>
           </div>
 
-        </article>
+                  </mat-card-content>
+        </mat-card>
       }
     </div>
 

@@ -42,11 +42,13 @@
 
   @if (loading()) {
 
-    <div class="card">
+    <mat-card appearance="outlined">
+      <mat-card-content>
       <div class="skeleton row-skeleton" aria-hidden="true">
     </div>
       <div class="skeleton row-skeleton" aria-hidden="true"></div>
-    </div>
+          </mat-card-content>
+    </mat-card>
 
   } @else if (failed()) {
 
@@ -68,7 +70,8 @@
 
     <div class="queue">
       @for (profile of profiles(); track profile.userPublicId) {
-        <article class="item card" [class.item--erased]="profile.erasedAt">
+        <mat-card appearance="outlined" class="item" [class.item--erased]="profile.erasedAt">
+          <mat-card-content>
 
           <div class="item__main">
             <div class="item__head">
@@ -142,7 +145,8 @@
             </div>
           }
 
-        </article>
+                  </mat-card-content>
+        </mat-card>
       }
     </div>
 

@@ -87,11 +87,13 @@
 
   @if (loading()) {
 
-    <div class="card">
+    <mat-card appearance="outlined">
+      <mat-card-content>
       <div class="skeleton row-skeleton" aria-hidden="true">
     </div>
       <div class="skeleton row-skeleton" aria-hidden="true"></div>
-    </div>
+          </mat-card-content>
+    </mat-card>
 
   } @else if (failed()) {
 
@@ -110,7 +112,8 @@
     } @else {
       <div class="queue">
         @for (order of orders(); track order.orderReference) {
-          <article class="item card">
+          <mat-card appearance="outlined" class="item">
+            <mat-card-content>
 
             <div class="item__main">
               <div class="item__head">
@@ -180,7 +183,8 @@
               </div>
             }
 
-          </article>
+                      </mat-card-content>
+          </mat-card>
         }
       </div>
     }
@@ -199,7 +203,8 @@
     } @else {
       <div class="queue">
         @for (payment of payments(); track payment.paymentReference) {
-          <article class="item card">
+          <mat-card appearance="outlined" class="item">
+            <mat-card-content>
 
             <div class="item__main">
               <div class="item__head">
@@ -290,7 +295,8 @@
               </div>
             }
 
-          </article>
+                      </mat-card-content>
+          </mat-card>
         }
       </div>
     }

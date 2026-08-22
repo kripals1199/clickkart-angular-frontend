@@ -55,7 +55,6 @@
           autocapitalize="none"
           spellcheck="false"
           placeholder="you@example.com"
-          [class.field__input--invalid]="form.controls.identifier.touched && form.controls.identifier.invalid"
         />
         @if (form.controls.identifier.touched && form.controls.identifier.invalid) {
           <mat-error>Enter your email, mobile number or account ID.</mat-error>
@@ -94,7 +93,7 @@
           <a routerLink="/forgot-password">Forgot password?</a>
         </p>
 
-        <button type="submit" class="auth__submit" [disabled]="submitting()">
+        <button matButton="filled" type="submit" class="auth__submit" [disabled]="submitting()">
           {{ submitting() ? 'Signing in…' : 'Sign in' }}
         </button>
 
@@ -102,34 +101,29 @@
 
         @if (!otpSent()) {
 
+          <!-- A toggle group rather than two buttons carrying aria-pressed. This is a single
+               choice between two options, which is a radiogroup: Material gives it the right
+               roles and arrow-key navigation between the options, where two independent buttons
+               announce as two unrelated toggles and need a Tab each.
+
+               The wrapper keeps class="field" for its stacking - there is no input inside it, so
+               the kit's `.field input` rules have nothing to collide with. -->
           <div class="field">
             <span class="field__label">Send the code to</span>
-            <div class="channels">
-              <button
-                type="button"
-                class="channels__option"
-                [class.channels__option--selected]="otpChannel() === 'EMAIL'"
-                [attr.aria-pressed]="otpChannel() === 'EMAIL'"
-                (click)="otpChannel.set('EMAIL')"
-              >
-                Email
-              </button>
-              <button
-                type="button"
-                class="channels__option"
-                [class.channels__option--selected]="otpChannel() === 'SMS'"
-                [attr.aria-pressed]="otpChannel() === 'SMS'"
-                (click)="otpChannel.set('SMS')"
-              >
-                SMS
-              </button>
-            </div>
+            <mat-button-toggle-group
+              [value]="otpChannel()"
+              (change)="otpChannel.set($event.value)"
+              aria-label="Send the code to"
+            >
+              <mat-button-toggle value="EMAIL">Email</mat-button-toggle>
+              <mat-button-toggle value="SMS">SMS</mat-button-toggle>
+            </mat-button-toggle-group>
             <span class="field__hint field__hint--muted">
               The code goes to the address or number on the account — not to whatever you type above.
             </span>
           </div>
 
-          <button type="submit" class="auth__submit" [disabled]="sendingOtp()">
+          <button matButton="filled" type="submit" class="auth__submit" [disabled]="sendingOtp()">
             {{ sendingOtp() ? 'Sending…' : 'Send me a code' }}
           </button>
 
@@ -156,7 +150,7 @@
             />
           </mat-form-field>
 
-          <button type="submit" class="auth__submit" [disabled]="submitting() || !otpCode()">
+          <button matButton="filled" type="submit" class="auth__submit" [disabled]="submitting() || !otpCode()">
             {{ submitting() ? 'Signing in…' : 'Sign in' }}
           </button>
 

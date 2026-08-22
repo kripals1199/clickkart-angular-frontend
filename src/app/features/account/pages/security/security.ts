@@ -7,6 +7,7 @@ import { OtpChannel } from '@core/models/auth.model';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatCardModule } from '@angular/material/card';
 
 /**
  * Account security: change the password, and prove control of the email and mobile already on file.
@@ -26,6 +27,7 @@ import { MatInputModule } from '@angular/material/input';
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
+    MatCardModule,
   ],
   templateUrl: './security.html',
   styleUrl: './security.scss',

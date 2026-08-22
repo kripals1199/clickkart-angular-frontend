@@ -33,11 +33,13 @@
 
   @if (loading()) {
 
-    <div class="card">
+    <mat-card appearance="outlined">
+      <mat-card-content>
       <div class="skeleton row-skeleton" aria-hidden="true">
     </div>
       <div class="skeleton row-skeleton" aria-hidden="true"></div>
-    </div>
+          </mat-card-content>
+    </mat-card>
 
   } @else if (failed()) {
 
@@ -56,7 +58,8 @@
 
     <div class="listings">
       @for (product of products(); track product.publicId) {
-        <article class="listing card">
+        <mat-card appearance="outlined" class="listing">
+          <mat-card-content>
 
           <div class="listing__main">
             <div class="listing__head">
@@ -111,7 +114,8 @@
             }
           </div>
 
-        </article>
+                  </mat-card-content>
+        </mat-card>
       }
     </div>
 
